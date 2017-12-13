@@ -1,0 +1,32 @@
+#mapping for controller order is 
+
+#MAP_DTZ_IDX         = 0
+#MAP_PWRDWN_IDX      = 1
+#MAP_STANDBY_IDX     = 2
+#MAP_TRACTOR_IDX     = 3
+#MAP_BALANCE_IDX     = 4
+#MAP_AUDIO_IDX       = 5
+#MAP_REC_GOAL_IDX    = 6
+#MAP_DEADMAN_IDX     = 7
+#MAP_MAN_OVVRD_IDX   = 8
+
+#for each momentary input define {'is_button':true,'index':4,'set_val':1} for buttons required for that input and 
+#{'is_button':false,'index':6,'invert_axis':false,'set_thresh':0.9} for axese that act like buttons
+#multiple inputs for a single request are handled
+
+#for each axis input define{'index':3,'invert_axis':false} for axes used as range inputs for velocity commands and the like
+
+controller_mapping:     {'momentary':[[{'is_button':true,'index':4,'set_val':1}],
+                                      [{'is_button':true,'index':8,'set_val':1}],
+                                      [{'is_button':true,'index':2,'set_val':1}],
+                                      [{'is_button':true,'index':3,'set_val':1}],
+                                      [{'is_button':true,'index':5,'set_val':1}],
+                                      [{'is_button':true,'index':10,'set_val':1}],
+                                      [{'is_button':true,'index':11,'set_val':1}],
+                                      [{'is_button':true,'index':0,'set_val':1}],
+                                      [{'is_button':true,'index':1,'set_val':1}]],
+                         'axis_range':[{'index':1,'invert_axis':false},
+                                       {'index':0,'invert_axis':false},
+                                       {'index':2,'invert_axis':false}]}
+                                       
+

@@ -1,0 +1,37 @@
+<!-- Launch file for movo platform startup just for test purposes-->
+<launch>
+
+    <!-- Movo Base platform ROS Driver -->
+    <node pkg="movo_ros" ns="movo" type="movo_driver" name="movo_driver" respawn="true" output="screen">
+        <param name="use_lsm_for_odom" value="$(optenv MOVO_USE_LSM_TO_CORRECT_ODOMETRY false)" />
+        <param name="movo_ip" value="$(optenv MOVO_IP_ADDRESS 10.66.171.1)"/>
+    </node>
+    
+    
+    <!-- Platform specific robot state publisher and parameters -->
+    <include file="$(find movo_description)/launch/movo_upload.launch"/>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
+        <param name="publish_frequency" type="double" value="100.0" />
+        <param name="tf_prefix" value=""/>
+    </node>
+  
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+        <rosparam param="source_list">[movo/joint_states,
+                                       movo/pan_tilt/joint_states,
+                                       movo/right_arm/joint_states,
+                                       movo/left_arm/joint_states,
+                                       movo/right_gripper/joint_states,
+                                       movo/left_gripper/joint_states]</rosparam>
+    </node>
+
+    <!-- Platform specific configuration -->
+    <node name="dynamic_reconfigure_load" pkg="dynamic_reconfigure" type="dynparam"
+        args="load /movo/movo_driver $(find movo_ros)/launch/config/movo_params.yaml" />
+    
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="5 movo_ros movo_teleop.launch"
+        name="movo_faults" output="screen"/>
+
+
+</launch>

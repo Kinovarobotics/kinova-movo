@@ -1,0 +1,26 @@
+Header header
+float32 teleop_x_vel_limit_mps
+float32 teleop_y_vel_limit_mps
+float32 teleop_accel_limit_mps2
+float32 teleop_yaw_rate_limit_rps
+float32 teleop_yaw_accel_limit_rps2
+float32 teleop_arm_vel_limit
+float32 teleop_pan_tilt_vel_limit
+float32 teleop_linear_actuator_vel_limit
+float32 x_vel_limit_mps
+float32 y_vel_limit_mps
+float32 accel_limit_mps2
+float32 decel_limit_mps2
+float32 dtz_decel_limit_mps2
+float32 yaw_rate_limit_rps
+float32 yaw_accel_limit_rps2
+float32 wheel_diameter_m
+float32 wheelbase_length_m
+float32 wheel_track_width_m
+float32 gear_ratio
+uint32 config_bitmap
+string eth_ip_address
+uint32 eth_port_number
+string eth_subnet_mask
+string eth_gateway
+

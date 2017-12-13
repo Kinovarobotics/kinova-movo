@@ -1,0 +1,14 @@
+movo:
+    torso_controller:
+        type: position_controllers/JointTrajectoryController
+        joints:
+            - linear_joint
+        constraints:
+            goal_time: 0.6
+            stopped_velocity_tolerance: 0.05
+            linear_joint: {trajectory: 0.1, goal: 0.1}
+            stop_trajectory_duration: 0.5
+        state_publish_rate:  100
+        action_monitor_rate: 100
+        gains:
+            linear_joint: {p: 100.0, i: 0.01, d: 10.0} 

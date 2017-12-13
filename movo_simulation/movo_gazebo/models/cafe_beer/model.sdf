@@ -1,0 +1,62 @@
+<?xml version="1.0" ?>
+<sdf version='1.4'>
+  <model name="cafe_beer">
+    <static>0</static>
+    <link name="link">
+      <pose>0 0 0.061341 0 0 0</pose>
+      <inertial>
+        <mass>0.20</mass>
+        <inertia>
+          <ixx>0.000305</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.000305</iyy>
+          <iyz>0</iyz>
+          <izz>0.000109</izz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <cylinder>
+            <radius>0.03302</radius>
+            <length>0.122682</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.8</mu>
+              <mu2>0.8</mu2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <kp>1000000.0</kp>
+              <kd>1.0</kd>
+              <max_vel>0.0</max_vel>
+              <min_depth>0.0001</min_depth>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <cylinder>
+            <radius>0.03302</radius>
+            <length>0.122682</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://beer/materials/scripts</uri>
+            <uri>model://beer/materials/textures</uri>
+            <name>Beer/Diffuse</name>
+          </script>
+        </material>
+      </visual>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <gravity>1</gravity>  
+    </link>
+  </model>
+</sdf>

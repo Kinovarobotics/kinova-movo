@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="movo_ros" type="movo_faultlog_parser" name="movo_faultlog_parser"/>
+</launch>

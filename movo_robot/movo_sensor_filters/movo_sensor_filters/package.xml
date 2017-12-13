@@ -1,0 +1,16 @@
+<package>
+    <name>vector_sensor_filters</name>
+    <version>1.0.0</version>
+    <description>Sensor filter metapackage for Vector</description>
+    <maintainer email="ros@kinovarobotics.com">Martine Blouin</maintainer>
+    <author></author>
+    <url type="repository">https://github.com/Kinovarobotics</url>
+    <license>BSD</license>
+    
+    <buildtool_depend>catkin</buildtool_depend>
+    <run_depend>range_sensor_filters</run_depend>
+
+    <export>
+        <metapackage/>
+    </export>
+</package>

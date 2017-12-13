@@ -1,0 +1,22 @@
+<library path="src">
+  <class name="dashboard" type="movo_dashboard.dashboard.MovoDashboard" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      Dashboard for the Stanley Innovation Vector
+    </description>
+    <qtgui>
+      <group>
+        <label>Robot</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to specific robots.</statustip>
+      </group>
+      <group>
+        <label>Movo</label>
+        <icon type="file">images/si_icon.png</icon>
+        <statustip>Plugins related to the Movo robot.</statustip>
+      </group>
+      <label>Movo Dashboard</label>
+      <icon type="file">images/si_icon.png</icon>
+      <statustip>Check what's going on with Movo</statustip>
+    </qtgui>
+  </class>
+</library>

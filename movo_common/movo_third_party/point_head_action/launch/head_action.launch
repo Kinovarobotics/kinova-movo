@@ -1,0 +1,17 @@
+<launch>
+
+  <group ns="movo/head_controller">
+    <node name="point_head_action" 
+          pkg="head_action" type="head_action" output="screen" >
+
+    <!-- Necessary params --> 
+      <rosparam>
+        success_angle_threshold: 0.01
+        pan_link: pan_link
+        default_pointing_frame: kinect2_link
+      </rosparam>
+    
+    </node>
+  </group>
+
+</launch>

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name='function' default=''/>
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find movo_viz)/rviz/robot_$(arg function).rviz" output="screen"/>
+</launch>

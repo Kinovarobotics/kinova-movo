@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package>
+    <name>movo_third_party</name>
+    <version>0.0.1</version>
+    <description>Third party drivers and nodes related to Stanley Innovation Vector Platform</description>
+    
+    <maintainer email="ros@kinovarobotics.com">Martine Blouin</maintainer>
+    <author></author>
+    <url type="repository">https://github.com/Kinovarobotics</url>
+    <license>BSD</license>
+
+    <buildtool_depend>catkin</buildtool_depend>
+    <run_depend>iai_kinect2</run_depend>
+    <run_depend>roboticsgroup_gazebo_plugins</run_depend>
+    <run_depend>teb_local_planner</run_depend>
+
+    <export>
+      <metapackage/>
+    </export>
+</package>

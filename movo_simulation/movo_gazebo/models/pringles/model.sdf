@@ -1,0 +1,65 @@
+<?xml version="1.0" ?>
+<sdf version='1.4'>
+  <model name="pringles">
+    <static>0</static>
+    <link name="link">
+      <pose>0 0 0.13335 0 0 0</pose>
+      <inertial>
+        <mass>0.20</mass>
+        <inertia>
+          <ixx>0.001258</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.001258</iyy>
+          <iyz>0</iyz>
+          <izz>0.000145</izz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <cylinder>
+            <radius>0.03302</radius>
+            <length>0.2667</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.8</mu>
+              <mu2>0.8</mu2>
+              <fdir1>0.000000 0.000000 0.000000</fdir1>
+              <slip1>0.000000</slip1>
+              <slip2>0.000000</slip2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <kp>1000000.0</kp>
+              <kd>1.0</kd>
+              <max_vel>0.0</max_vel>
+              <min_depth>0.0001</min_depth>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <cylinder>
+            <radius>0.03302</radius>
+            <length>0.2667</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://pringles/materials/scripts</uri>
+            <uri>model://pringles/materials/textures</uri>
+            <name>pringles/Diffuse</name>
+          </script>
+        </material>
+      </visual>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <gravity>1</gravity>  
+    </link>
+  </model>
+</sdf>

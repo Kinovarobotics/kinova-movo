@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+<!--
+Software License Agreement (BSD)
+\file      pan_tilt_kinect_one.urdf.xacro
+\authors   Patrick Hussey
+\copyright Copyright (c) 2017, Kinova Robotics inc. All rights reserved.
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+    * Neither the name of the copyright holder nor the names of its contributors
+      may be used to endorse or promote products derived from this software
+      without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<robot name="movo_pan_tilt" xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:include filename="$(find movo_description)/urdf/sensors/kinect_one_sensor.urdf.xacro"/>
+
+    <xacro:property name="M_PI" value="3.14159"/>
+
+    <xacro:macro name="movo_pan_tilt" params="rgbd_prefix parent *origin">  
+        
+        <joint name="pan_base_joint" type="fixed">
+            <xacro:insert_block name="origin" />
+            <parent link="${parent}" />
+            <child link="pan_base_link" />
+        </joint>
+        
+	    <link name="pan_base_link">
+			<visual>
+				<geometry>
+					<mesh filename="package://movo_description/meshes/pan_tilt/visual/pan_tilt_base.dae" />
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="package://movo_description/meshes/pan_tilt/collision/pan_tilt_base.stl" />
+				</geometry>
+			</collision>
+            <inertial>
+                <mass value="0.271282"/>
+                <origin xyz="0.000098 -0.000007 0.034804"/>
+                <inertia ixx="0.000158"  ixy="0.000000"  ixz="-0.000001"
+                         iyx="0.000000"  iyy="0.000151"  iyz="0.000000"
+                         izx="-0.000001" izy="0.000000"  izz="0.000150" />
+            </inertial>
+		</link>
+		
+        <joint name="pan_joint" type="revolute">
+            <origin xyz="0 0 0.05525" rpy="${M_PI} 0 0" />
+            <axis xyz="0 0 1"/>
+            <parent link="pan_base_link" />
+            <child link="pan_link" />
+            <limit effort="7.0" lower="-1.570796326794897" upper="1.570796326794897" velocity="0.907571211"/>
+        </joint>
+        
+        <transmission name="pan_trans" type="SimpleTransmission">
+			<type>transmission_interface/SimpleTransmission</type>
+			<joint name="pan_joint">
+				<hardwareInterface>PositionJointInterface</hardwareInterface>
+			</joint>
+			<actuator name="pan_actuator">
+				<mechanicalReduction>1</mechanicalReduction>
+			</actuator>
+		</transmission>
+        
+	    <link name="pan_link">
+			<visual>
+				<geometry>
+					<mesh filename="package://movo_description/meshes/pan_tilt/visual/pan_link.dae" />
+				</geometry>
+			</visual>
+			<collision>
+			    <origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+					<mesh filename="package://movo_description/meshes/pan_tilt/collision/pan_link.stl" />
+				</geometry>
+			</collision>
+            <inertial>
+                <mass value="0.470548"/>
+                <origin xyz="-0.000036 0.021015 -0.052191"/>
+                <inertia ixx="0.000957"  ixy="0.000000"  ixz="0.000000"
+                         iyx="0.000000"  iyy="0.000805"  iyz="-0.000328"
+                         izx="0.000000"  izy="-0.000328"  izz="0.000353" />
+            </inertial>
+		</link>
+
+        <joint name="tilt_joint" type="revolute">
+            <origin xyz="0 0.026 -0.09075" rpy="${-M_PI/2} ${M_PI/2} 0" />
+            <axis xyz="0 0 1"/>
+            <parent link="pan_link" />
+            <child link="tilt_link" />
+            <limit effort="7.0" lower="-1.570796326794897" upper="1.570796326794897" velocity="0.907571211"/>
+        </joint>
+
+        <transmission name="tilt_trans" type="SimpleTransmission">
+			<type>transmission_interface/SimpleTransmission</type>
+			<joint name="tilt_joint">
+				<hardwareInterface>PositionJointInterface</hardwareInterface>
+			</joint>
+			<actuator name="tilt_actuator">
+				<mechanicalReduction>1</mechanicalReduction>
+			</actuator>
+		</transmission>
+        
+	    <link name="tilt_link">
+			<visual>
+				<geometry>
+					<mesh filename="package://movo_description/meshes/pan_tilt/visual/tilt_link.dae" />
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="package://movo_description/meshes/pan_tilt/collision/tilt_link.stl" />
+				</geometry>
+			</collision>
+            <inertial>
+                <mass value="0.434513"/>
+                <origin xyz="0.037380 0.005753 -0.019367"/>
+                <inertia ixx="0.000418"  ixy="0.000123"  ixz="-0.000065"
+                         iyx="0.000123"  iyy="0.001134"  iyz="-0.000003"
+                         izx="-0.000065" izy="-0.000003" izz="0.000967" />
+            </inertial>
+		</link>
+        
+		<xacro:kinect_one_sensor prefix="${rgbd_prefix}" parent="tilt_link">
+			<origin xyz="0.05825 -0.0105875 -0.026" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
+		</xacro:kinect_one_sensor>
+    </xacro:macro>
+
+</robot>

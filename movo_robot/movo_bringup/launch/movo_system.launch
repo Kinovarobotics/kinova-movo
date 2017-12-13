@@ -1,0 +1,7 @@
+<!-- Launch file for Stanley Innovation enabled Movo1 PC startup -->
+
+<launch>
+    <!-- ROS Driver, Robot State Publisher, and sensors -->
+    <include file="$(find movo_bringup)/launch/movo1.launch"/>
+    <include file="$(find movo_bringup)/launch/movo2.launch"/>      
+</launch>

@@ -1,0 +1,14 @@
+<!-- 2D Map navigation Demo -->
+
+<launch>
+    <!--- Run amcl -->
+    <node pkg="amcl" type="amcl" name="amcl" output="screen" clear_params="true">
+        <rosparam command="load" file="$(find movo_demos)/config/2d_nav/amcl.yaml"/>
+        <remap from="scan" to="/movo/base_scan_filtered" />
+    </node>
+
+    <!--- Run Move Base -->
+    <include file="$(find movo_demos)/launch/nav/move_base.launch">
+        <arg name="no_static_map" value="false"/>
+    </include>
+</launch>

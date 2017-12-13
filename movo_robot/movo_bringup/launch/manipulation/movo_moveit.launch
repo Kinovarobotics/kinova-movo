@@ -1,0 +1,16 @@
+<!-- Launch file for jaco platform startup by default we don't use the experimental JTAS, this is just for teleop--> 
+<launch>
+
+    <arg name="local" default="true"/>
+
+    <machine name="movo1" address="movo1" user="movo" 
+                 env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+    
+        <!-- Moveit bringup-->
+    <include file="$(find movo_moveit_config)/launch/movo_moveit_planning_execution.launch"/>
+    
+    <node pkg="movo_bringup" type="init_robot" name="init_robot" respawn="false" output="screen">
+      <rosparam command="load" file="$(find movo_moveit_config)/config/kinematics.yaml" />
+    </node>
+
+</launch>

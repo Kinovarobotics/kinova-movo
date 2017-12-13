@@ -1,0 +1,9 @@
+Header header
+float32 current
+float32 pos_rad
+float32 vel_rps
+float32 torque_nm
+float32 pwm
+float32 encoder_rad
+geometry_msgs/Vector3 accel
+float32 temperature_degC

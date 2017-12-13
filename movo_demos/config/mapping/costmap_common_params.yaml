@@ -1,0 +1,20 @@
+# 2D Costmap parameters
+# http://www.ros.org/wiki/costmap_2d
+
+### Coordinate frame and tf parameters ###
+robot_base_frame:           base_link
+transform_tolerance:        0.5
+
+# ---Vector footprint (Meters):---
+footprint: [[0.37,0.28],[0.37,-0.28],[-0.37,-0.28],[-0.37,0.28]]
+
+### Costmap definitions ###
+update_frequency: 5.0
+publish_frequency: 5.0
+inflation_radius: 0.55
+obstacle_layer/footprint_clearing_enabled: true
+
+#raytrace_range must be less than max range of sensor.
+observation_sources: front_scan rear_scan
+front_scan: {data_type: LaserScan, topic: vector/front_scan, marking: true, clearing: true, inf_is_valid: true, obstacle_range: 4.75, raytrace_range: 8.0} 
+rear_scan: {data_type: LaserScan, topic: vector/rear_scan, marking: true, clearing: true, inf_is_valid: true, obstacle_range: 4.75, raytrace_range: 8.0} 

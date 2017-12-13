@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+	<param name="robot_description" command="$(find xacro)/xacro.py '$(find movo_description)/urdf/pan_tilt_stand_alone.urdf.xacro'" />
+</launch>

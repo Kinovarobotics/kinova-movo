@@ -1,0 +1,42 @@
+# Configuration for subscribers to cmd_vel sources. 
+# Typically automatic controllers should have the minimum priority
+#
+#
+# Individual subscriber configuration:
+#   name:           Source name
+#   topic:          The topic that provides cmd_vel messages
+#   timeout:        Time in seconds without incoming messages to consider this topic inactive
+#   priority:       Priority: an UNIQUE unsigned integer from 0 (lowest) to MAX_INT 
+#   short_desc:     Short description (optional)
+
+subscribers:
+
+
+  - name:        "Manual Override"
+    topic:       "/movo/manual_override/cmd_vel"
+    timeout:     2.0
+    priority:    4
+
+  - name:        "Assisted Teleop"
+    topic:       "/movo/assisted_teleop/cmd_vel"
+    timeout:     1.0
+    priority:    3
+            
+  - name:        "XBOX360 Controller"
+    topic:       "/movo/teleop/cmd_vel"
+    timeout:     1.0
+    priority:    2
+
+  - name:        "Interactive Marker"
+    topic:       "/movo/int_marker/cmd_vel"
+    timeout:     0.5
+    priority:    1
+    
+  - name:        "MoveBase (ROS Navigation)"
+    topic:       "/movo/navigation/cmd_vel"
+    timeout:     0.5
+    priority:    0
+
+
+    
+publisher:       "/movo/cmd_vel"

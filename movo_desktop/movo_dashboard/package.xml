@@ -1,0 +1,28 @@
+<package>
+
+    <name>movo_dashboard</name>
+    <version>1.0.0</version>
+    <description>
+        RQT based plugin for visualizing feedback data and GUI access to
+        some of the Stanley Innovation Vector functions
+    </description>
+    <maintainer email="ros@kinovarobotics.com">Martine Blouin</maintainer>
+    <author></author>
+    <url type="repository">https://github.com/Kinovarobotics</url>
+    <license>BSD</license>
+    
+    <buildtool_depend>catkin</buildtool_depend>
+    
+
+    <build_depend>rospy</build_depend>
+    <build_depend>rqt_robot_dashboard</build_depend>
+    <build_depend>movo_msgs</build_depend>
+
+    <run_depend>rospy</run_depend>
+    <run_depend>rqt_robot_dashboard</run_depend>
+    <run_depend>movo_msgs</run_depend>
+  
+    <export>
+        <rqt_gui plugin="${prefix}/plugins/plugin.xml"/>
+    </export>
+</package>

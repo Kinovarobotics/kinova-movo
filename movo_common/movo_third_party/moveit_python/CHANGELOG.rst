@@ -1,0 +1,109 @@
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package moveit_python
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+0.2.17 (2016-08-23)
+-------------------
+* Merge pull request `#9 <https://github.com/mikeferguson/moveit_python/issues/9>`_ from mikeferguson/pyassimp_fix
+  pyassimp is broken in 16.04, temporary work around so we can release
+* Contributors: Michael Ferguson
+
+0.2.16 (2015-11-02)
+-------------------
+* fix error message to have proper function name
+* Contributors: Michael Ferguson
+
+0.2.15 (2015-08-20)
+-------------------
+* Fix types in move_group_interface
+* add planning_scene_diff as optional field
+* Contributors: Michael Ferguson, Mikkel Rath Pedersen
+
+0.2.14 (2015-05-22)
+-------------------
+* add no-wait behavior for move, pick, and place
+* updates for compliance with PEP8
+* Contributors: Aaron Blasdel, Michael Ferguson
+
+0.2.13 (2015-04-18)
+-------------------
+* better handle removal of objects
+* place has no attached_object_touch_links
+* Contributors: Michael Ferguson
+
+0.2.12 (2015-04-11)
+-------------------
+* fixup planner id
+* Contributors: Michael Ferguson
+
+0.2.11 (2015-04-08)
+-------------------
+* fix spelling issue in velocity scaling factor
+* Contributors: Michael Ferguson
+
+0.2.10 (2015-04-06)
+-------------------
+* implement kwargs for pick&place interface
+* add max_velocity_scaling_factor as kwarg
+* allow overriding allowed_planning_time
+* add FakeGroupInterface
+* add clear() method to planning scene interface
+* Contributors: Michael Ferguson
+
+0.2.9 (2015-03-28)
+------------------
+* add rotate_pose_msg_about_origin
+* Contributors: Michael Ferguson
+
+0.2.8 (2015-03-21)
+------------------
+* expose num_attempts through kw_args
+* Contributors: Michael Ferguson
+
+0.2.7 (2014-11-19)
+------------------
+* enable removing attached objects
+* Contributors: Michael Ferguson
+
+0.2.6 (2014-11-16)
+------------------
+* use kw_args for group interface, add a number of args supported
+* a couple of fixes for is_diff
+* Contributors: Michael Ferguson
+
+0.2.5 (2014-07-09)
+------------------
+* add scripts for dumping/loading planning scene
+* documentation cleanup
+* Contributors: Michael Ferguson
+
+0.2.4 (2014-06-03)
+------------------
+* add list and remove object scripts, closes `#2 <https://github.com/mikeferguson/moveit_python/issues/2>`_
+* properly initialize planning scene interface, fixes `#1 <https://github.com/mikeferguson/moveit_python/issues/1>`_
+* add planner_id logic to move group interface
+* remove default support name
+* fix comment on result type
+* add missing import
+* upstream the retry logic
+* Contributors: Michael Ferguson
+
+0.2.3 (2014-05-26)
+------------------
+* fix bug in mesh generation
+* Contributors: Michael Ferguson
+
+0.2.2 (2014-05-21)
+------------------
+* pass full result in pick and place
+* Contributors: Michael Ferguson
+
+0.2.1 (2014-05-19)
+------------------
+* fix pyassimp rosdep
+* Contributors: Michael Ferguson
+
+0.2.0 (2014-05-19)
+------------------
+* Initial release after forking from moveit_utils
+* Contributors: Michael Ferguson
