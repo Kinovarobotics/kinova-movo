@@ -16,16 +16,11 @@
     <node pkg="si_utils" type="timed_roslaunch"
         args="12 movo_bringup movo_manipulation.launch local:=false"
         name="manipulation_bringup" output="screen"/> 
-               
+
     <!-- Platform Teleoperation -->
     <node pkg="si_utils" type="timed_roslaunch"
         args="14 movo_bringup movo_teleop.launch local:=false"
         name="teleop_bringup" output="screen"/>
-
-    <!-- Moveit bringup-->
-    <node pkg="si_utils" type="timed_roslaunch"
-        args="20 movo_bringup movo_moveit.launch local:=true"
-        name="movo_moveit_bringup" output="screen"/>
-
+           
         
 </launch>

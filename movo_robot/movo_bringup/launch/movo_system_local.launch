@@ -3,13 +3,20 @@
 <launch>
     <arg name="use_kinect" default="true"/>
     
-    <node pkg="sound_play" type="soundplay_node.py" name="sound_play" output="screen"/>
+    <!-- joystick USB port is attached to this PC -->    
+    <node pkg="joy" type="joy_node" name="joy_node" if="$(optenv MOVO_JOY_IS_ATTACHED false)">
+        <param name="dev" type="string" value="$(optenv MOVO_JOY_DEV /dev/input/js0)" />
+        <param name="deadzone" type="double" value="0.1" />
+        <param name="autorepeat_rate" type="double" value="50" />
+    </node>
     
+    <!-- Sound modules -->    
+    <node pkg="sound_play" type="soundplay_node.py" name="sound_play" output="screen"/>
     <node pkg="movo_ros" type="movo_voice" name="movo_voice" output="screen"/>
-
+    
     <!-- Platform specific robot state publisher and parameters -->
     <include file="$(find movo_description)/launch/movo_upload.launch"/>
-        
+          
     <!-- Platform Manipulation -->
     <node pkg="si_utils" type="timed_roslaunch"
         args="12 movo_bringup movo_manipulation.launch"
