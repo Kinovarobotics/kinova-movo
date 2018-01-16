@@ -12,7 +12,7 @@
 
     <!-- Bring up the demo -->
     <node pkg="si_utils" type="timed_roslaunch"
-        args="10 movo_demos mapping.launch sim:=false"
+        args="10 movo_demos mapping.launch sim:=false local:=false"
         name="mapping_bringup" output="screen"/>
         
     <!-- Bring up the rviz GUI -->
