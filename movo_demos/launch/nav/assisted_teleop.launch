@@ -1,6 +1,10 @@
 <!-- Assisted teleop demo -->
 
 <launch>
+    <arg name="local" default="true"/>
+
+    <machine name="movo1" address="movo1" user="movo" 
+                 env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
     
     <node pkg="movo_assisted_teleop" name="movo_assisted_teleop" type="movo_assisted_teleop" clear_params="true" respawn="false">
     

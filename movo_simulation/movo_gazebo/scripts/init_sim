@@ -28,7 +28,7 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
- \file   init_sim.py
+ \file   init_sim_inplace.py
 
  \brief  This node serves to setup simulation 
 
@@ -37,17 +37,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import rospy
 import rospkg
 import random
-from gazebo_msgs.srv import DeleteModel,DeleteModelRequest,SpawnModel,SpawnModelRequest
+from gazebo_msgs.srv import SpawnModel,SpawnModelRequest
 from gazebo_msgs.msg import ModelStates
-from std_srvs.srv import Empty,EmptyRequest
+from std_msgs.msg import Bool
 
 from moveit_python import MoveGroupInterface
 from moveit_msgs.msg import MoveItErrorCodes
 from movo_action_clients.gripper_action_client import GripperActionClient
 
-
 if __name__ == "__main__":
-    rospy.init_node('init_sim')
+    rospy.init_node('init_sim_inplace')
     
     #wait until gazebo is up and running
     rospy.wait_for_message('/gazebo/model_states',ModelStates)
@@ -96,64 +95,8 @@ if __name__ == "__main__":
             success=True
     lgripper.command(gripper_closed)
     rgripper.command(gripper_closed)
-
-    rospack = rospkg.RosPack()    
-    rospy.loginfo("Spawning graspable objects....")
-    smp = rospy.ServiceProxy('gazebo/spawn_sdf_model',SpawnModel)
-
-    f = open(rospack.get_path("movo_gazebo")+'/models/folding_table_4x2/model.sdf','r')
-    sdff = f.read()
-    f.close()
     
-    tmp = SpawnModelRequest()
-    tmp.model_name='folding_table_4x2'
-    tmp.model_xml = sdff
-    tmp.robot_namespace=''
-    tmp.reference_frame="world"
-    tmp.initial_pose.position.x = 4.05 
-    tmp.initial_pose.position.y = 3.0
-    tmp.initial_pose.position.z = 0.7366
-    smp.call(tmp)
-    rospy.sleep(1)
-    
-    tmp = SpawnModelRequest()
-    tmp.model_name='folding_table_4x2'
-    tmp.model_xml = sdff
-    tmp.robot_namespace=''
-    tmp.reference_frame="world"
-    tmp.initial_pose.position.x = 4.05 
-    tmp.initial_pose.position.y = -2.0
-    tmp.initial_pose.position.z = 0.7366
-    smp.call(tmp)
-    rospy.sleep(2)
-    
-    f = open(rospack.get_path("movo_gazebo")+'/models/cafe_beer/model.sdf','r')
-    sdff = f.read()
-    f.close()
-    
-    tmp = SpawnModelRequest()
-    tmp.model_name='cafe_beer'
-    tmp.model_xml = sdff
-    tmp.robot_namespace=''
-    tmp.reference_frame="world"
-    tmp.initial_pose.position.x = random.uniform(3.8,4.0) 
-    tmp.initial_pose.position.y = random.uniform(3.1,3.4) 
-    tmp.initial_pose.position.z = 0.86
-    smp.call(tmp)
-
-    f = open(rospack.get_path("movo_gazebo")+'/models/pringles/model.sdf','r')
-    sdff = f.read()
-    f.close()
-    
-    tmp = SpawnModelRequest()
-    tmp.model_name='pringles'
-    tmp.model_xml = sdff
-    tmp.robot_namespace=''
-    tmp.reference_frame="world"
-    tmp.initial_pose.position.x = random.uniform(3.8,4.0) 
-    tmp.initial_pose.position.y = random.uniform(2.7,2.9) 
-    tmp.initial_pose.position.z = 0.86
-    smp.call(tmp)
-    rospy.sleep(1)
-    
-    smp.close()    
+    pub = rospy.Publisher('/sim_initialized',Bool,queue_size=1,latch=True)
+    tmp = Bool(True)
+    pub.publish(tmp)
+    rospy.spin()

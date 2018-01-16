@@ -26,7 +26,6 @@
         args="10 movo_moveit_config movo_moveit_planning_execution.launch sim:=true info:=true"
         name="moveit_bringup" output="screen"/>
         
-     
     <!-- Bring up the demo -->
     <node pkg="si_utils" type="timed_roslaunch"
         args="18 movo_gazebo_demo init_sim.xml"

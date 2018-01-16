@@ -1,5 +1,0 @@
-<launch>
-    <node pkg="si_utils" type="movo_moveit_test.py" name="movo_moveit_test_node">
-        <param name="sim" value="true"/>
-    </node>
-</launch>

@@ -1,3 +1,0 @@
-<launch>
-    <node pkg="movo_gazebo" type="init_sim" name="init_sim" output="log"/>
-</launch>

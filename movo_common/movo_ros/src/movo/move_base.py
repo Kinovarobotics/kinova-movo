@@ -65,16 +65,14 @@ class MovoMoveBase():
         self.load_waypoints = rospy.get_param("~load_waypoints", False)
         self.waypoint_dwell_s= rospy.get_param("~waypoints_dwell_time", 5.0)
         self.run_waypoints = rospy.get_param("~run_waypoints", False)
-
-        self.marker_array_msg = MarkerArray()
         self.max_markers = 100
         self._init_markers()
         self.marker_array_pub = rospy.Publisher('/movo/waypoints',MarkerArray,queue_size=10)
 
-
+        
 
         rospack = rospkg.RosPack()
-        self.goals_filename = rospack.get_path('movo_navigation_apps') + "/goals/" + rospy.get_param("~goalfile", "movo_goals")  + ".txt"
+        self.goals_filename = rospack.get_path('movo_demos') + "/goals/" + rospy.get_param("~goalfile", "movo_goals")  + ".txt"
 
         """
         Goal state return values
@@ -133,24 +131,24 @@ class MovoMoveBase():
                 self._shutdown()
                 return
 
-        """
-        Get the initial pose from the user
-        """
-        if (True == self.using_amcl):
-            rospy.loginfo("*** Click the 2D Pose Estimate button in RViz to set the robot's initial pose...")
-            rospy.wait_for_message('initialpose', PoseWithCovarianceStamped)
+            """
+            Get the initial pose from the user
+            """
+            if (True == self.using_amcl):
+                rospy.loginfo("*** Click the 2D Pose Estimate button in RViz to set the robot's initial pose...")
+                rospy.wait_for_message('initialpose', PoseWithCovarianceStamped)
+
+                my_cmd = Twist()
+                my_cmd.angular.z = 0.31415
+                start_time = rospy.get_time()
+                r = rospy.Rate(20)
+                while (rospy.get_time() - start_time) < 10.0:
+                    self.cmd_vel_pub.publish(my_cmd)
+                    r.sleep()
 
             my_cmd = Twist()
-            my_cmd.angular.z = 0.31415
-            start_time = rospy.get_time()
-            r = rospy.Rate(20)
-            while (rospy.get_time() - start_time) < 10.0:
-                self.cmd_vel_pub.publish(my_cmd)
-                r.sleep()
-
-        my_cmd = Twist()
-        my_cmd.angular.z = 0.0
-        self.cmd_vel_pub.publish(my_cmd)
+            my_cmd.angular.z = 0.0
+            self.cmd_vel_pub.publish(my_cmd)
 
         self.last_pose = self._get_current_pose()
 
@@ -221,6 +219,7 @@ class MovoMoveBase():
 
     def _init_markers(self):
         self.marker_idx = 0
+        self.marker_array_msg = MarkerArray()
         for i in range(self.max_markers):
             marker = Marker()
             marker.header.frame_id = self.global_frame
@@ -306,6 +305,9 @@ class MovoMoveBase():
             rospy.logerror("Invalid waypoint pose")
 
     def _append_waypoint_pose(self,pose,create_heading=False):
+        if (self.marker_idx > self.max_markers):
+            rospy.logwarn("You have exceeded the maximum number of allowed waypoints.....")
+            return
         self.waypoints.append([create_heading,pose])
         marker = Marker()
         marker.header.frame_id = self.global_frame
