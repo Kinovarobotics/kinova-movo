@@ -27,7 +27,7 @@ Now that you have run the setup script you can take advantage of convenient func
 ```
 save_map [filename]
 ```
-Saves the mapfile on the robot and onboard PC. File name is the user defined mapfile name
+Saves the mapfile on the robot and onboard PC. **_filename_** is the user defined mapfile name
 
 
 
