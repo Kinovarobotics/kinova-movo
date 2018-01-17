@@ -24,12 +24,17 @@ Now that you have run the setup script you can take advantage of convenient func
 
 ### Bash commands
 
-#### save_map
+```
+save_map [filename]
+```
 Saves the mapfile on the robot and onboard PC. **_filename_** is the user defined mapfile name
 
-`save_map`*`filename`*
-
-
-
+```
+sync_robot [compile options]
+```
+Allows user to make changes locally on the remote PC and push the changes to the robot
+* compile options **must specify one**
+    * -nc Do not compile just copy the files from the remote PC workspace to the robot and restart the service on the robot
+    * -c copy the files from the remote PC workspace to the robot, compile, and restart the service
 
 
