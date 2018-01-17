@@ -61,7 +61,16 @@ real demo.
 ```
 sim_teleop
 ```
-add text here
+Starts the functions necessary to teleop the robot with the joystick. The joystick is assumed to be the one included with the robot [Logitech Extreme 3D Pro](https://www.logitechg.com/en-us/product/extreme-3d-pro-joystick). In simulation control of the pan-tilt and arms is not enabled, only the mobile base can be controlled via joystick in simulation. Full teleop control of all DOF in the robot is available for real hardware see `robot_teleop` below.
+
+###### Mobile Base control
+Press Button 10 to enable mobile base control. This will allow the user to drive the mobile base around with the joystick but disable control of the arm, linear actuator and pan-tilt 
+1. Button 2 puts platform in Standby Mode(no motion commands allowed)
+2. Button 3 puts platform in Tractor Mode
+3. Trigger (Button 0) is dead man switch and must be pressed to issue motion commands when in tractor
+4. For-Aft axis maps to X velocity
+5. Left-Right axis maps to Y velocity
+6. Twist axis maps to Z angular velocity (yaw)
 
 ```
 sim_mapping
@@ -126,7 +135,68 @@ Starts the pick and place demo on the actual robot. To get this setup you need:
 ```
 robot_teleop
 ```
-add text here
+Starts the functions necessary to teleop the robot with the joystick. The joystick is assumed to be the one included with the robot [Logitech Extreme 3D Pro](https://www.logitechg.com/en-us/product/extreme-3d-pro-joystick)
+
+##### Joystick mapping
+Mapping is defined in ~/movo_ws/src/movo_common/movo_ros/src/movo/movo_full_system_teleop.py. The index maps to the number on the joystick
+```
+        """
+        Set the mapping for the various commands
+        """        
+        self.ctrl_map  = dict({'momentary': {'dead_man'     : {'is_button':True,'index':1,'set_val':1},
+                                             'man_ovvrd'    : {'is_button':True,'index':2,'set_val':1},
+                                             'standby'      : {'is_button':True,'index':3,'set_val':1},
+                                             'tractor'      : {'is_button':True,'index':4,'set_val':1},
+                                             'wrist1'       : {'is_button':True,'index':5,'set_val':1},
+                                             'wrist2'       : {'is_button':True,'index':6,'set_val':1},
+                                             'estop'        : {'is_button':True,'index':7,'set_val':1},
+                                             'home_arms'    : {'is_button':True,'index':8,'set_val':1},
+                                             'pan_tilt_ctl' : {'is_button':True,'index':9,'set_val':1},
+                                             'base_ctl'     : {'is_button':True,'index':10,'set_val':1},
+                                             'arm_ctl_right': {'is_button':True,'index':11,'set_val':1},
+                                             'arm_ctl_left' : {'is_button':True,'index':12,'set_val':1}},
+                               'axis'     : {'left_right'   : {'index' :1, 'invert_axis':False},
+                                             'for_aft'      : {'index' :2, 'invert_axis':False},
+                                             'twist'        : {'index' :3, 'invert_axis':False},
+                                             'flipper'   : {'index' :4, 'invert_axis':False},
+                                             'dpad_lr'   : {'index' :5, 'invert_axis':False},
+                                             'dpad_ud'   : {'index' :6, 'invert_axis':False}}})
+```
+###### E-Stop
+Press button 7 to activate the software E-Stop which will cut power to all torque producing components. Pressing it again will re-enable the actuators in the system and resume normal operation.
+
+###### Mobile Base
+Press Button 10 to enable mobile base control. This will allow the user to drive the mobile base around with the joystick but disable control of the arm, linear actuator and pan-tilt 
+1. Button 2 puts platform in Standby Mode(no motion commands allowed)
+2. Button 3 puts platform in Tractor Mode
+3. Trigger (Button 0) is dead man switch and must be pressed to issue motion commands when in tractor
+4. For-Aft axis maps to X velocity
+5. Left-Right axis maps to Y velocity
+6. Twist axis maps to Z angular velocity (yaw)
+
+###### Arms and linear actuator
+Press Button 8 to home both arms
+Press Button 10 to enable right arm control (mobile base, pan-tilt and left arm control will be disabled)
+Press Button 11 to enable left arm control  (mobile base, pan-tilt and right arm control will be disabled)
+1. Trigger (Button 0) enables commands 
+  a. release to hold current position
+2. D-PAD up/down rotates the end-effector around y axis
+3. D-PAD left/right rotates the end-effector around x axis
+4. Button 2 and 3 rotate the end-effector around Z axis
+5. For-Aft axis maps to x Cartesian velocity of end-effector
+6. Left-Right axis maps to y Cartesian velocity of end-effector
+7. Twist axis maps to z Cartesian velocity of end-effector
+8. If the thumb button (Button 1) is pressed the Twist axis maps to linear actuator velocity through a mapping function that outputs position by integrating the signal
+9. Flipper paddle axis opens and closes the gripper
+
+
+###### Pan-Tilt control
+Press Button 9 to enable pan-tilt control (base and arm control will be disabled)
+1. Trigger (Button 0) enables commands 
+  a. release to hold current position
+2. For-Aft axis maps to tilt position
+3. Twist axis maps to pan position
+
 
 ```
 robot_mapping
