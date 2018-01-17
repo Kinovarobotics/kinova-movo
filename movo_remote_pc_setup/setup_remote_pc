@@ -144,10 +144,6 @@ echo -e "\nDo you want to update the robot now?\nIf not the code from movo2 will
 read -r -p "Install latest software on Movo now? [y/N]" response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
 then
-    rm -rf ~/movo_ws
-    mkdir -p ~/movo_ws
-    cd ~/movo_ws
-    git clone https://github.com/StanleyRoboticsInc/kinova-movo.git src/
     cd ~/movo_ws/src
     catkin_init_workspace
     cd ~/movo_ws  
@@ -179,8 +175,6 @@ then
         read -n 1 -s            
     fi
 else
-    rm -rf ~/movo_ws
-    mkdir -p ~/movo_ws/src
     rsync -avzhe ssh --delete --exclude '*~' --progress movo@movo2:/home/movo/movo_ws/src /home/$USER/movo_ws/
     cd ~/movo_ws/src
     rm -f CMakeLists.txt
