@@ -25,7 +25,7 @@ Now that you have run the setup script you can take advantage of convenient func
 ### Bash commands
 
 ```
-save_map mapfile_name
+save_map _mapfile_name_
 ```
 Saves the mapfile on the robot and onboard PC
 
