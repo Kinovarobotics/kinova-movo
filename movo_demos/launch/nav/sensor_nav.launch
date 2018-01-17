@@ -1,14 +1,26 @@
 <!-- 2D Mapless navigation Demo -->
 
 <launch>
+    <arg name="sim" default="false"/>
+    <arg name="use_waypoints" default="false"/>
     <arg name="local" default="true"/>
 
     <machine name="movo1" address="movo1" user="movo" 
                  env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+
+    <!-- Run movo_move_base action client for tracking status -->
+    <node pkg="movo_ros" name="movo_move_base" type="movo_move_base" output="screen" clear_params="true"> 
+        <param name="using_amcl" value="false"/>
+        <param name="global_frame" value="/odom"/>
+        <param name="goal_timeout_sec" value="300"/>
+        <param name="load_waypoints" value="$(arg use_waypoints)"/>
+        <param name="sim" value="$(arg sim)"/>
+    </node>
      
     <!--- Run Move Base -->
     <include file="$(find movo_demos)/launch/nav/move_base.launch">
         <arg name="no_static_map" value="true"/>
         <arg name="local" value="$(arg local)"/>
     </include>
+    
 </launch>

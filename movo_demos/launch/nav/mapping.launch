@@ -3,6 +3,10 @@
 <launch>
     <arg name="assisted_teleop" default="false"/>
     <arg name="sensor_nav" default="false"/>
+    <arg name="local" default="true"/>
+
+    <machine name="movo1" address="movo1" user="movo" 
+                 env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
     
     <!--- Run Assisted Teleop -->
     <include file="$(find movo_demos)/launch/assisted_teleop.launch" if="$(arg assisted_teleop)" />

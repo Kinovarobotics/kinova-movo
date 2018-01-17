@@ -4,6 +4,10 @@
     <arg name="map_file" default="test_zone"/>
     <arg name="use_waypoints" default="false"/>
     <arg name="sim" default="false"/>
+    <arg name="local" default="true"/>
+
+    <machine name="movo1" address="movo1" user="movo" 
+                 env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
 
     <!-- Run the map server -->
     <node name="map_server" pkg="map_server" type="map_server" args="$(find movo_demos)/maps/$(arg map_file).yaml" />
@@ -24,8 +28,9 @@
     </node>
 
     <!--- Run Move Base -->
-    <include file="$(find movo_demos)/launch/move_base.launch">
+    <include file="$(find movo_demos)/launch/nav/move_base.launch">
         <arg name="no_static_map" value="false"/>
+        <arg name="local" value="$(arg local)"/>
     </include>
     
 </launch>

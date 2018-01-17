@@ -36,21 +36,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------"""
 import rospy
 import rospkg
-import random
-from gazebo_msgs.srv import SpawnModel,SpawnModelRequest
-from gazebo_msgs.msg import ModelStates
-from std_msgs.msg import Bool
-
 from moveit_python import MoveGroupInterface
 from moveit_msgs.msg import MoveItErrorCodes
 from movo_action_clients.gripper_action_client import GripperActionClient
 
 if __name__ == "__main__":
-    rospy.init_node('init_sim_inplace')
-    
-    #wait until gazebo is up and running
-    rospy.wait_for_message('/gazebo/model_states',ModelStates)
-    rospy.sleep(5)
+    rospy.init_node('tuck_robot')
     
     move_group = MoveGroupInterface("upper_body","base_link")
     move_group.setPlannerId("RRTConnectkConfigDefault")
@@ -74,19 +65,11 @@ if __name__ == "__main__":
                         "tilt_joint"]
    
 
-    # This is a simulation so need to adjust gripper parameters
-    gripper_closed = 0.96
-    gripper_open = 0.0
-
-    homed = [-2.135,-0.227,-1.478,-2.083,1.445,1.321,2.135,0.227,1.478,2.083,-1.445,-1.321,0.35,0.0,0.0]
+    # This is not simulation so need to adjust gripper parameters
+    gripper_closed = 0.0
+    gripper_open = 0.165
+    
     tucked = [-2.8,-1.48,-1.48,0,0,1.571,2.8,1.48,1.48,0,0,-1.571,0.0371,0.0,0.0]
-    success=False
-    while not rospy.is_shutdown() and not success:
-        result = move_group.moveToJointPosition(upper_body_joints, homed, 0.05)
-        if result.error_code.val == MoveItErrorCodes.SUCCESS:
-            success=True
-    lgripper.command(gripper_open)
-    rgripper.command(gripper_open)
     
     success=False
     while not rospy.is_shutdown() and not success:
@@ -95,8 +78,5 @@ if __name__ == "__main__":
             success=True
     lgripper.command(gripper_closed)
     rgripper.command(gripper_closed)
-    
-    pub = rospy.Publisher('/sim_initialized',Bool,queue_size=1,latch=True)
-    tmp = Bool(True)
-    pub.publish(tmp)
+
     rospy.spin()

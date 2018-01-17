@@ -94,24 +94,24 @@ class MovoTeleopFullSystem(object):
         """
         Set the mapping for the various commands
         """        
-        self.ctrl_map  = dict({'momentary': {'dead_man'     : {'is_button':True,'index':0,'set_val':1},
-                                             'man_ovvrd'    : {'is_button':True,'index':1,'set_val':1},
-                                             'standby'      : {'is_button':True,'index':2,'set_val':1},
-                                             'tractor'      : {'is_button':True,'index':3,'set_val':1},
-                                             'wrist1'       : {'is_button':True,'index':4,'set_val':1},
-                                             'wrist2'       : {'is_button':True,'index':5,'set_val':1},
-                                             'estop'        : {'is_button':True,'index':6,'set_val':1},
-                                             'home_arms'    : {'is_button':True,'index':7,'set_val':1},
-                                             'pan_tilt_ctl' : {'is_button':True,'index':8,'set_val':1},
-                                             'base_ctl'     : {'is_button':True,'index':9,'set_val':1},
-                                             'arm_ctl_right': {'is_button':True,'index':10,'set_val':1},
-                                             'arm_ctl_left' : {'is_button':True,'index':11,'set_val':1}},
-                               'axis'     : {'left_right'   : {'index' :0, 'invert_axis':False},
-                                             'for_aft'      : {'index' :1, 'invert_axis':False},
-                                             'twist'        : {'index' :2, 'invert_axis':False},
-                                             'flipper'   : {'index' :3, 'invert_axis':False},
-                                             'dpad_lr'   : {'index' :4, 'invert_axis':False},
-                                             'dpad_ud'   : {'index' :5, 'invert_axis':False}}})
+        self.ctrl_map  = dict({'momentary': {'dead_man'     : {'is_button':True,'index':1,'set_val':1},
+                                             'man_ovvrd'    : {'is_button':True,'index':2,'set_val':1},
+                                             'standby'      : {'is_button':True,'index':3,'set_val':1},
+                                             'tractor'      : {'is_button':True,'index':4,'set_val':1},
+                                             'wrist1'       : {'is_button':True,'index':5,'set_val':1},
+                                             'wrist2'       : {'is_button':True,'index':6,'set_val':1},
+                                             'estop'        : {'is_button':True,'index':7,'set_val':1},
+                                             'home_arms'    : {'is_button':True,'index':8,'set_val':1},
+                                             'pan_tilt_ctl' : {'is_button':True,'index':9,'set_val':1},
+                                             'base_ctl'     : {'is_button':True,'index':10,'set_val':1},
+                                             'arm_ctl_right': {'is_button':True,'index':11,'set_val':1},
+                                             'arm_ctl_left' : {'is_button':True,'index':12,'set_val':1}},
+                               'axis'     : {'left_right'   : {'index' :1, 'invert_axis':False},
+                                             'for_aft'      : {'index' :2, 'invert_axis':False},
+                                             'twist'        : {'index' :3, 'invert_axis':False},
+                                             'flipper'   : {'index' :4, 'invert_axis':False},
+                                             'dpad_lr'   : {'index' :5, 'invert_axis':False},
+                                             'dpad_ud'   : {'index' :6, 'invert_axis':False}}})
         
         """
         Initialize the debounce logic states
@@ -205,12 +205,12 @@ class MovoTeleopFullSystem(object):
             if key == 'momentary':
                 for key2, item in value.iteritems():
                     if item['is_button']:
-                        if item['set_val'] == joyMessage.buttons[item['index']]:
+                        if item['set_val'] == joyMessage.buttons[item['index']-1]:
                             raw_button_states[key2] &= True
                         else:
                             raw_button_states[key2] = False
                     else:
-                        temp = joyMessage.axes[item['index']]
+                        temp = joyMessage.axes[item['index']-1]
                         if (item['invert_axis']):
                             temp *= -1.0
                         if (temp >= item['set_thresh']):
@@ -229,7 +229,7 @@ class MovoTeleopFullSystem(object):
                         self.db_cnt[key2] = 0
             if key == 'axis':
                 for key2, item in value.iteritems():
-                    temp = joyMessage.axes[item['index']]
+                    temp = joyMessage.axes[item['index']-1]
                     if (item['invert_axis']):
                         temp *= -1.0
                     self.axis_value[key2] = temp
