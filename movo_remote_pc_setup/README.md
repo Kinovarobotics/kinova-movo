@@ -75,22 +75,33 @@ Press Button 10 to enable mobile base control. This will allow the user to drive
 ```
 sim_mapping
 ```
-add text here
+This function starts SLAM mapping for the robot. To create a map:
+1. Drive the robot around using the joystick as described above.
+2. The map will periodically update in RVIZ
+3. Once you are happy with the map you can run the command save_map _filename_
 
 ```
 sim_sensor_nav
 ```
-add text here
+This function simulates navigation in the local frame. Meaning that only local obstacle avoidance is enabled and no map is used. A goal can be given in RVIZ using the **2D Nav Goal** button in the RVIZ window. Waypoints can also be added by clicking the **Publish Point** button in the rviz window, clicking the waypoints of interest. Then using the **Interact** button in the rviz menu,  clicking on the box that appears above the robot and using the menu to control waypoint navigation
+
+**Important note: The robot footprint only accounts for the tucked position. It does not dynamically adjust if the arms are extended. It is recommended to always tuck the arms when using navigation**
+
+**Important note: Goals can only be issued within the bounding box for the local frame which is approximately a 5m square centered around the robot.**
 
 ```
 sim_map_nav
 ```
-add text here
+This function simulates 2D navigation in a known map. Meaning that both global localization and local obstacle avoidance are used in path planning. A goal can be given in RVIZ using the **2D Nav Goal** button in the RVIZ window. Waypoints can also be added by clicking the **Publish Point** button in the rviz window, clicking the waypoints of interest. Then using the **Interact** button in the rviz menu,  clicking on the box that appears above the robot and using the menu to control waypoint navigation.
+
+**Important note: The robot footprint only accounts for the tucked position. It does not dynamically adjust if the arms are extended. It is recommended to always tuck the arms when using navigation**
 
 ```
 sim_assisted_teleop
 ```
-add text here
+This function simulates assisted teleop for the mobile base. Assisted teleop uses 2D costmap and base_local_planner to avoid collision while using teleop. It basically converts the requested teleop command into a trajectory and then checksthe trajectory for collisions and replans as close to the commanded trajectory as possible while avoiding collisions with things the laser can see. 
+
+**Important note: The robot footprint only accounts for the tucked position. It does not dynamically adjust if the arms are extended. It is recommended to always tuck the arms when using navigation**
 
 ```
 robot_demo
@@ -201,22 +212,38 @@ Press Button 9 to enable pan-tilt control (base and arm control will be disabled
 ```
 robot_mapping
 ```
-add text here
+This function starts SLAM mapping for the robot. To create a map:
+1. Drive the robot around using the joystick as described above.
+2. The map will periodically update in RVIZ
+3. Once you are happy with the map you can run the command save_map _filename_
 
 ```
 robot_sensor_nav
 ```
-add text here
+This function starts navigation in the local frame. Meaning that only local obstacle avoidance is enabled and no map is used. A goal can be given in RVIZ using the **2D Nav Goal** button in the RVIZ window. Waypoints can also be added by clicking the **Publish Point** button in the rviz window, clicking the waypoints of interest. Then using the **Interact** button in the rviz menu,  clicking on the box that appears above the robot and using the menu to control waypoint navigation
+
+**Important note: The robot footprint only accounts for the tucked position. It does not dynamically adjust if the arms are extended. It is recommended to always tuck the arms when using navigation**
+
+**Important note: Goals can only be issued within the bounding box for the local frame which is approximately a 5m square centered around the robot.**
+
 
 ```
 robot_map_nav filename
 ```
-add text here
+This function runs 2D navigation in a known map.  Meaning that both global localization and local obstacle avoidance are used in path planning. A goal can be given in RVIZ using the **2D Nav Goal** button in the RVIZ window. Waypoints can also be added by clicking the **Publish Point** button in the rviz window, clicking the waypoints of interest. Then using the **Interact** button in the rviz menu,  clicking on the box that appears above the robot and using the menu to control waypoint navigation.
+
+The map is passed as a parameter _filname_, and should match the name used from the `save_map filename` command.
+
+**Important note: The robot footprint only accounts for the tucked position. It does not dynamically adjust if the arms are extended. It is recommended to always tuck the arms when using navigation**
 
 ```
 robot_assisted_teleop
 ```
-add text here
+This function starts assisted teleop for the mobile base. Assisted teleop uses 2D costmap and base_local_planner to avoid collision while using teleop. It basically converts the requested teleop command into a trajectory and then checksthe trajectory for collisions and replans as close to the commanded trajectory as possible while avoiding collisions with things the laser can see. 
+
+**Important note: The robot footprint only accounts for the tucked position. It does not dynamically adjust if the arms are extended. It is recommended to always tuck the arms when using navigation**
+
+**Important note: Assisted teleop is only for the mobile base, the rest of teleoperation (arms, pan-tilt, linear actuator) works as described in `robot_teleop` with no obstacle avoidance when assisted teleop is enabled**
 
 
 #### Functions for saving maps and updating the robot PCs
