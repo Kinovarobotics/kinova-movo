@@ -94,12 +94,11 @@ alias movostop='movo2_cmd "movostop"'
 alias movostart='movo2_cmd "movostart"'
 alias movochk='movo2_cmd "movochk"'
 
-alias kill_robot_pc='movo2_cmd "sudo shutdown -h now"'
+alias kill_robot_pcs='movo1_cmd "sudo shutdown -h now" && movo2_cmd "sudo shutdown -h now"'
 alias fix_gvfs="sudo umount ~/.gvfs && sudo rm -rf ~/.gvfs"
 alias killgazebo="killall -9 gazebo & killall -9 gzserver  & killall -9 gzclient"
 alias killros="killall -9 roscore & killall -9 rosmaster"
 alias fix_stl='grep -rl 'solid' ./ | xargs sed -i 's/solid/robot/g''
-alias fix_gvfs='sudo umount ~/.gvfs && sudo rm -rf ~/.gvfs'
 alias fix_perm='find . -name 'bin' -type d -exec chmod a+x -R {} \; && find . -name 'scripts' -type d -exec chmod a+x -R {} \; && find . -name 'cfg' -type d -exec chmod a+x -R {} \; && find . -name 'nodes' -type d -exec chmod a+x -R {} \;'
 
 alias sim_demo='roslaunch movo_demos sim_demo.launch'
