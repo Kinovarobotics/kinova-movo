@@ -63,7 +63,7 @@ class MoveBaseActionClient(object):
         """
         Subscribe to the move_base action server
         """
-        self.move_base_client = actionlib.SimpleActionClient("/move_base", MoveBaseAction)
+        self.move_base_client = actionlib.SimpleActionClient("/movo_move_base", MoveBaseAction)
         rospy.loginfo("Waiting for move_base action server")
     
         """
