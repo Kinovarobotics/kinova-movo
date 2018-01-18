@@ -13,14 +13,6 @@
     <arg name="sim_teleop_accel_lim" default="0.5"/>
     <arg name="sim_teleop_yaw_accel_lim" default="0.5"/>
     
-
-
-    <node pkg="joy" type="joy_node" name="joy_node" if="$(optenv MOVO_JOY_IS_ATTACHED false)">
-        <param name="dev" type="string" value="$(optenv MOVO_JOY_DEV /dev/input/js0)" />
-        <param name="deadzone" type="double" value="0.1" />
-        <param name="autorepeat_rate" type="double" value="50" />
-    </node>
-    
     <node pkg="movo_ros" type="movo_teleop" name="movo_teleop" output="screen" unless="$(optenv RUN_FULL_SYSTEM_TELEOP false)">
         <param name="sim" value="$(arg sim)"/>
         <param name="sim_teleop_vel_limit_mps" value="$(arg sim_teleop_vel_limit_mps)"/>

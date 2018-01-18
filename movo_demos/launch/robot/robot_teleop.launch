@@ -1,0 +1,18 @@
+ <launch>
+ 	
+      <!-- Tuck the robot -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="1 movo_demos tuck_robot.launch local:=false"
+        name="tuck_robot" output="screen"/>
+        
+    <!-- Bring up the joystick for control -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="1 movo_remote_teleop movo_remote_teleop.launch"
+        name="joy_bringup" output="screen"/>
+
+    <!-- Bring up the demo -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="5 movo_viz view_robot.launch function:=teleop"
+        name="viz_bringup" output="screen"/>
+
+</launch>

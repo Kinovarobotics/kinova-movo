@@ -31,6 +31,6 @@ obstacles_costmap2d:
                 raytrace_range:          4.0}
 
 inflation:
-  inflation_radius:           0.1 #default 0.5
+  inflation_radius:           0.55 #default 0.5
   cost_scaling_factor:        10.0 #default 10.0
 

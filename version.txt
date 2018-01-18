@@ -1,3 +1,25 @@
+1.x.x-in progress
+-----
+
+yyyy-mm-dd
+----------
+
+Description
+-----------
+- Removed movo_embedded_firmware directory
+
+Features
+--------
+-
+
+Bug Fixes
+---------
+- N/A
+
+Known Issues
+------------
+
+================================================================================
 1.0.0
 -----
 

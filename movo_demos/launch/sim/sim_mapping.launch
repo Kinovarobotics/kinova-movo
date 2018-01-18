@@ -1,11 +1,5 @@
-<launch>
-
-    <rosparam param="use_sim_time">true</rosparam>
-
-
-    <!-- Run the map server -->
-    <node name="map_server" pkg="map_server" type="map_server" args="$(find movo_gazebo_demo)/maps/test_zone.yaml" />
-    
+ <launch>
+ 	
     <!-- Bring up the platform in sim with all models, controllers, sensors estimates -->
     <node pkg="si_utils" type="timed_roslaunch"
         args="1 movo_gazebo movo_test_zone.launch"
@@ -15,11 +9,6 @@
     <node pkg="si_utils" type="timed_roslaunch"
         args="7 movo_remote_teleop movo_remote_teleop.launch"
         name="joy_bringup" output="screen"/>
-        
-    <!-- Bring up the navigation demo -->
-    <node pkg="si_utils" type="timed_roslaunch"
-        args="10 movo_demos map_nav.launch sim:=true"
-        name="nav_bringup" output="screen"/>
 
     <!-- Bring up the moveit -->
     <node pkg="si_utils" type="timed_roslaunch"
@@ -28,8 +17,17 @@
         
     <!-- Bring up the demo -->
     <node pkg="si_utils" type="timed_roslaunch"
-        args="18 movo_gazebo_demo init_sim.xml"
-        name="demo_bringup" output="screen"/>
-  
+        args="18 movo_gazebo init_sim.xml"
+        name="init_sim_bringup" output="screen"/>
+        
+    <!-- Bring up mapping -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="35 movo_demos mapping.launch sim:=true"
+        name="mapping_bringup" output="screen"/> 
+    
+    <!-- Bring up rviz -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="40 movo_viz view_robot.launch function:=mapping"
+        name="viz_bringup" output="screen"/>
 
 </launch>
