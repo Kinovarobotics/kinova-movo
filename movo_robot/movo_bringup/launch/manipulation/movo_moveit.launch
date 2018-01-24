@@ -1,16 +1,21 @@
+<?xml version="1.0"?>
 <!-- Launch file for jaco platform startup by default we don't use the experimental JTAS, this is just for teleop--> 
 <launch>
 
     <arg name="local" default="true"/>
 
-    <machine name="movo1" address="movo1" user="movo" 
-                 env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+    <machine name="movo1" address="movo1" user="movo" env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
     
-        <!-- Moveit bringup-->
-    <include file="$(find movo_moveit_config)/launch/movo_moveit_planning_execution.launch"/>
+    <!-- Moveit bringup-->
+    	
+    <include if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" file="$(find movo_7dof_moveit_config)/launch/movo_moveit_planning_execution.launch"/>
+    <include if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" file="$(find movo_moveit_config)/launch/movo_moveit_planning_execution.launch"/>
     
-    <node pkg="movo_bringup" type="init_robot" name="init_robot" respawn="false" output="screen">
-      <rosparam command="load" file="$(find movo_moveit_config)/config/kinematics.yaml" />
-    </node>
+	<node pkg="movo_bringup" type="init_robot" name="init_robot" respawn="false" output="screen">
+    	<param if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" name="jaco_dof" value="7dof" />
+  		<param if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" name="jaco_dof" value="6dof" />
+  		<rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" command="load" file="$(find movo_7dof_moveit_config)/config/kinematics.yaml" />
+  		<rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" command="load" file="$(find movo_moveit_config)/config/kinematics.yaml" />
+	</node>
 
 </launch>

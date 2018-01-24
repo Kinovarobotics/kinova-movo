@@ -49,7 +49,7 @@ from kinova_api_wrapper import *
 import operator
         
 class SIArmController(object):
-    def __init__(self, prefix="", gripper="", interface='eth0', jaco_ip="10.66.171.15"):
+    def __init__(self, prefix="", gripper="", interface='eth0', jaco_ip="10.66.171.15", dof="6dof"):
         """
         Setup a lock for accessing data in the control loop
         """
@@ -62,17 +62,27 @@ class SIArmController(object):
         self.init_success = True
         
         self._prefix = prefix
-        self.iface = interface   
+        self.iface = interface
+        self.arm_dof = dof
 
         """
         List of joint names
         """
-        self._joint_names = [self._prefix+'_shoulder_pan_joint',
-                             self._prefix+'_shoulder_lift_joint',
-                             self._prefix+'_elbow_joint',
-                             self._prefix+'_wrist_1_joint',
-                             self._prefix+'_wrist_2_joint',
-                             self._prefix+'_wrist_3_joint']
+        if ("6dof"== self.arm_dof):
+            self._joint_names = [self._prefix+'_shoulder_pan_joint',
+                                 self._prefix+'_shoulder_lift_joint',
+                                 self._prefix+'_elbow_joint',
+                                 self._prefix+'_wrist_1_joint',
+                                 self._prefix+'_wrist_2_joint',
+                                 self._prefix+'_wrist_3_joint']
+        elif ("7dof"== self.arm_dof):
+            self._joint_names = [self._prefix + '_shoulder_pan_joint',
+                                 self._prefix + '_shoulder_lift_joint',
+                                 self._prefix + '_arm_half_joint',
+                                 self._prefix + '_elbow_joint',
+                                 self._prefix + '_wrist_spherical_1_joint',
+                                 self._prefix + '_wrist_spherical_2_joint',
+                                 self._prefix + '_wrist_3_joint']
                              
         self._num_joints = len(self._joint_names)
 
@@ -80,9 +90,9 @@ class SIArmController(object):
         Create the hooks for the API
         """
         if ('left' == prefix):
-            self.api = KinovaAPI('left',self.iface,jaco_ip,'255.255.255.0',24000,24024,44000)
+            self.api = KinovaAPI('left',self.iface,jaco_ip,'255.255.255.0',24000,24024,44000, self.arm_dof)
         elif ('right' == prefix):
-            self.api = KinovaAPI('right',self.iface,jaco_ip,'255.255.255.0',25000,25025,55000)
+            self.api = KinovaAPI('right',self.iface,jaco_ip,'255.255.255.0',25000,25025,55000, self.arm_dof)
         else:
             rospy.logerr("prefix needs to be set to left or right, cannot start the controller")
             return
@@ -173,12 +183,19 @@ class SIArmController(object):
         self._arm_vff_diff = DifferentiateSignals(self._num_joints, self._joint_fb['position'])        
 
         self._pid = [None]*self._num_joints
+
+        for i in range(self._num_joints):
+            self._pid[i] = JacoPID(5.0,0.0,0.8)
+
+        """
         self._pid[0] = JacoPID(5.0,0.0,0.8)
         self._pid[1] = JacoPID(5.0,0.0,0.8)
         self._pid[2] = JacoPID(5.0,0.0,0.8)
         self._pid[3] = JacoPID(5.0,0.0,0.8)
         self._pid[4] = JacoPID(5.0,0.0,0.8) 
-        self._pid[5] = JacoPID(5.0,0.0,0.8) 
+        self._pid[5] = JacoPID(5.0,0.0,0.8)
+        """
+
         self.pause_controller = False 
                 
         self._init_ext_joint_position_control()
@@ -393,13 +410,23 @@ class SIArmController(object):
 
 
         tmp = [0.0]*self._num_joints
-        tmp[0] = wrap_angle(self._joint_fb['position'][0])
-        tmp[1] = self._joint_fb['position'][1]
-        tmp[2] = self._joint_fb['position'][2]
-        tmp[3] = wrap_angle(self._joint_fb['position'][3])
-        tmp[4] = wrap_angle(self._joint_fb['position'][4])
-        tmp[5] = wrap_angle(self._joint_fb['position'][5])
-        
+        if ("6dof"== self.arm_dof):
+            tmp[0] = wrap_angle(self._joint_fb['position'][0])
+            tmp[1] = self._joint_fb['position'][1]
+            tmp[2] = self._joint_fb['position'][2]
+            tmp[3] = wrap_angle(self._joint_fb['position'][3])
+            tmp[4] = wrap_angle(self._joint_fb['position'][4])
+            tmp[5] = wrap_angle(self._joint_fb['position'][5])
+
+        elif("7dof"== self.arm_dof):
+            tmp[0] = wrap_angle(self._joint_fb['position'][0])
+            tmp[1] = self._joint_fb['position'][1]
+            tmp[2] = self._joint_fb['position'][2]
+            tmp[3] = wrap_angle(self._joint_fb['position'][3])
+            tmp[4] = wrap_angle(self._joint_fb['position'][4])
+            tmp[5] = wrap_angle(self._joint_fb['position'][5])
+            tmp[6] = wrap_angle(self._joint_fb['position'][6])
+
         self._jsmsg.header.stamp = rospy.get_rostime()
         self._jsmsg.position = tmp
         self._jsmsg.velocity = self._joint_fb['velocity']

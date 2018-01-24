@@ -27,17 +27,34 @@
     <!-- push robot_description to factory and spawn robot in gazebo -->
     <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param /robot_description -model movo -x $(arg x) -y $(arg y) -z $(arg z)" respawn="false" output="screen" />
     
-    <rosparam file="$(find movo_gazebo)/controller/right_arm_controller.yaml" command="load"/>
+    <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" file="$(find movo_gazebo)/controller/right_arm_controller.yaml" command="load"/>
+    <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" file="$(find movo_gazebo)/controller/right_arm_7dof_controller.yaml" command="load"/>
+    
     <rosparam file="$(find movo_gazebo)/controller/right_gripper_controller.yaml" command="load"/>
-    <rosparam file="$(find movo_gazebo)/controller/left_arm_controller.yaml" command="load"/>
+    
+    <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" file="$(find movo_gazebo)/controller/left_arm_controller.yaml" command="load"/>
+    <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" file="$(find movo_gazebo)/controller/left_arm_7dof_controller.yaml" command="load"/>
+    
     <rosparam file="$(find movo_gazebo)/controller/left_gripper_controller.yaml" command="load"/>
     <rosparam file="$(find movo_gazebo)/controller/head_controller.yaml" command="load"/>
     <rosparam file="$(find movo_gazebo)/controller/torso_controller.yaml" command="load"/>
     <rosparam file="$(find movo_gazebo)/controller/joint_state_controller.yaml" command="load"/>
-    <node name="default_controller_spawner" pkg="controller_manager" 
+    <node if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" 
+    	  name="default_controller_spawner" pkg="controller_manager" 
           type="spawner" args="movo/right_arm_controller 
                                movo/right_gripper_controller
                                movo/left_arm_controller 
+                               movo/left_gripper_controller
+                               movo/torso_controller
+                               movo/head_controller
+                               joint_state_controller
+                               --shutdown-timeout 0.5"/>
+                               
+    <node if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" 
+    	  name="default_controller_spawner" pkg="controller_manager" 
+          type="spawner" args="movo/right_arm_7dof_controller 
+                               movo/right_gripper_controller
+                               movo/left_arm_7dof_controller 
                                movo/left_gripper_controller
                                movo/torso_controller
                                movo/head_controller
@@ -68,7 +85,7 @@
     <group ns="movo/head_controller">
         <node name="point_head_action" pkg="head_action" type="head_action" output="screen" >
 
-            <!-- Necessary params --> 
+            <!-- Necessary params -->
             <rosparam>
                 success_angle_threshold: 0.01
                 pan_link: pan_link

@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
  <launch>
  	
     <!-- Bring up the platform in sim with all models, controllers, sensors estimates -->

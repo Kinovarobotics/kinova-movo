@@ -85,7 +85,7 @@ def calc_grip_angle(x):
 
 
 class MovoArmJTAS(object):
-    def __init__(self, prefix="", gripper="", interface='eth0', jaco_ip="10.66.171.15", rate=100.0):
+    def __init__(self, prefix="", gripper="", interface='eth0', jaco_ip="10.66.171.15", rate=100.0, dof="6dof"):
         self._alive = False
         self.init_success = True
 
@@ -108,12 +108,21 @@ class MovoArmJTAS(object):
         """
         Define the joint names
         """
-        self._joint_names = [self._prefix+'_shoulder_pan_joint',
-                             self._prefix+'_shoulder_lift_joint',
-                             self._prefix+'_elbow_joint',
-                             self._prefix+'_wrist_1_joint',
-                             self._prefix+'_wrist_2_joint',
-                             self._prefix+'_wrist_3_joint']
+        if ("6dof" == dof):
+            self._joint_names = [self._prefix+'_shoulder_pan_joint',
+                                 self._prefix+'_shoulder_lift_joint',
+                                 self._prefix+'_elbow_joint',
+                                 self._prefix+'_wrist_1_joint',
+                                 self._prefix+'_wrist_2_joint',
+                                 self._prefix+'_wrist_3_joint']
+        elif ("7dof" == dof):
+            self._joint_names = [self._prefix + '_shoulder_pan_joint',
+                                 self._prefix + '_shoulder_lift_joint',
+                                 self._prefix + '_arm_half_joint',
+                                 self._prefix + '_elbow_joint',
+                                 self._prefix + '_wrist_spherical_1_joint',
+                                 self._prefix + '_wrist_spherical_2_joint',
+                                 self._prefix + '_wrist_3_joint']
 
         """
         Controller parameters from arguments, messages, and dynamic
