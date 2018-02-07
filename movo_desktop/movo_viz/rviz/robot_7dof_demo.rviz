@@ -70,19 +70,185 @@ Visualization Manager:
       Value: false
       Visual Enabled: true
     - Class: rviz/TF
-      Enabled: false
+      Enabled: true
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        base_chassis_link:
+          Value: false
+        base_link:
+          Value: false
+        front_laser_link:
+          Value: false
+        kinect2_ir_link:
+          Value: false
+        kinect2_ir_optical_frame:
+          Value: false
+        kinect2_link:
+          Value: false
+        kinect2_rgb_link:
+          Value: false
+        kinect2_rgb_optical_frame:
+          Value: false
+        left_base_link:
+          Value: false
+        left_gripper_base_link:
+          Value: false
+        left_gripper_finger1_finger_tip_link:
+          Value: false
+        left_gripper_finger1_knuckle_link:
+          Value: false
+        left_gripper_finger2_finger_tip_link:
+          Value: false
+        left_gripper_finger2_knuckle_link:
+          Value: false
+        left_gripper_finger3_finger_tip_link:
+          Value: true
+        left_gripper_finger3_knuckle_link:
+          Value: true
+        left_shoulder_link:
+          Value: false
+        left_arm_half_1_link:
+          Value: false
+        left_arm_half_2_link:
+          Value: false
+        left_forearm_link:
+          Value: false
+        left_wrist_spherical_1_link:
+          Value: false
+        left_wrist_spherical_2_link:
+          Value: false
+        left_wrist_3_link:
+          Value: false
+        left_ee_link:
+          Value: true
+        linear_actuator_fixed_link:
+          Value: false
+        linear_actuator_link:
+          Value: false
+        lower_body_link:
+          Value: false
+        mid_body_link:
+          Value: false
+        odom:
+          Value: false
+        pan_base_link:
+          Value: false
+        pan_link:
+          Value: false
+        rear_laser_link:
+          Value: false
+        right_base_link:
+          Value: false       
+        right_gripper_base_link:
+          Value: false
+        right_gripper_finger1_finger_tip_link:
+          Value: false
+        right_gripper_finger1_knuckle_link:
+          Value: false
+        right_gripper_finger2_finger_tip_link:
+          Value: false
+        right_gripper_finger2_knuckle_link:
+          Value: false
+        right_gripper_finger3_finger_tip_link:
+          Value: true
+        right_gripper_finger3_knuckle_link:
+          Value: true
+        right_shoulder_link:
+          Value: false
+        right_arm_half_1_link:
+          Value: false
+        right_arm_half_2_link:
+          Value: false
+        right_forearm_link:
+          Value: false
+        right_wrist_spherical_1_link:
+          Value: false
+        right_wrist_spherical_2_link:
+          Value: false
+        right_wrist_3_link:
+          Value: false
+        right_ee_link:
+          Value: true
+        sic_imu_frame:
+          Value: false
+        tilt_link:
+          Value: false
+        upper_body_link:
+          Value: false
       Marker Scale: 0.5
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: false
       Tree:
-        {}
+        odom:
+          base_link:
+            base_chassis_link:
+              front_laser_link:
+                {}
+              linear_actuator_fixed_link:
+                linear_actuator_link:
+                  left_base_link:
+                    left_shoulder_link:
+                      left_arm_half_1_link:
+                        left_arm_half_2_link:
+                          left_forearm_link:
+                            left_wrist_spherical_1_link:
+                              left_wrist_spherical_2_link:
+                                left_wrist_3_link:
+                                  left_ee_link:
+                                    left_gripper_base_link:
+                                      left_gripper_finger1_knuckle_link:
+                                        left_gripper_finger1_finger_tip_link:
+                                          {}
+                                      left_gripper_finger2_knuckle_link:
+                                        left_gripper_finger2_finger_tip_link:
+                                          {}
+                                      left_gripper_finger3_knuckle_link:
+                                        left_gripper_finger3_finger_tip_link:
+                                          {}
+                  pan_base_link:
+                    pan_link:
+                      tilt_link:
+                        kinect2_link:
+                          kinect2_ir_link:
+                            kinect2_ir_optical_frame:
+                              {}
+                            kinect2_rgb_link:
+                              kinect2_rgb_optical_frame:
+                                {}
+                  right_base_link:
+                    right_shoulder_link:
+                      right_arm_half_1_link:
+                        right_arm_half_2_link:
+                          right_forearm_link:
+                            right_wrist_spherical_1_link:
+                              right_wrist_spherical_2_link:
+                                right_wrist_3_link:
+                                  right_ee_link:
+                                    right_gripper_base_link:
+                                      right_gripper_finger1_knuckle_link:
+                                        right_gripper_finger1_finger_tip_link:
+                                          {}
+                                      right_gripper_finger2_knuckle_link:
+                                        right_gripper_finger2_finger_tip_link:
+                                          {}
+                                      right_gripper_finger3_knuckle_link:
+                                        right_gripper_finger3_finger_tip_link:
+                                          {}
+                  upper_body_link:
+                    {}
+              lower_body_link:
+                {}
+              mid_body_link:
+                {}
+              rear_laser_link:
+                {}
+              sic_imu_frame:
+                {}
       Update Interval: 0
-      Value: false
+      Value: true
     - Class: rviz/Group
       Displays:
         - Angle Tolerance: 0.1
@@ -342,16 +508,6 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          left_arm_half_1_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          left_arm_half_2_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           left_base_link:
             Alpha: 1
             Show Axes: false
@@ -406,7 +562,12 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          left_wrist_3_link:
+          left_arm_half_1_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_arm_half_2_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -417,6 +578,11 @@ Visualization Manager:
             Show Trail: false
             Value: true
           left_wrist_spherical_2_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_wrist_3_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -452,16 +618,6 @@ Visualization Manager:
             Show Trail: false
             Value: true
           rear_laser_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          right_arm_half_1_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          right_arm_half_2_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -520,7 +676,12 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          right_wrist_3_link:
+          right_arm_half_1_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_arm_half_2_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -531,6 +692,11 @@ Visualization Manager:
             Show Trail: false
             Value: true
           right_wrist_spherical_2_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_wrist_3_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -575,7 +741,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 0.552908
+      Distance: 7.0524
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -587,10 +753,10 @@ Visualization Manager:
         Z: 2.3623
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.969797
+      Pitch: 0.239797
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.143634
+      Yaw: 5.45682
     Saved: ~
 Window Geometry:
   Displays:

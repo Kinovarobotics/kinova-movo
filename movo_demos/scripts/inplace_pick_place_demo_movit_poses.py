@@ -58,6 +58,8 @@ from geometry_msgs.msg import Pose2D,PoseStamped
 from moveit_msgs.msg import PlaceLocation, MoveItErrorCodes
 from std_msgs.msg import Bool
 
+import moveit_commander
+
 # Point the head using controller
 class PointHeadClient(object):
 
@@ -127,18 +129,28 @@ class GraspingClient(object):
             self.constrained_stow = [2.28,2.17,-2.56,-0.09,0.15,1.082,-2.28,-2.17,2.56,0.09,-0.15,2.06,0.42,0.0,0.0]
             self.larm_const_stow = [-2.28,-2.17,2.56,0.09,-0.15,2.08]
             self.rarm_const_stow = [2.28,2.17,-2.56,-0.09,0.15,1.06]
-            self.tableDist = 0.7
 
         elif "7dof" == self.dof:
-            self._upper_body_joints = ["right_shoulder_pan_joint",
-                                        "right_shoulder_lift_joint",
+            ## Instantiate a MoveGroupCommander object.  This object is an interface
+            ## to one group of joints.
+            """
+            self.move_group = moveit_commander.MoveGroupCommander("upper_body")
+            self.move_group.set_planner_id("RRTConnectkConfigDefault")
+
+            self.lmove_group = moveit_commander.MoveGroupCommander("left_arm")
+            self.rmove_group = moveit_commander.MoveGroupCommander("right_arm")
+            self.lmove_group.set_planner_id("RRTConnectkConfigDefault")
+            self.rmove_group.set_planner_id("RRTConnectkConfigDefault")
+            """
+            self._upper_body_joints = ["right_shoulder_lift_joint",
+                                        "right_shoulder_pan_joint",
                                         "right_arm_half_joint",
                                         "right_elbow_joint",
                                         "right_wrist_spherical_1_joint",
                                         "right_wrist_spherical_2_joint",
                                         "right_wrist_3_joint",
-                                        "left_shoulder_pan_joint",
                                         "left_shoulder_lift_joint",
+                                        "left_shoulder_pan_joint",
                                         "left_arm_half_joint",
                                         "left_elbow_joint",
                                         "left_wrist_spherical_1_joint",
@@ -147,31 +159,26 @@ class GraspingClient(object):
                                         "linear_joint",
                                         "pan_joint",
                                         "tilt_joint"]
-            self._right_arm_joints = ["right_shoulder_pan_joint",
-                                        "right_shoulder_lift_joint",
+            self._right_arm_joints = ["right_shoulder_lift_joint",
+                                        "right_shoulder_pan_joint",
                                         "right_arm_half_joint",
                                         "right_elbow_joint",
                                         "right_wrist_spherical_1_joint",
                                         "right_wrist_spherical_2_joint",
                                         "right_wrist_3_joint"]
-            self._left_arm_joints = ["left_shoulder_pan_joint",
-                                        "left_shoulder_lift_joint",
+            self._left_arm_joints = ["left_shoulder_lift_joint",
+                                        "left_shoulder_pan_joint",
                                         "left_arm_half_joint",
                                         "left_elbow_joint",
                                         "left_wrist_spherical_1_joint",
                                         "left_wrist_spherical_2_joint",
                                         "left_wrist_3_joint"]
-            self.tucked = [-1.6,-1.5,0.4,-2.7,0.0,0.5, -1.7,1.6,1.5,-0.4,2.7,0.0,-0.5,1.7, 0.04, 0, 0]
-            self.constrained_stow =[-2.6, 2.0, 0.0, 2.0, 0.0, 0.0, 1.0, 2.6, -2.0, 0.0, -2.0, 0.0, 0.0, -1.0, 0.42, 0, 0]
-            self.larm_const_stow = [2.6, -2.0, 0.0, -2.0, 0.0, 0.0, 1.0,]
-            self.rarm_const_stow = [-2.6, 2.0, 0.0, 2.0, 0.0, 0.0, -1.0]
-            self.tableDist = 0.9
 
+            self.tucked = [-1.6,-1.5,0.4,-2.7,-0.2, 0.5, 1.7, 1.6, 1.5,-0.4, 2.7, 0.2,-0.5,-1.7, 0.04, 0, 1.5]
         else:
-            rospy.logerr("DoF needs to be set 6 or 7, aborting demo")
-            return;
+            rospy.logerr("DoF needs to be set 6 or 7, cannot start the controller")
+            return
 
-        
         self.pickplace = [None]*2
         self.pickplace[0] = PickPlaceInterface("left_side", "left_gripper", verbose=True)
         self.pickplace[0].planner_id = "RRTConnectkConfigDefault"
@@ -199,7 +206,7 @@ class GraspingClient(object):
         # This is a simulation so need to adjust gripper parameters
         if sim:
             self._gripper_closed = 0.96
-            self._gripper_open = 0.00
+            self._gripper_open = 0.0
         else:
             self._gripper_closed = 0.01
             self._gripper_open = 0.165
@@ -225,7 +232,7 @@ class GraspingClient(object):
         tmp2 = surface.primitive_poses[0].position.x-surface.primitives[0].dimensions[0]/2
         front_edge = (tmp1+tmp2)/2
         
-        coords = Pose2D(x=(front_edge-self.tableDist),y=center_objects,theta=0.0)
+        coords = Pose2D(x=(front_edge-0.7),y=center_objects,theta=0.0)
 
         return coords
 
@@ -381,50 +388,75 @@ class GraspingClient(object):
     def goto_tuck(self):
         # remove previous objects
         while not rospy.is_shutdown():
-            result = self.move_group.moveToJointPosition(self._upper_body_joints, self.tucked, 0.05)
-            if result.error_code.val == MoveItErrorCodes.SUCCESS:
+            if "6dof" == self.dof:
+                result = self.move_group.moveToJointPosition(self._upper_body_joints, self.tucked, 0.05)
+                if result.error_code.val == MoveItErrorCodes.SUCCESS:
+                    return
+            if "7dof" == self.dof:
+                self.move_group.set_named_target("tucked")
+                plan = self.move_group.plan()
+                self.move_group.execute(plan)
                 return
-            
+
     def goto_plan_grasp(self):
         while not rospy.is_shutdown():
-            result = self.move_group.moveToJointPosition(self._upper_body_joints, self.constrained_stow, 0.05)
-            if result.error_code.val == MoveItErrorCodes.SUCCESS:
+            if "6dof" == self.dof:
+                result = self.move_group.moveToJointPosition(self._upper_body_joints, self.constrained_stow, 0.05)
+                if result.error_code.val == MoveItErrorCodes.SUCCESS:
+                    return
+            if "7dof" == self.dof:
+                self.move_group.set_named_target("plan_grasp")
+                plan = self.move_group.plan()
+                self.move_group.execute(plan)
                 return
 
+
     def left_arm_constrained_stow(self):
-        c1 = Constraints()
-        c1.orientation_constraints.append(OrientationConstraint())
-        c1.orientation_constraints[0].header.stamp = rospy.get_rostime()
-        c1.orientation_constraints[0].header.frame_id = "base_link"
-        c1.orientation_constraints[0].link_name = "left_ee_link"
-        c1.orientation_constraints[0].orientation.w=1.0
-        c1.orientation_constraints[0].absolute_x_axis_tolerance = 0.2 #x axis is pointed up for wrist link
-        c1.orientation_constraints[0].absolute_y_axis_tolerance = 0.2
-        c1.orientation_constraints[0].absolute_z_axis_tolerance = 6.28
-        c1.orientation_constraints[0].weight = 1.0
+
 
         while not rospy.is_shutdown():
-            result = self.lmove_group.moveToJointPosition(self._left_arm_joints, self.larm_const_stow, 0.05, path_constraints=c1, planning_time=120.0)
-            if result.error_code.val == MoveItErrorCodes.SUCCESS:
+            if "6dof" == self.dof:
+                c1 = Constraints()
+                c1.orientation_constraints.append(OrientationConstraint())
+                c1.orientation_constraints[0].header.stamp = rospy.get_rostime()
+                c1.orientation_constraints[0].header.frame_id = "base_link"
+                c1.orientation_constraints[0].link_name = "left_ee_link"
+                c1.orientation_constraints[0].orientation.w = 1.0
+                c1.orientation_constraints[0].absolute_x_axis_tolerance = 0.2  # x axis is pointed up for wrist link
+                c1.orientation_constraints[0].absolute_y_axis_tolerance = 0.2
+                c1.orientation_constraints[0].absolute_z_axis_tolerance = 6.28
+                c1.orientation_constraints[0].weight = 1.0
+                result = self.lmove_group.moveToJointPosition(self._left_arm_joints, self.larm_const_stow, 0.05, path_constraints=c1, planning_time=120.0)
+                if result.error_code.val == MoveItErrorCodes.SUCCESS:
+                    return
+            if "7dof" == self.dof:
+                self.lmove_group.set_named_target("larm_constrained_stow")
+                plan = self.lmove_group.plan()
+                self.lmove_group.execute(plan)
                 return
 
     def right_arm_constrained_stow(self):
-        c1 = Constraints()
-        c1.orientation_constraints.append(OrientationConstraint())
-        c1.orientation_constraints[0].header.stamp = rospy.get_rostime()
-        c1.orientation_constraints[0].header.frame_id = "base_link"
-        c1.orientation_constraints[0].link_name = "right_ee_link"
-        c1.orientation_constraints[0].orientation.w=1.0
-        c1.orientation_constraints[0].absolute_x_axis_tolerance = 0.2 #x axis is pointed up for wrist link
-        c1.orientation_constraints[0].absolute_y_axis_tolerance = 0.2
-        c1.orientation_constraints[0].absolute_z_axis_tolerance = 6.28
-        c1.orientation_constraints[0].weight = 1.0
-
         while not rospy.is_shutdown():
-            result = self.rmove_group.moveToJointPosition(self._right_arm_joints, self.rarm_const_stow, 0.05, path_constraints=c1, planning_time=120.0)
-            if result.error_code.val == MoveItErrorCodes.SUCCESS:
+            if "6dof" == self.dof:
+                c1 = Constraints()
+                c1.orientation_constraints.append(OrientationConstraint())
+                c1.orientation_constraints[0].header.stamp = rospy.get_rostime()
+                c1.orientation_constraints[0].header.frame_id = "base_link"
+                c1.orientation_constraints[0].link_name = "right_ee_link"
+                c1.orientation_constraints[0].orientation.w = 1.0
+                c1.orientation_constraints[0].absolute_x_axis_tolerance = 0.2  # x axis is pointed up for wrist link
+                c1.orientation_constraints[0].absolute_y_axis_tolerance = 0.2
+                c1.orientation_constraints[0].absolute_z_axis_tolerance = 6.28
+                c1.orientation_constraints[0].weight = 1.0
+                result = self.rmove_group.moveToJointPosition(self._right_arm_joints, self.rarm_const_stow, 0.05, path_constraints=c1, planning_time=120.0)
+                if result.error_code.val == MoveItErrorCodes.SUCCESS:
+                    return
+            if "7dof" == self.dof:
+                self.rmove_group.set_named_target("rarm_constrained_stow")
+                plan = self.rmove_group.plan()
+                self.rmove_group.execute(plan)
                 return
-            
+
     def open_gripper(self):
         self._lgripper.command(self._gripper_open,block=True)
         self._rgripper.command(self._gripper_open,block=True)
@@ -459,6 +491,9 @@ if __name__ == "__main__":
     head_action = PointHeadClient()
     grasping_client = GraspingClient(sim=is_sim)
     grasping_client.clearScene()
+
+    #grasping_client.right_arm_constrained_stow()
+    #grasping_client.left_arm_constrained_stow()
     
     # set the robot pos to the planning pose
     grasping_client.goto_tuck()
@@ -553,9 +588,9 @@ if __name__ == "__main__":
     grasping_client.goto_plan_grasp()
     
     # Demo finished return to tuck
-    grasping_client.close_gripper()
     grasping_client.goto_tuck()
-
+    grasping_client.close_gripper()
+    
     rospy.loginfo("Moving to start...")
     target = Pose2D(x=0.0,y=0.0,theta=0.0)
     move_base.goto(target)

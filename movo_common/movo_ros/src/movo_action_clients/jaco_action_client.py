@@ -49,7 +49,11 @@ from trajectory_msgs.msg import (
 )
 
 class JacoActionClient(object):
-    def __init__(self, arm='right', dof='6dof'):
+    def __init__(self, arm='right', dof=''):
+        if ''==dof:
+            rospy.logerr('DoF parameter needs to be set 6 or 7')
+            return
+
         self._client = actionlib.SimpleActionClient(
             'movo/%s_arm_controller/follow_joint_trajectory'%arm,
             FollowJointTrajectoryAction,
@@ -101,7 +105,7 @@ class JacoActionClient(object):
                                                  '%s_wrist_2_joint'%arm,
                                                  '%s_wrist_3_joint'%arm]
                                              
-     	if('7dof'==self.dof):
+     	elif('7dof'==self.dof):
             self._goal.trajectory.joint_names = ['%s_shoulder_pan_joint'%arm,
                                                  '%s_shoulder_lift_joint'%arm,
                                                  '%s_arm_half_joint'%arm,
@@ -109,3 +113,6 @@ class JacoActionClient(object):
                                                  '%s_wrist_spherical_1_joint'%arm,
                                                  '%s_wrist_spherical_2_joint'%arm,
                                                  '%s_wrist_3_joint'%arm]
+
+        else:
+            rospy.logerr('DoF needs to be set 6 or 7')

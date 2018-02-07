@@ -1,5 +1,5 @@
 movo:
-    left_arm_7dof_controller:
+    left_arm_controller:
         type: position_controllers/JointTrajectoryController
         joints:
             - left_shoulder_pan_joint

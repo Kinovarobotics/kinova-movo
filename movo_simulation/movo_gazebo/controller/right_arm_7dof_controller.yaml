@@ -1,5 +1,5 @@
 movo:
-    right_arm_7dof_controller:
+    right_arm_controller:
         type: position_controllers/JointTrajectoryController
         joints:
             - right_shoulder_pan_joint

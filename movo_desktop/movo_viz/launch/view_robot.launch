@@ -1,6 +1,11 @@
 <?xml version="1.0"?>
+
 <launch>
   <arg name='function' default=''/>
 
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find movo_viz)/rviz/robot_$(arg function).rviz" output="screen"/>
+  <node if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)"
+        name="rviz" pkg="rviz" type="rviz" args="-d $(find movo_viz)/rviz/robot_$(arg function).rviz" output="screen"/>
+
+  <node if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)"
+        name="rviz" pkg="rviz" type="rviz" args="-d $(find movo_viz)/rviz/robot_7dof_$(arg function).rviz" output="screen"/>
 </launch>

@@ -30,8 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  \file   kinova_api_wrapper.py
 
  \brief  This module contains a collection of functions low level interface
-         to the Kinova API in order to control an arm in cartesian velocity mode
-         it is really only useful for teleoperation
+         to the Kinova API in order to control an arm.
 
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
@@ -138,12 +137,20 @@ FINGER_FACTOR = (0.986111027/121.5)
 LARGE_ACTUATOR_VELOCITY =deg_to_rad(35.0) #maximum velocity of large actuator (joints 1-3) (deg/s)
 SMALL_ACTUATOR_VELOCITY =deg_to_rad(45.0) #maximum velocity of small actuator (joints 4-6) (deg/s)
 
-JOINT_VEL_LIMITS = [LARGE_ACTUATOR_VELOCITY,
-                    LARGE_ACTUATOR_VELOCITY,
-                    LARGE_ACTUATOR_VELOCITY,
-                    SMALL_ACTUATOR_VELOCITY,
-                    SMALL_ACTUATOR_VELOCITY,
-                    SMALL_ACTUATOR_VELOCITY]
+JOINT_6DOF_VEL_LIMITS = [LARGE_ACTUATOR_VELOCITY,
+                         LARGE_ACTUATOR_VELOCITY,
+                         LARGE_ACTUATOR_VELOCITY,
+                         SMALL_ACTUATOR_VELOCITY,
+                         SMALL_ACTUATOR_VELOCITY,
+                         SMALL_ACTUATOR_VELOCITY]
+
+JOINT_7DOF_VEL_LIMITS = [LARGE_ACTUATOR_VELOCITY,
+                         LARGE_ACTUATOR_VELOCITY,
+                         LARGE_ACTUATOR_VELOCITY,
+                         LARGE_ACTUATOR_VELOCITY,
+                         SMALL_ACTUATOR_VELOCITY,
+                         SMALL_ACTUATOR_VELOCITY,
+                         SMALL_ACTUATOR_VELOCITY]
 
 FINGER_ANGULAR_VEL_LIMIT = deg_to_rad(4500.0)*FINGER_FACTOR
 
@@ -300,11 +307,12 @@ class KinovaAPI(object):
             traj.Position.Actuators.Actuator4 = cmds[3]
             traj.Position.Actuators.Actuator5 = cmds[4]
             traj.Position.Actuators.Actuator6 = cmds[5]
-            traj.Position.Actuators.Actuator6 = cmds[6]
+            traj.Position.Actuators.Actuator7 = cmds[6]
             traj.Position.HandMode = 2
-            traj.Position.Fingers.Finger1 = cmds[7] / FINGER_FACTOR
-            traj.Position.Fingers.Finger2 = cmds[8] / FINGER_FACTOR
-            traj.Position.Fingers.Finger3 = cmds[9] / FINGER_FACTOR
+            traj.Position.Fingers.Finger1 = cmds[7]/FINGER_FACTOR
+            traj.Position.Fingers.Finger2 = cmds[8]/FINGER_FACTOR
+            traj.Position.Fingers.Finger3 = cmds[9]/FINGER_FACTOR
+            #rospy.logerr("send_angular_vel_cmds:[%f] [%f] [%f] [%f] [%f] [%f] [%f]" %(cmds[0], cmds[1], cmds[2], cmds[3], cmds[4], cmds[5], cmds[6]))
 
         self.SendAdvanceTrajectory(traj)
     
@@ -330,10 +338,10 @@ class KinovaAPI(object):
             elif ("7dof" == self.arm_dof):
                 ret = [deg_to_rad(pos.Actuators.Actuator1),
                        deg_to_rad(pos.Actuators.Actuator2 - 180.0),
-                       deg_to_rad(pos.Actuators.Actuator3 - 180.0),
-                       deg_to_rad(pos.Actuators.Actuator4),
+                       deg_to_rad(pos.Actuators.Actuator3),
+                       deg_to_rad(pos.Actuators.Actuator4 - 180.0),
                        deg_to_rad(pos.Actuators.Actuator5),
-                       deg_to_rad(pos.Actuators.Actuator6),
+                       deg_to_rad(pos.Actuators.Actuator6 - 180.0),
                        deg_to_rad(pos.Actuators.Actuator7),
                        deg_to_rad(pos.Fingers.Finger1) * FINGER_FACTOR,
                        deg_to_rad(pos.Fingers.Finger2) * FINGER_FACTOR,

@@ -41,16 +41,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <xacro:property name="wrist_spherical_1_mass" value="0.463" />
     <xacro:property name="wrist_spherical_2_mass" value="0.463" />
     <xacro:property name="wrist_3_mass" value="0.190782"/>
-       
+
     <property name="shoulder_pan_joint_rpy" value="0 ${M_PI} 0" />
     <property name="shoulder_lift_joint_rpy" value="${M_PI/2} 0 0" />
     <property name="arm_half_joint_rpy" value="-${M_PI/2} 0 0" />
     <property name="elbow_joint_rpy" value="-${M_PI/2} 0 0"/>
-    <property name="wrist_spherical_1_joint_rpy" value="${M_PI/2} 0 0" />
+    <property name="wrist_spherical_1_joint_rpy" value="${M_PI/2} ${M_PI} 0" />
     <property name="wrist_spherical_2_joint_rpy" value="-${M_PI/2} 0 0" />
     <property name="wrist_3_joint_rpy" value="${M_PI/2} 0 0" />
-    
-               
+
+    <!--
+    <property name="shoulder_pan_joint_rpy" value="0 ${M_PI} 0" />
+    <property name="shoulder_lift_joint_rpy" value="${M_PI/2} 0 0" />
+    <property name="arm_half_joint_rpy" value="-${M_PI/2} ${M_PI} 0" />
+    <property name="elbow_joint_rpy" value="-${M_PI/2} 0 0"/>
+    <property name="wrist_spherical_1_joint_rpy" value="${M_PI/2} 0 0" />
+    <property name="wrist_spherical_2_joint_rpy" value="-${M_PI/2} 0 0" />
+    <property name="wrist_3_joint_rpy" value="${M_PI/2} ${M_PI} 0" />
+     -->
     <xacro:macro name="jaco_robot_7dof" params="prefix parent *origin">
         
         <joint name="${prefix}kinova_joint" type="fixed">
@@ -62,12 +70,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <link name="${prefix}base_link" >
             <visual>
                 <geometry>
-                <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/base.dae"/>
+                <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/base_7dof.dae"/>
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/base.stl"/>
+                <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/base_7dof.stl"/>
                 </geometry>
             </collision>
             <inertial>
@@ -101,12 +109,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <link name="${prefix}shoulder_link">
             <visual>
                 <geometry>
-                    <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/shoulder.dae"/>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/shoulder_7dof.dae"/>
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/shoulder.stl"/>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/shoulder_7dof.stl"/>
                 </geometry>
             </collision>
             <inertial>
@@ -145,7 +153,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/arm_half_1.dae"/>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/arm_half_1.stl"/>
                 </geometry>
             </collision>
             <inertial>
@@ -172,7 +180,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <child link = "${prefix}arm_half_2_link" />
             <origin xyz="0 -0.205 0" rpy="${arm_half_joint_rpy}"/>
             <axis xyz="0 0 1" />
-            <limit lower="-2.238" upper="2.238" effort="30000.5" velocity="0.691150384"/>
+            <limit lower="${-M_PI}" upper="${M_PI}" effort="30000.5" velocity="0.691150384"/>
             <dynamics damping="0.01" friction="0.0"/>
         </joint>
         
@@ -184,7 +192,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/arm_half_2.dae"/>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/arm_half_2.stl"/>
                 </geometry>
             </collision>
             <inertial>
@@ -218,12 +226,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <link name="${prefix}forearm_link">
             <visual>
                 <geometry>
-                    <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/forearm.dae"/>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/forearm_7dof.dae"/>
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/forearm.stl"/>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/forearm_7dof.stl"/>
                 </geometry>
             </collision>
             <inertial>
@@ -238,7 +246,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <joint name="${prefix}wrist_spherical_1_joint" type="revolute">
             <parent link="${prefix}forearm_link" />
             <child link="${prefix}wrist_spherical_1_link" />
-            <origin xyz="0 0.20725 0 " rpy="${wrist_spherical_1_joint_rpy}" />
+          <!--  <origin xyz="0 0.20725 0 " rpy="${wrist_spherical_1_joint_rpy}" /> -->
+            <origin xyz="0 0.2073 -0.0114" rpy="${wrist_spherical_1_joint_rpy}" />
             <axis xyz="0 0 1" />
             <limit lower="${-M_PI}" upper="${M_PI}" effort="60000.8" velocity="0.921533845"/>
             <dynamics damping="0.01" friction="0.0"/>
@@ -252,7 +261,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/wrist_spherical_1.dae"/>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/wrist_spherical_1.stl"/>
                 </geometry>
             </collision>
             <inertial>
@@ -279,7 +288,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <child link="${prefix}wrist_spherical_2_link" />
             <origin xyz="0 0 -0.10375 " rpy="${wrist_spherical_2_joint_rpy}" />
             <axis xyz="0 0 1" />
-            <limit lower="${-M_PI}" upper="${M_PI}" effort="60000.8" velocity="0.921533845"/>
+            <limit lower="${-2.78}" upper="${2.78}" effort="60000.8" velocity="0.921533845"/>
             <dynamics damping="0.01" friction="0.0"/>
         </joint>
         
@@ -291,7 +300,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/wrist_spherical_2.dae"/>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/wrist_spherical_2.stl"/>
                 </geometry>
             </collision>
             <inertial>
@@ -336,7 +345,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             </collision>
             <inertial>
                 <mass value="${wrist_3_mass}" />
-                <origin xyz="0 0 -0.06" />
+                <origin xyz="-0.00082 0.000048 -0.216121" />
                 <inertia  ixx="0.000048"  ixy="0.000000"  ixz="0.000000" 
                           iyx="0.000000"  iyy="0.000049"  iyz="0.000000" 
                           izx="0.000000"  izy="0.000000"  izz="0.000072" />
@@ -356,10 +365,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <joint name="${prefix}ee_fixed_joint" type="fixed">
             <parent link="${prefix}wrist_3_link" />
             <child link="${prefix}ee_link" />
-            <origin xyz="0 0 -0.1600" rpy="${M_PI} ${M_PI/2} 0"/> 
-            <!--
-            <origin xyz="0 0 -0.202757" rpy="${M_PI} ${M_PI/2} 0"/> 
-            -->
+            <origin xyz="0 0 -0.1600" rpy="${M_PI} ${M_PI/2} 0"/>
         </joint>
 
         <link name="${prefix}ee_link"/>  
