@@ -165,7 +165,7 @@ class GraspingClient(object):
             self.constrained_stow =[-2.6, 2.0, 0.0, 2.0, 0.0, 0.0, 1.0, 2.6, -2.0, 0.0, -2.0, 0.0, 0.0, -1.0, 0.42, 0, 0]
             self.larm_const_stow = [2.6, -2.0, 0.0, -2.0, 0.0, 0.0, 1.0,]
             self.rarm_const_stow = [-2.6, 2.0, 0.0, 2.0, 0.0, 0.0, -1.0]
-            self.tableDist = 0.9
+            self.tableDist = 0.8
 
         else:
             rospy.logerr("DoF needs to be set 6 or 7, aborting demo")
