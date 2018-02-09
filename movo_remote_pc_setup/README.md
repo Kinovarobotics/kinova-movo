@@ -47,7 +47,7 @@ real demo.
 * A table is placed ~2m infront of movo
 * A standard can of pringles is placed near the edge to the right of center
 * A standard 12oz can (beer or soda can) is placed near the edge to the left of center
-* Robot initializes into the plan grasop pose
+* Robot initializes into the plan grasp pose
 * Robot finds the table and the objects
 * Robot uses the navigation stack to navigate to the optimal picking position
 * Robot identifies the beer can using PCL segmentation and object primatives
@@ -118,10 +118,12 @@ This function simulates assisted teleop for the mobile base. Assisted teleop use
 robot_demo
 ```
 Starts the pick and place demo on the actual robot. To get this setup you need:
+
 #### Required items for demo
 1. A folding table like the one used to develop the demo, [Lifetime 4' Utility Table](https://www.amazon.com/Lifetime-22950-Folding-Utility-Granite/dp/B0002U3V8Q/ref=sr_1_1_sspa?ie=UTF8&qid=1516207875&sr=8-1-spons&keywords=lifetime+4%27+table&psc=1)
-2. A standard 5.68oz pringles can [Prinlges](https://www.pringles.com/us/products/favorites/the-original.html)
+2. A standard 5.68oz pringles can [Pringles](https://www.pringles.com/us/products/favorites/the-original.html)
 3. A standard 12oz soda or beer can [Standard 12oz can dimensions](http://www.cask.com/files/pdf/techspecs/12oz-can-drawing.pdf)
+
 #### Setup notes
 1. The table selected should have a light colored top or a light colored table cloth. The Kinect is a TOF IR sensor so is sensitive to very dark or reflective surfaces.
 2. The table should be spaced off of the wall ~2ft. The demo determines the size of the table or optimal pick positioning and segmentation works best if table is no right against the wall
