@@ -48,7 +48,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <property name="elbow_joint_rpy" value="-${M_PI/2} 0 0"/>
     <property name="wrist_spherical_1_joint_rpy" value="${M_PI/2} ${M_PI} 0" />
     <property name="wrist_spherical_2_joint_rpy" value="-${M_PI/2} 0 0" />
-    <property name="wrist_3_joint_rpy" value="${M_PI/2} 0 0" />
+    <property name="wrist_3_joint_rpy" value="${M_PI/2} ${M_PI} 0" />
 
     <!--
     <property name="shoulder_pan_joint_rpy" value="0 ${M_PI} 0" />
