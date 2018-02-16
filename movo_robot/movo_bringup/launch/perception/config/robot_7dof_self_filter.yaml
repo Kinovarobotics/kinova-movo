@@ -1,0 +1,26 @@
+min_sensor_dist: .1
+self_see_default_padding: .01
+self_see_default_scale: 1.0
+self_see_links:
+  - name: left_arm_half_1_link
+  - name: left_arm_half_2_link
+  - name: left_forearm_link
+  - name: left_wrist_spherical_1_link
+  - name: left_wrist_spherical_2_link
+  - name: left_wrist_3_link
+  - name: left_gripper_base_link
+  - name: left_gripper_finger1_knuckle_link
+  - name: left_gripper_finger1_finger_tip_link
+  - name: left_gripper_finger2_knuckle_link
+  - name: left_gripper_finger2_finger_tip_link
+  - name: right_arm_half_1_link
+  - name: right_arm_half_2_link
+  - name: right_forearm_link
+  - name: right_wrist_spherical_1_link
+  - name: right_wrist_spherical_2_link
+  - name: right_wrist_3_link
+  - name: right_gripper_base_link
+  - name: right_gripper_finger1_knuckle_link
+  - name: right_gripper_finger1_finger_tip_link
+  - name: right_gripper_finger2_knuckle_link
+  - name: right_gripper_finger2_finger_tip_link

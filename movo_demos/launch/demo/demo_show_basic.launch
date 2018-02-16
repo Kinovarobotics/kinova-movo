@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+ <launch>
+ 	<arg name="sim" default="false"/>
+    <arg name="local" default="true"/>
+
+  <machine name="movo1" address="movo1" user="movo" 
+               env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+
+    <!-- Navigation configuration -->
+	<include file="$(find movo_demos)/launch/nav/sensor_nav.launch">
+		<arg name="local" value="$(arg local)"/>
+		<arg name="sim" value="$(arg sim)"/>
+	</include>
+
+    <node if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" name="demo" pkg="movo_demos" type="demo_show_basic.py" output="screen">
+        <rosparam command="load" file="$(find movo_moveit_config)/config/kinematics.yaml"/>
+    	<param name="sim" value="$(arg sim)"/>
+		<param name="jaco_dof" value="6dof"/>
+	</node>
+	
+	<node if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" name="demo" pkg="movo_demos" type="demo_show_basic.py" output="screen">
+    	<rosparam command="load" file="$(find movo_7dof_moveit_config)/config/kinematics.yaml"/>
+    	<param name="sim" value="$(arg sim)"/>
+		<param name="jaco_dof" value="7dof"/>
+	</node>
+    
+</launch>
