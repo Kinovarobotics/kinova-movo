@@ -87,7 +87,7 @@ if __name__ == "__main__":
                              "pan_joint",
                              "tilt_joint"]
 
-        tucked = [-1.6, -1.5, 0.4, -2.7, -0.2, 0.5, 1.7, 1.6, 1.5, -0.4, 2.7, 0.2, -0.5, -1.7, 0.04, 0, 0]
+        tucked = [-1.6, -1.5, 0.4, -2.7, 0.0, 0.5, -1.7, 1.6, 1.5, -0.4, 2.7, 0.0, -0.5, 1.7, 0.04, 0, 0]
    
 
     # This is not simulation so need to adjust gripper parameters

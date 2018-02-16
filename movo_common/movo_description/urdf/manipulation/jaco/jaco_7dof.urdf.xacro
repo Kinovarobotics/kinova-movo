@@ -50,15 +50,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <property name="wrist_spherical_2_joint_rpy" value="-${M_PI/2} 0 0" />
     <property name="wrist_3_joint_rpy" value="${M_PI/2} ${M_PI} 0" />
 
-    <!--
-    <property name="shoulder_pan_joint_rpy" value="0 ${M_PI} 0" />
-    <property name="shoulder_lift_joint_rpy" value="${M_PI/2} 0 0" />
-    <property name="arm_half_joint_rpy" value="-${M_PI/2} ${M_PI} 0" />
-    <property name="elbow_joint_rpy" value="-${M_PI/2} 0 0"/>
-    <property name="wrist_spherical_1_joint_rpy" value="${M_PI/2} 0 0" />
-    <property name="wrist_spherical_2_joint_rpy" value="-${M_PI/2} 0 0" />
-    <property name="wrist_3_joint_rpy" value="${M_PI/2} ${M_PI} 0" />
-     -->
     <xacro:macro name="jaco_robot_7dof" params="prefix parent *origin">
         
         <joint name="${prefix}kinova_joint" type="fixed">
@@ -70,12 +61,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <link name="${prefix}base_link" >
             <visual>
                 <geometry>
-                <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/base_7dof.dae"/>
+                <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/base.dae"/>
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/base_7dof.stl"/>
+                <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/base.stl"/>
                 </geometry>
             </collision>
             <inertial>

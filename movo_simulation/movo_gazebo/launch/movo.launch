@@ -39,8 +39,7 @@
     <rosparam file="$(find movo_gazebo)/controller/head_controller.yaml" command="load"/>
     <rosparam file="$(find movo_gazebo)/controller/torso_controller.yaml" command="load"/>
     <rosparam file="$(find movo_gazebo)/controller/joint_state_controller.yaml" command="load"/>
-    <node if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" 
-    	  name="default_controller_spawner" pkg="controller_manager" 
+    <node name="default_controller_spawner" pkg="controller_manager"
           type="controller_manager" args="spawn
                                movo/right_arm_controller 
                                movo/right_gripper_controller
@@ -49,18 +48,7 @@
                                movo/torso_controller
                                movo/head_controller
                                joint_state_controller"/>
-                               
-    <node if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" 
-    	  name="default_controller_spawner" pkg="controller_manager" 
-          type="controller_manager" args="spawn
-                               movo/right_arm_controller
-                               movo/right_gripper_controller
-                               movo/left_arm_controller
-                               movo/left_gripper_controller
-                               movo/torso_controller
-                               movo/head_controller
-                               joint_state_controller"/>
-    
+
     <include file="$(find movo_bringup)/launch/teleop/movo_teleop.launch">
         <arg name="sim" value="true"/>
     </include>
@@ -101,7 +89,8 @@
         name="self_filter" respawn="true" output="screen">
         <remap from="cloud_in" to="/kinect2/sd/points" />
         <remap from="cloud_out" to="/movo/perception/points_filtered" />
-        <rosparam command="load" file="$(find movo_bringup)/launch/perception/config/robot_self_filter.yaml" />
+        <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" command="load" file="$(find movo_bringup)/launch/perception/config/robot_self_filter.yaml"/>
+        <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" command="load" file="$(find movo_bringup)/launch/perception/config/robot_7dof_self_filter.yaml"/>
         <param name="use_rgb" value="true" />
         <param name="keep_organized" value="true"/>
         <param name="subsample_value" type="double" value="0.0"/>
