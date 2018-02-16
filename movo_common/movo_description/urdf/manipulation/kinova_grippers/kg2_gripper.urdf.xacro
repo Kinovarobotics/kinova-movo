@@ -45,7 +45,7 @@
             <minDepth>0.0001</minDepth>
         </gazebo> 
 
-        <joint name="${prefix}gripper_finger2_joint" type="prismatic">
+        <joint name="${prefix}gripper_finger2_joint" type="revolute">
             <parent link="${prefix}gripper_base_link"/>
             <child link="${prefix}gripper_finger2_knuckle_link"/>
             <axis xyz="0 0 1"/>
@@ -84,7 +84,7 @@
             <minDepth>0.0001</minDepth>
         </gazebo> 
 
-        <joint name="${prefix}gripper_finger1_joint" type="prismatic">
+        <joint name="${prefix}gripper_finger1_joint" type="revolute">
             <parent link="${prefix}gripper_base_link"/>
             <child link="${prefix}gripper_finger1_knuckle_link"/>
             <axis xyz="0 0 1"/>

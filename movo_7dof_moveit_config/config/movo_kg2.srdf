@@ -57,60 +57,97 @@
         <joint name="linear_joint" value="0.04" />
     </group_state>
     <group_state name="tuck_left_arm" group="left_arm">
-        <joint name="left_arm_half_joint" value="0.3" />
-        <joint name="left_elbow_joint" value="-2.7" />
-        <joint name="left_shoulder_lift_joint" value="-1.5" />
-        <joint name="left_shoulder_pan_joint" value="-1.6" />
+        <joint name="left_arm_half_joint" value="-0.4" />
+        <joint name="left_elbow_joint" value="2.7" />
+        <joint name="left_shoulder_lift_joint" value="1.5" />
+        <joint name="left_shoulder_pan_joint" value="1.6" />
         <joint name="left_wrist_3_joint" value="1.7" />
-        <joint name="left_wrist_spherical_1_joint" value="0.2" />
+        <joint name="left_wrist_spherical_1_joint" value="0" />
         <joint name="left_wrist_spherical_2_joint" value="-0.5" />
     </group_state>
     <group_state name="tuck_right_arm" group="right_arm">
-        <joint name="right_arm_half_joint" value="-0.3" />
-        <joint name="right_elbow_joint" value="2.7" />
-        <joint name="right_shoulder_lift_joint" value="1.5" />
-        <joint name="right_shoulder_pan_joint" value="1.6" />
+        <joint name="right_arm_half_joint" value="0.4" />
+        <joint name="right_elbow_joint" value="-2.7" />
+        <joint name="right_shoulder_lift_joint" value="-1.5" />
+        <joint name="right_shoulder_pan_joint" value="-1.6" />
         <joint name="right_wrist_3_joint" value="-1.7" />
-        <joint name="right_wrist_spherical_1_joint" value="-0.2" />
+        <joint name="right_wrist_spherical_1_joint" value="0" />
         <joint name="right_wrist_spherical_2_joint" value="0.5" />
     </group_state>
     <group_state name="tucked" group="upper_body">
-        <joint name="left_arm_half_joint" value="0.3" />
-        <joint name="left_elbow_joint" value="-2.7" />
-        <joint name="left_shoulder_lift_joint" value="-1.5" />
-        <joint name="left_shoulder_pan_joint" value="-1.6" />
+        <joint name="left_arm_half_joint" value="-0.4" />
+        <joint name="left_elbow_joint" value="2.7" />
+        <joint name="left_shoulder_lift_joint" value="1.5" />
+        <joint name="left_shoulder_pan_joint" value="1.6" />
         <joint name="left_wrist_3_joint" value="1.7" />
-        <joint name="left_wrist_spherical_1_joint" value="0.2" />
+        <joint name="left_wrist_spherical_1_joint" value="0" />
         <joint name="left_wrist_spherical_2_joint" value="-0.5" />
         <joint name="linear_joint" value="0.04" />
         <joint name="pan_joint" value="0" />
-        <joint name="right_arm_half_joint" value="-0.3" />
-        <joint name="right_elbow_joint" value="2.7" />
-        <joint name="right_shoulder_lift_joint" value="1.5" />
-        <joint name="right_shoulder_pan_joint" value="1.6" />
+        <joint name="right_arm_half_joint" value="0.4" />
+        <joint name="right_elbow_joint" value="-2.7" />
+        <joint name="right_shoulder_lift_joint" value="-1.5" />
+        <joint name="right_shoulder_pan_joint" value="-1.6" />
         <joint name="right_wrist_3_joint" value="-1.7" />
-        <joint name="right_wrist_spherical_1_joint" value="-0.2" />
+        <joint name="right_wrist_spherical_1_joint" value="0" />
         <joint name="right_wrist_spherical_2_joint" value="0.5" />
         <joint name="tilt_joint" value="0" />
     </group_state>
     <group_state name="homed" group="upper_body">
-        <joint name="left_arm_half_joint" value="-0.15" />
-        <joint name="left_elbow_joint" value="-2" />
-        <joint name="left_shoulder_lift_joint" value="-0.2" />
-        <joint name="left_shoulder_pan_joint" value="-1.5" />
-        <joint name="left_wrist_3_joint" value="-1.1" />
+        <joint name="left_arm_half_joint" value="0.15" />
+        <joint name="left_elbow_joint" value="2" />
+        <joint name="left_shoulder_lift_joint" value="0.2" />
+        <joint name="left_shoulder_pan_joint" value="1.5" />
+        <joint name="left_wrist_3_joint" value="1.1" />
         <joint name="left_wrist_spherical_1_joint" value="-2" />
-        <joint name="left_wrist_spherical_2_joint" value="-1.2354" />
+        <joint name="left_wrist_spherical_2_joint" value="1.2354" />
         <joint name="linear_joint" value="0.35" />
-        <joint name="pan_joint" value="-1" />
-        <joint name="right_arm_half_joint" value="0.15" />
-        <joint name="right_elbow_joint" value="2" />
-        <joint name="right_shoulder_lift_joint" value="0.2" />
-        <joint name="right_shoulder_pan_joint" value="1.5" />
-        <joint name="right_wrist_3_joint" value="1.1" />
+        <joint name="pan_joint" value="1" />
+        <joint name="right_arm_half_joint" value="-0.15" />
+        <joint name="right_elbow_joint" value="-2" />
+        <joint name="right_shoulder_lift_joint" value="-0.2" />
+        <joint name="right_shoulder_pan_joint" value="-1.5" />
+        <joint name="right_wrist_3_joint" value="-1.1" />
         <joint name="right_wrist_spherical_1_joint" value="2" />
-        <joint name="right_wrist_spherical_2_joint" value="1.2354" />
+        <joint name="right_wrist_spherical_2_joint" value="-1.2354" />
         <joint name="tilt_joint" value="0" />
+    </group_state>
+    <group_state name="plan_grasp" group="upper_body">
+        <joint name="left_arm_half_joint" value="-0.021" />
+        <joint name="left_elbow_joint" value="-2" />
+        <joint name="left_shoulder_lift_joint" value="-2" />
+        <joint name="left_shoulder_pan_joint" value="2.6" />
+        <joint name="left_wrist_3_joint" value="-1" />
+        <joint name="left_wrist_spherical_1_joint" value="0" />
+        <joint name="left_wrist_spherical_2_joint" value="0" />
+        <joint name="linear_joint" value="0.42" />
+        <joint name="pan_joint" value="0" />
+        <joint name="right_arm_half_joint" value="0" />
+        <joint name="right_elbow_joint" value="2" />
+        <joint name="right_shoulder_lift_joint" value="2" />
+        <joint name="right_shoulder_pan_joint" value="-2.6" />
+        <joint name="right_wrist_3_joint" value="1" />
+        <joint name="right_wrist_spherical_1_joint" value="0" />
+        <joint name="right_wrist_spherical_2_joint" value="0" />
+        <joint name="tilt_joint" value="0" />
+    </group_state>
+    <group_state name="larm_constrained_stow" group="left_arm">
+        <joint name="left_arm_half_joint" value="-0.021" />
+        <joint name="left_elbow_joint" value="-2" />
+        <joint name="left_shoulder_lift_joint" value="-2" />
+        <joint name="left_shoulder_pan_joint" value="2.6" />
+        <joint name="left_wrist_3_joint" value="-1" />
+        <joint name="left_wrist_spherical_1_joint" value="0" />
+        <joint name="left_wrist_spherical_2_joint" value="0" />
+    </group_state>
+    <group_state name="rarm_constrained_stow" group="right_arm">
+        <joint name="right_arm_half_joint" value="0" />
+        <joint name="right_elbow_joint" value="2" />
+        <joint name="right_shoulder_lift_joint" value="2" />
+        <joint name="right_shoulder_pan_joint" value="-2.6" />
+        <joint name="right_wrist_3_joint" value="1" />
+        <joint name="right_wrist_spherical_1_joint" value="0" />
+        <joint name="right_wrist_spherical_2_joint" value="0" />
     </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="left_gripper" parent_link="left_ee_link" group="left_gripper" />
