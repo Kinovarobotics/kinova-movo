@@ -44,6 +44,7 @@ from movo_action_clients.gripper_action_client import GripperActionClient
 from movo_action_clients.torso_action_client import TorsoActionClient
 from movo_action_clients.move_base_action_client import MoveBaseActionClient
 from geometry_msgs.msg import Pose2D
+from std_msgs.msg import Bool
 
 import datetime as dt
 
@@ -55,10 +56,12 @@ def say(_pub, _data):
 if __name__ == "__main__":
 
     process_start_time = dt.datetime.now()
-    rospy.init_node("demo1")
-
+    rospy.init_node("demo_show_basic")
     dof = rospy.get_param('~jaco_dof')
     sim = rospy.get_param("~sim", False)
+    if (sim):
+        rospy.wait_for_message('/sim_initialized',Bool)
+
     movo_head = HeadActionClient()
     movo_base = MoveBaseActionClient(sim=sim, frame="odom")
     movo_larm = JacoActionClient(arm='left', dof=dof)

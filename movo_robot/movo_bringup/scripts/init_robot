@@ -43,8 +43,7 @@ import moveit_commander
 
 if __name__ == "__main__":
 	rospy.init_node('init_robot')
-	#moveit_commander.roscpp_initialize(sys.argv)
-
+	
 	move_group = MoveGroupInterface("upper_body","base_link")
 	move_group.setPlannerId("RRTConnectkConfigDefault")
 	lgripper = GripperActionClient('left')
@@ -52,8 +51,6 @@ if __name__ == "__main__":
 	dof = rospy.get_param('~jaco_dof')
 
 	if ("6dof" == dof):
-		#move_group = MoveGroupInterface("upper_body","base_link")
-		#move_group.setPlannerId("RRTConnectkConfigDefault")
 		upper_body_joints = ["right_elbow_joint",
 							"right_shoulder_lift_joint",
 							"right_shoulder_pan_joint",
@@ -73,9 +70,6 @@ if __name__ == "__main__":
 		tucked = [-2.8,-1.48,-1.48,0,0,1.571, 2.8,1.48,1.48,0,0,-1.571,0.0371,0.0,0.0]
 
 	elif ("7dof" == dof):
-		#move_group = moveit_commander.MoveGroupCommander("upper_body")
-		#move_group.set_planner_id("RRTConnectkConfigDefault")
-
 		upper_body_joints = ["right_shoulder_pan_joint",
 							"right_shoulder_lift_joint",
 							"right_arm_half_joint",
@@ -95,13 +89,7 @@ if __name__ == "__main__":
 							"tilt_joint"]
 
 		homed = [-1.5,-0.2,-0.15,-2.0,2.0,-1.24,-1.1, 1.5,0.2,0.15,2.0,-2.0,1.24,1.1,0.35,0,0]
-
-		grasp = [-2.6,  2.0, 0.0,  2.0, 0.0, 0.0,  1.0, 2.6, -2.0, 0.0, -2.0, 0.0, 0.0, -1.0, 0.371, 0,0]
-
-		tucked = [-1.6,-1.5,0.4,-2.7,0.0,0.5, -1.7,1.6,1.5,-0.4,2.7,0.0,-0.5, 1.7, 0.04, 0, 0]
-
-		#homed = [ -1.57, 0.0, 0.0,  2.2, 1.8, -1.5, -1.0, 1.57, 0.0, 0.0, -2.2,-1.8,  1.5,  1.0, 0.35, 0, 0]
-		#tucked = [ -1.57, -1.46, -3.0, -2.7, -0.2,-0.5, -1.2, 1.57, 1.46,  3.0,  2.7,  0.2, 0.5,  1.2, 0.04, 0, 0]
+		tucked = [-1.6,-1.5,0.4,-2.7,0.0,0.5,-1.7, 1.6,1.5,-0.4,2.7,0.0,-0.5, 1.7, 0.04, 0, 0]
 
 	else:
 		rospy.logerr("DoF needs to be set 6 or 7, aborting process")
@@ -116,58 +104,17 @@ if __name__ == "__main__":
 
 	success=False
 	while not rospy.is_shutdown() and not success:
-		"""
-		if "6dof" == dof:
-			result = move_group.moveToJointPosition(upper_body_joints, homed, 0.05)
-			if result.error_code.val == MoveItErrorCodes.SUCCESS:
-				success=True
-
-		if "7dof" == dof:
-			move_group.set_named_target("homed")
-			plan = move_group.plan()
-			move_group.execute(plan)
-        """
-
-		rospy.logerr("++++++++++++ Going to homed")
+		
 		result = move_group.moveToJointPosition(upper_body_joints, homed, 0.05)
-		rospy.logerr("++++++++++++ After homed")
 		if result.error_code.val == MoveItErrorCodes.SUCCESS:
 			success = True
 		else:
-			rospy.logerr("++++++++++++ moveToJointPosition failed (%d)" %result.error_code.val)
+			rospy.logerr("moveToJointPosition failed (%d)" %result.error_code.val)
 
-	"""
-	rospy.sleep(2.0)
-	home_arm_pub = rospy.Publisher('/movo/home_arms', Bool, queue_size=1)
-	success=Bool(False)
-	home_arm = Bool(True)
-	while not success.data:
-		home_arm_pub.publish(home_arm)
-		rospy.logerr("++++++++++++ waiting /movo/arms_are_homed...")
-		try:
-			success = rospy.wait_for_message('/movo/arms_are_homed', Bool, timeout=10.0)
-		except:
-			pass
-
-	rospy.logerr("++++++++++++ Obtained /movo/arms_are_homed...")
-	"""
 	rospy.sleep(5)
 	success=False
 	while not rospy.is_shutdown() and not success:
-		"""
-		if "6dof" == dof:
-		    result = move_group.moveToJointPosition(upper_body_joints, tucked, 0.05)
-		    if result.error_code.val == MoveItErrorCodes.SUCCESS:
-			    success=True
-			    
-		if "7dof" == dof:
-			move_group.set_named_target("tucked")
-			plan = move_group.plan()
-			move_group.execute(plan)
-        """
-		rospy.logerr("++++++++++++ Going to tucked")
 		result = move_group.moveToJointPosition(upper_body_joints, tucked, 0.05)
-		rospy.logerr("++++++++++++ After tucked")
 		if result.error_code.val == MoveItErrorCodes.SUCCESS:
 			success = True
 
