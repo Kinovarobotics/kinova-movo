@@ -166,12 +166,12 @@ if __name__ == "__main__":
 
     target = Pose2D(x=0.0, y=0.0, theta=0.0)
     movo_base.goto(target)
-    rospy.sleep(2)
+    rospy.sleep(1)
 
     target = Pose2D(x=0.0, y=0.3, theta=0.0)
     movo_base.goto(target)
 
-    rospy.sleep(2)
+    rospy.sleep(1)
     target = Pose2D(x=0.0, y=0.0, theta=0.0)
     movo_base.goto(target)
     rospy.sleep(1)
