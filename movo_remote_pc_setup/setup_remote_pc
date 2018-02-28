@@ -73,7 +73,6 @@ echo -e "\niai_kinect2 prerequisites must be installed!!!!!\nIf you have a PC wi
 read -r -p "Do you want to install iai_kinect2 prerequisites for Intel CPU now? [y/N]" response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
 then
-    exit 1
     sudo add-apt-repository ppa:floe/beignet && sudo apt-get update
     sudo apt-get install beignet beignet-dev opencl-headers
     git clone https://github.com/OpenKinect/libfreenect2.git
