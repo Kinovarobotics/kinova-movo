@@ -121,4 +121,5 @@ function robot_map_nav()
     echo "Need to specify mapfile argument"
   else
     roslaunch movo_demos robot_map_nav.launch map_file:=$1
+  fi
 }
