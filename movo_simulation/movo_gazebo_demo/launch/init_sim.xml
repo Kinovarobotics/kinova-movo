@@ -1,5 +1,0 @@
-<launch>
-    <node name="init_sim" pkg="movo_gazebo" type="init_sim" output="log">
-   		<rosparam command="load" file="$(find movo_moveit_config)/config/kinematics.yaml" />
-   	</node>
-</launch>

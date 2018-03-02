@@ -1,23 +1,31 @@
-1.x.x-in progress
+1.1.0
 -----
 
-yyyy-mm-dd
+2018-02-23
 ----------
 
 Description
 -----------
-- Removed movo_embedded_firmware directory
+- Removed movo_embedded_firmware directory.
+- Examples and demos are now all under /movo_demos. 
+  The directory /movo_simulation/movo_gazebo_demo has been removed.
 
 Features
 --------
--
+- Added support of JACO 7 DOF arms. Now both 6 and 7 DOF are arm configuration supported,
+  they are selected by setting environment variable and re-building the code base.
+- Added /movo_remote_pc_setup directory which provides scripts and documentation to prepare
+  the development PC.
 
 Bug Fixes
 ---------
-- N/A
+- Issue #4: move_base_action_client.py: `movo_move_base`, instead of `move_base`
+- Issue #5: Node `spawner` in movo.launch fails to spawn
+- Issue #7: sim_demo.launch is failing
 
 Known Issues
 ------------
+- Pick and place demo still need tweek to be working at every attempt.
 
 ================================================================================
 1.0.0

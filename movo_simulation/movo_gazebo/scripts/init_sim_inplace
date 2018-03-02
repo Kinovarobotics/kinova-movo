@@ -57,29 +57,57 @@ if __name__ == "__main__":
     lgripper = GripperActionClient('left')
     rgripper = GripperActionClient('right')
     
-    upper_body_joints = ["right_elbow_joint",
-                        "right_shoulder_lift_joint",
-                        "right_shoulder_pan_joint",
-                        "right_wrist_1_joint",
-                        "right_wrist_2_joint",
-                        "right_wrist_3_joint",
-                        "left_elbow_joint",
-                        "left_shoulder_lift_joint",
-                        "left_shoulder_pan_joint",
-                        "left_wrist_1_joint",
-                        "left_wrist_2_joint",
-                        "left_wrist_3_joint",
-                        "linear_joint",
-                        "pan_joint",
-                        "tilt_joint"]
-   
+    dof = rospy.get_param('~jaco_dof')
+    
+    if "6dof" == dof:
+        upper_body_joints = ["right_elbow_joint",
+                            "right_shoulder_lift_joint",
+                            "right_shoulder_pan_joint",
+                            "right_wrist_1_joint",
+                            "right_wrist_2_joint",
+                            "right_wrist_3_joint",
+                            "left_elbow_joint",
+                            "left_shoulder_lift_joint",
+                            "left_shoulder_pan_joint",
+                            "left_wrist_1_joint",
+                            "left_wrist_2_joint",
+                            "left_wrist_3_joint",
+                            "linear_joint",
+                            "pan_joint",
+                            "tilt_joint"]
+        homed = [-2.135,-0.227,-1.478,-2.083,1.445,1.321,2.135,0.227,1.478,2.083,-1.445,-1.321,0.35,0.0,0.0]
+        tucked = [-2.8,-1.48,-1.48,0,0,1.571,2.8,1.48,1.48,0,0,-1.571,0.0371,0.0,0.0]
+
+    elif "7dof" == dof:
+        upper_body_joints = ["right_shoulder_pan_joint",
+                             "right_shoulder_lift_joint",
+                             "right_arm_half_joint",
+                             "right_elbow_joint",
+                             "right_wrist_spherical_1_joint",
+                             "right_wrist_spherical_2_joint",
+                             "right_wrist_3_joint",
+                             "left_shoulder_pan_joint",
+                             "left_shoulder_lift_joint",
+                             "left_arm_half_joint",
+                             "left_elbow_joint",
+                             "left_wrist_spherical_1_joint",
+                             "left_wrist_spherical_2_joint",
+                             "left_wrist_3_joint",
+                             "linear_joint",
+                             "pan_joint",
+                             "tilt_joint"]
+        homed = [-1.5, -0.2, -0.15, -2.0, 2.0, -1.24, -1.1, 1.5, 0.2, 0.15, 2.0, -2.0, 1.24, 1.1, 0.35, 0, 0]
+        tucked = [-1.6, -1.5, 0.4, -2.7, 0.0, 0.5, -1.7, 1.6, 1.5, -0.4, 2.7, 0.0, -0.5, 1.7, 0.04, 0, 0]
+
+    else:
+        rospy.logerr("DoF needs to be set 6 or 7, aborting process")
+        exit()
 
     # This is a simulation so need to adjust gripper parameters
     gripper_closed = 0.96
     gripper_open = 0.0
 
-    homed = [-2.135,-0.227,-1.478,-2.083,1.445,1.321,2.135,0.227,1.478,2.083,-1.445,-1.321,0.35,0.0,0.0]
-    tucked = [-2.8,-1.48,-1.48,0,0,1.571,2.8,1.48,1.48,0,0,-1.571,0.0371,0.0,0.0]
+    
     success=False
     while not rospy.is_shutdown() and not success:
         result = move_group.moveToJointPosition(upper_body_joints, homed, 0.05)

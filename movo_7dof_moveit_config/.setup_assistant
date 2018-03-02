@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: movo_description
+    relative_path: urdf/movo.urdf.xacro
+  SRDF:
+    relative_path: config/movo.srdf
+  CONFIG:
+    author_name: Kinova
+    author_email: support@kinova.com
+    generated_timestamp: 1517243938

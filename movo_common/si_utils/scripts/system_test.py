@@ -63,14 +63,15 @@ class MovoVoiceTest(object):
 
 
 if __name__ == "__main__":
-    rospy.init_node('system_test') 
+    rospy.init_node('system_test')
+    dof = rospy.get_param('~jaco_dof')
 
     voice = MovoVoiceTest() 
     voice.say("Hello,       I am movo.          I can be your best friend!")
     
     h_test  = HeadJTASTest()
-    l_test = JacoJTASTest('left')
-    r_test = JacoJTASTest('right')
+    l_test = JacoJTASTest(arm='left', dof=dof)
+    r_test = JacoJTASTest(arm='right', dof=dof)
     rg_test = GripperActionTest("right")
     lg_test = GripperActionTest("left")
     t_test = TorsoJTASTest()
@@ -137,7 +138,11 @@ if __name__ == "__main__":
     current_angles= list(tmp.position)
     l_test.add_point(current_angles, 0.0)
     
-    p1 = [0.0] * 6
+    if '6dof' == dof:
+        p1 = [0.0] * 6
+    if '7dof' == dof:
+        p1 = [0.0] * 7
+
     l_test.add_point(p1,10.0)
     l_test.add_point(current_angles,20.0)
     l_test.start()
@@ -153,8 +158,12 @@ if __name__ == "__main__":
     tmp = rospy.wait_for_message("/movo/right_arm/joint_states", JointState)
     current_angles= list(tmp.position)
     r_test.add_point(current_angles, 0.0)
-    
-    p1 = [0.0] * 6
+
+    if '6dof' == dof:
+        p1 = [0.0] * 6
+    if '7dof' == dof:
+        p1 = [0.0] * 7
+
     r_test.add_point(p1,10.0)
     r_test.add_point(current_angles,20.0)
     r_test.start()

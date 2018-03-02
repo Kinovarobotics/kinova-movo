@@ -3,16 +3,16 @@
     <!-- Standalone launcher to visualize the robot model. -->
 
     <include file="$(find movo_description)/launch/movo_upload.launch"/>
-
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
-        <param name="publish_frequency" type="double" value="100.0" />
+       
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+        <param name="publish_frequency" type="double" value="100.0"/>
         <param name="tf_prefix" value=""/>
     </node>
   
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-        <param name="use_gui" value="true" />
+        <param name="use_gui" value="true"/>
     </node>
-
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find movo_viz)/rviz/model.rviz" />
-
+    
+    <node if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" name="rviz" pkg="rviz" type="rviz" args="-d $(find movo_viz)/rviz/model_7dof.rviz"/>
+    <node if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" name="rviz" pkg="rviz" type="rviz" args="-d $(find movo_viz)/rviz/model.rviz"/>    
 </launch>

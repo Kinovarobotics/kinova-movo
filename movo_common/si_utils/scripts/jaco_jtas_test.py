@@ -53,7 +53,7 @@ from control_msgs.msg import JointTrajectoryControllerState
 
 
 class JacoJTASTest(object):
-    def __init__(self, arm='right'):
+    def __init__(self, arm='right', dof='6dof'):
         self._client = actionlib.SimpleActionClient(
             'movo/%s_arm_controller/follow_joint_trajectory'%arm,
             FollowJointTrajectoryAction,
@@ -61,6 +61,7 @@ class JacoJTASTest(object):
         self._goal = FollowJointTrajectoryGoal()
         self._goal_time_tolerance = rospy.Time(0.1)
         self._goal.goal_time_tolerance = self._goal_time_tolerance
+        self.dof = dof
         server_up = self._client.wait_for_server(timeout=rospy.Duration(10.0))
         if not server_up:
             rospy.logerr("Timed out waiting for Joint Trajectory"
@@ -96,23 +97,37 @@ class JacoJTASTest(object):
     def clear(self, arm='right'):
         self._goal = FollowJointTrajectoryGoal()
         self._goal.goal_time_tolerance = self._goal_time_tolerance
-        self._goal.trajectory.joint_names = ['%s_shoulder_pan_joint'%arm,
-                                             '%s_shoulder_lift_joint'%arm,
-                                             '%s_elbow_joint'%arm,
-                                             '%s_wrist_1_joint'%arm,
-                                             '%s_wrist_2_joint'%arm,
-                                             '%s_wrist_3_joint'%arm]
+        if '6dof' == self.dof:
+            self._goal.trajectory.joint_names = ['%s_shoulder_pan_joint'%arm,
+                                                 '%s_shoulder_lift_joint'%arm,
+                                                 '%s_elbow_joint'%arm,
+                                                 '%s_wrist_1_joint'%arm,
+                                                 '%s_wrist_2_joint'%arm,
+                                                 '%s_wrist_3_joint'%arm]
+        if '7dof' == self.dof:
+            self._goal.trajectory.joint_names = ['%s_shoulder_pan_joint' % arm,
+                                                 '%s_shoulder_lift_joint' % arm,
+                                                 '%s_arm_half_joint' % arm,
+                                                 '%s_elbow_joint' % arm,
+                                                 '%s_wrist_spherical_1_joint' % arm,
+                                                 '%s_wrist_spherical_2_joint' % arm,
+                                                 '%s_wrist_3_joint' % arm]
 
 
 def main():
     rospy.init_node('jaco_jtas_test')
+    dof = rospy.get_param('~jaco_dof')
     
     tmp = rospy.wait_for_message("/movo/right_arm/joint_states", JointState)
     current_angles= tmp.position
     traj = JacoJTASTest('right')
     traj.add_point(current_angles, 0.0)
-    
-    p1 = [0.0] * 6
+
+    if '6dof' == dof:
+        p1 = [0.0] * 6
+    if '7dof' == dof:
+        p1 = [0.0] * 7
+
     traj.add_point(p1,10.0)
     p2 = list(current_angles)
     traj.add_point(p2,20.0)

@@ -13,6 +13,8 @@
             <param name="interface" value="$(optenv KINOVA_ARM_IFACE eth0)"/>
             <param name="gripper" value="kg2" if="$(optenv MOVO_HAS_RIGHT_KG2_GRIPPER false)"/>
             <param name="gripper" value="kg3" if="$(optenv MOVO_HAS_RIGHT_KG3_GRIPPER false)"/>
+            <param name="jaco_dof" value="6dof" if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)"/>
+            <param name="jaco_dof" value="7dof" if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)"/>
         </node>
 
         <node pkg="movo_ros" type="movo_arm_ctl" name="left_arm_ctl" output="screen" if="$(optenv MOVO_HAS_TWO_KINOVA_ARMS false)">
@@ -21,6 +23,8 @@
             <param name="interface" value="$(optenv KINOVA_ARM_IFACE eth0)"/>
             <param name="gripper" value="kg2" if="$(optenv MOVO_HAS_LEFT_KG2_GRIPPER false)"/>
             <param name="gripper" value="kg3" if="$(optenv MOVO_HAS_LEFT_KG3_GRIPPER false)"/>
+            <param name="jaco_dof" value="6dof" if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)"/>
+            <param name="jaco_dof" value="7dof" if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)"/>
         </node>
 
         <!-- Gripper node, enumeration should be performed with the robotiq tool using id=0 for right gripper and id=1 for left gripper,

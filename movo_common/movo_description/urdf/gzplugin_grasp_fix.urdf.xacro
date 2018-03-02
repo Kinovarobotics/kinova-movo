@@ -136,7 +136,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                         <forces_angle_tolerance>100</forces_angle_tolerance>
                         <update_rate>50</update_rate>
                         <grip_count_threshold>1</grip_count_threshold>
-                        <max_grip_count>2</max_grip_count>
+                        <max_grip_count>8</max_grip_count>
                         <release_tolerance>0.006</release_tolerance>
                         <disable_collisions_on_attach>true</disable_collisions_on_attach>
                         <contact_topic>right_gripper/contacts</contact_topic>
@@ -157,7 +157,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                         <forces_angle_tolerance>100</forces_angle_tolerance>
                         <update_rate>50</update_rate>
                         <grip_count_threshold>1</grip_count_threshold>
-                        <max_grip_count>2</max_grip_count>
+                        <max_grip_count>8</max_grip_count>
                         <release_tolerance>0.006</release_tolerance>
                         <disable_collisions_on_attach>true</disable_collisions_on_attach>
                         <contact_topic>left_gripper/contacts</contact_topic>

@@ -1,0 +1,367 @@
+<?xml version="1.0"?>
+<!--
+Software License Agreement (BSD)
+\file      jaco_7dof.urdf.xacro
+\authors   Sebastien Paradis
+\copyright Copyright (c) 2018, Kinova Robotics inc. All rights reserved.
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+    * Neither the name of the copyright holder nor the names of its contributors
+      may be used to endorse or promote products derived from this software
+      without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<robot name="jaco_robot_7dof" xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:include filename="$(find movo_description)/urdf/manipulation/jaco/jaco_7dof.transmission.xacro" />
+
+
+    <xacro:property name="M_PI" value="3.14159265"/>
+
+    <!-- Inertia parameters -->
+    <xacro:property name="base_mass" value="0.649618" />
+    <xacro:property name="shoulder_mass" value="0.824524" />
+    <xacro:property name="arm_half_1_mass" value="0.8447" />
+    <xacro:property name="arm_half_2_mass" value="0.8447" />
+    <xacro:property name="forearm_mass" value="0.674254" />
+    <xacro:property name="wrist_spherical_1_mass" value="0.463" />
+    <xacro:property name="wrist_spherical_2_mass" value="0.463" />
+    <xacro:property name="wrist_3_mass" value="0.190782"/>
+
+    <property name="shoulder_pan_joint_rpy" value="0 ${M_PI} 0" />
+    <property name="shoulder_lift_joint_rpy" value="${M_PI/2} 0 0" />
+    <property name="arm_half_joint_rpy" value="-${M_PI/2} 0 0" />
+    <property name="elbow_joint_rpy" value="-${M_PI/2} 0 0"/>
+    <property name="wrist_spherical_1_joint_rpy" value="${M_PI/2} ${M_PI} 0" />
+    <property name="wrist_spherical_2_joint_rpy" value="-${M_PI/2} 0 0" />
+    <property name="wrist_3_joint_rpy" value="${M_PI/2} ${M_PI} 0" />
+
+    <xacro:macro name="jaco_robot_7dof" params="prefix parent *origin">
+        
+        <joint name="${prefix}kinova_joint" type="fixed">
+            <parent link="${parent}" />
+            <child link = "${prefix}base_link" />
+            <xacro:insert_block name="origin"/>
+        </joint>
+        
+        <link name="${prefix}base_link" >
+            <visual>
+                <geometry>
+                <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/base.dae"/>
+                </geometry>
+            </visual>
+            <collision>
+                <geometry>
+                <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/base.stl"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="${base_mass}" />
+                <origin xyz="-0.000146 0.0 0.031039" />
+                <inertia  ixx="0.000652"  ixy="-0.000000"  ixz="0.000001" 
+                          iyx="0.000000"  iyy="0.000646"  iyz="0.000000" 
+                          izx="0.000001"  izy="0.000000"  izz="0.000480" />
+            </inertial>
+        </link>
+        
+        <gazebo reference="${prefix}base_link">
+        	<implicitSpringDamper>1</implicitSpringDamper>
+            <kp>1000000.0</kp>
+            <kd>100.0</kd>
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2>
+            <maxVel>100.0</maxVel>
+            <minDepth>0.001</minDepth>
+        </gazebo> 
+
+        <joint name="${prefix}shoulder_pan_joint" type="revolute">
+            <parent link="${prefix}base_link" />
+            <child link = "${prefix}shoulder_link" />
+            <origin xyz="0 0 0.0625" rpy="${shoulder_pan_joint_rpy}" />
+            <axis xyz="0 0 1" />
+            <limit lower="${-M_PI}" upper="${M_PI}" effort="18000.0" velocity="0.691150384"/>
+            <dynamics damping="0.01" friction="0.0"/>
+        </joint>
+
+        <link name="${prefix}shoulder_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/shoulder_7dof.dae"/>
+                </geometry>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/shoulder_7dof.stl"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="${shoulder_mass}" />
+                <origin xyz="0.000018 -0.004667 -0.060609" />
+                <inertia  ixx="0.002561"  ixy="0.000000"  ixz="0.000001" 
+                          iyx="0.000000"  iyy="0.002653"  iyz="0.000212" 
+                          izx="0.000001"  izy="0.000212"  izz="0.000524" />
+            </inertial>
+        </link>
+
+        <gazebo reference="${prefix}shoulder_link">
+        	<implicitSpringDamper>1</implicitSpringDamper>
+            <kp>1000000.0</kp>
+            <kd>100.0</kd>
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2>
+            <maxVel>100.0</maxVel>
+            <minDepth>0.001</minDepth>
+        </gazebo> 
+
+        <joint name="${prefix}shoulder_lift_joint" type="revolute">
+            <parent link="${prefix}shoulder_link" />
+            <child link = "${prefix}arm_half_1_link" />
+            <origin xyz="0 0 -0.11875" rpy="${shoulder_lift_joint_rpy}" />
+            <axis xyz="0 0 1" />
+            <limit lower="-2.238" upper="2.238" effort="30000.5" velocity="0.691150384"/>
+            <dynamics damping="0.01" friction="0.0"/>
+        </joint>
+
+        <link name="${prefix}arm_half_1_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/arm_half_1.dae"/>
+                </geometry>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/arm_half_1.stl"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="${arm_half_1_mass}" />
+                <origin xyz="0 -0.103563213 0" />
+                <inertia  ixx="0.000435"  ixy="0.000002"  ixz="0.000231" 
+                          iyx="0.000002"  iyy="0.034947"  iyz="0.000000" 
+                          izx="0.000231"  izy="0.000000"  izz="0.035198" />
+            </inertial>
+        </link>
+
+        <gazebo reference="${prefix}arm_half_1_link">
+        	<implicitSpringDamper>1</implicitSpringDamper>
+            <kp>1000000.0</kp>
+            <kd>100.0</kd>
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2>
+            <maxVel>100.0</maxVel>
+            <minDepth>0.001</minDepth>
+        </gazebo>
+        
+        <joint name="${prefix}arm_half_joint" type="revolute">
+            <parent link="${prefix}arm_half_1_link" />
+            <child link = "${prefix}arm_half_2_link" />
+            <origin xyz="0 -0.205 0" rpy="${arm_half_joint_rpy}"/>
+            <axis xyz="0 0 1" />
+            <limit lower="${-M_PI}" upper="${M_PI}" effort="30000.5" velocity="0.691150384"/>
+            <dynamics damping="0.01" friction="0.0"/>
+        </joint>
+        
+         <link name="${prefix}arm_half_2_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/arm_half_2.dae"/>
+                </geometry>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/arm_half_2.stl"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="${arm_half_2_mass}" />
+                <origin xyz="0 0 -0.1022447445" />
+                <inertia  ixx="0.000435"  ixy="0.000002"  ixz="0.000231" 
+                          iyx="0.000002"  iyy="0.034947"  iyz="0.000000" 
+                          izx="0.000231"  izy="0.000000"  izz="0.035198" />
+            </inertial>
+        </link>
+
+        <gazebo reference="${prefix}arm_half_2_link">
+        	<implicitSpringDamper>1</implicitSpringDamper>
+            <kp>1000000.0</kp>
+            <kd>100.0</kd>
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2>
+            <maxVel>100.0</maxVel>
+            <minDepth>0.001</minDepth>
+        </gazebo> 
+
+        <joint name="${prefix}elbow_joint" type="revolute">
+            <parent link="${prefix}arm_half_2_link" />
+            <child link = "${prefix}forearm_link" />
+            <origin xyz="0 0 -0.205" rpy="${elbow_joint_rpy}" />
+            <axis xyz="0 0 1" />
+            <limit lower="-2.809" upper="2.809" effort="18000.0" velocity="0.691150384"/>
+            <dynamics damping="0.01" friction="0.0"/>
+        </joint>
+
+        <link name="${prefix}forearm_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/forearm_7dof.dae"/>
+                </geometry>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/forearm_7dof.stl"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="${forearm_mass}" />
+	            <origin xyz="0 0.081 -0.0086" />
+                <inertia  ixx="0.005453"  ixy="0.000003"  ixz="0.000000" 
+                          iyx="0.000003"  iyy="0.000305"  iyz="0.000087" 
+                          izx="0.000000"  izy="0.000087"  izz="0.005578" />
+            </inertial>
+        </link>
+
+        <joint name="${prefix}wrist_spherical_1_joint" type="revolute">
+            <parent link="${prefix}forearm_link" />
+            <child link="${prefix}wrist_spherical_1_link" />
+          <!--  <origin xyz="0 0.20725 0 " rpy="${wrist_spherical_1_joint_rpy}" /> -->
+            <origin xyz="0 0.2073 -0.0114" rpy="${wrist_spherical_1_joint_rpy}" />
+            <axis xyz="0 0 1" />
+            <limit lower="${-M_PI}" upper="${M_PI}" effort="60000.8" velocity="0.921533845"/>
+            <dynamics damping="0.01" friction="0.0"/>
+        </joint>
+
+        <link name="${prefix}wrist_spherical_1_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/wrist_spherical_1.dae"/>
+                </geometry>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/wrist_spherical_1.stl"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="${wrist_spherical_1_mass}" />
+                <origin xyz="0 0.0028848942 -0.0541932613" />
+                <inertia  ixx="0.000392"  ixy="0.000000"  ixz="0.000000" 
+                          iyx="0.000000"  iyy="0.000347"  iyz="0.000101" 
+                          izx="0.000000"  izy="0.000101"  izz="0.000233" />
+            </inertial>
+        </link>
+
+        <gazebo reference="${prefix}wrist_spherical_1_link">
+        	<implicitSpringDamper>1</implicitSpringDamper>
+            <kp>1000000.0</kp>
+            <kd>100.0</kd>
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2>
+            <maxVel>100.0</maxVel>
+            <minDepth>0.001</minDepth>
+        </gazebo>
+
+        <joint name="${prefix}wrist_spherical_2_joint" type="revolute">
+            <parent link="${prefix}wrist_spherical_1_link" />
+            <child link="${prefix}wrist_spherical_2_link" />
+            <origin xyz="0 0 -0.10375 " rpy="${wrist_spherical_2_joint_rpy}" />
+            <axis xyz="0 0 1" />
+            <limit lower="${-2.78}" upper="${2.78}" effort="60000.8" velocity="0.921533845"/>
+            <dynamics damping="0.01" friction="0.0"/>
+        </joint>
+        
+        <link name="${prefix}wrist_spherical_2_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/wrist_spherical_2.dae"/>
+                </geometry>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/wrist_spherical_2.stl"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="${wrist_spherical_2_mass}" />
+                <origin xyz="0 0.0497208855 -0.0028562765" />
+                <inertia  ixx="0.000392"  ixy="0.000000"  ixz="0.000000" 
+                          iyx="0.000000"  iyy="0.000347"  iyz="0.000101" 
+                          izx="0.000000"  izy="0.000101"  izz="0.000233" />
+            </inertial>
+        </link>
+
+        <gazebo reference="${prefix}wrist_spherical_2_link">
+        	<implicitSpringDamper>1</implicitSpringDamper>
+            <kp>1000000.0</kp>
+            <kd>100.0</kd>
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2>
+            <maxVel>100.0</maxVel>
+            <minDepth>0.001</minDepth>
+        </gazebo>
+        
+        <joint name="${prefix}wrist_3_joint" type="revolute">
+            <parent link="${prefix}wrist_spherical_2_link" />
+            <child link = "${prefix}wrist_3_link" />
+            <origin xyz="0 0.10375 0" rpy="${wrist_3_joint_rpy}" />
+            <axis xyz="0 0 1" />
+            <limit lower="${-M_PI}" upper="${M_PI}" effort="60000.8" velocity="0.921533845"/>
+            <dynamics damping="0.01" friction="0.0"/>
+        </joint>
+        
+
+        <link name="${prefix}wrist_3_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/visual/kinova_actuator_gearing.dae"/>
+                </geometry>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://movo_description/meshes/manipulation/jaco/collision/kinova_actuator_gearing.stl"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="${wrist_3_mass}" />
+                <origin xyz="-0.00082 0.000048 -0.216121" />
+                <inertia  ixx="0.000048"  ixy="0.000000"  ixz="0.000000" 
+                          iyx="0.000000"  iyy="0.000049"  iyz="0.000000" 
+                          izx="0.000000"  izy="0.000000"  izz="0.000072" />
+            </inertial>
+        </link>
+
+        <gazebo reference="${prefix}wrist_3_link">
+        	<implicitSpringDamper>1</implicitSpringDamper>
+            <kp>1000000.0</kp>
+            <kd>100.0</kd>
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2>
+            <maxVel>100.0</maxVel>
+            <minDepth>0.001</minDepth>
+        </gazebo> 
+
+        <joint name="${prefix}ee_fixed_joint" type="fixed">
+            <parent link="${prefix}wrist_3_link" />
+            <child link="${prefix}ee_link" />
+            <origin xyz="0 0 -0.1600" rpy="${M_PI} ${M_PI/2} 0"/>
+        </joint>
+
+        <link name="${prefix}ee_link"/>  
+                
+        <xacro:jaco_7dof_arm_transmission prefix="${prefix}" />
+
+  </xacro:macro>
+</robot>

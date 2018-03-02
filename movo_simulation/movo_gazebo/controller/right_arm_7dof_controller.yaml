@@ -1,0 +1,25 @@
+movo:
+    right_arm_controller:
+        type: position_controllers/JointTrajectoryController
+        joints:
+            - right_shoulder_pan_joint
+            - right_shoulder_lift_joint
+            - right_arm_half_joint
+            - right_elbow_joint
+            - right_wrist_spherical_1_joint
+            - right_wrist_spherical_2_joint
+            - right_wrist_3_joint
+
+        constraints:
+            goal_time: 1.0
+            stopped_velocity_tolerance: 0.5
+            right_shoulder_pan_joint: {trajectory: 0.5, goal: 0.5}
+            right_shoulder_lift_joint: {trajectory: 0.5, goal: 0.5}
+            right_arm_half_joint: {trajectory: 0.5, goal: 0.5}
+            right_elbow_joint: {trajectory: 0.5, goal: 0.5}
+            right_wrist_spherical_1_joint: {trajectory: 0.5, goal: 0.5}
+            right_wrist_spherical_2_joint: {trajectory: 0.5, goal: 0.5}
+            right_wrist_3_joint: {trajectory: 0.5, goal: 0.5}
+        stop_trajectory_duration: 1.0
+        state_publish_rate:  100
+        action_monitor_rate: 100

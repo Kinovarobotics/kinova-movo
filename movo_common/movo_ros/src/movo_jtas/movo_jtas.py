@@ -85,7 +85,7 @@ def calc_grip_angle(x):
 
 
 class MovoArmJTAS(object):
-    def __init__(self, prefix="", gripper="", interface='eth0', jaco_ip="10.66.171.15", rate=100.0):
+    def __init__(self, prefix="", gripper="", interface='eth0', jaco_ip="10.66.171.15", dof="", rate=100.0):
         self._alive = False
         self.init_success = True
 
@@ -108,12 +108,25 @@ class MovoArmJTAS(object):
         """
         Define the joint names
         """
-        self._joint_names = [self._prefix+'_shoulder_pan_joint',
-                             self._prefix+'_shoulder_lift_joint',
-                             self._prefix+'_elbow_joint',
-                             self._prefix+'_wrist_1_joint',
-                             self._prefix+'_wrist_2_joint',
-                             self._prefix+'_wrist_3_joint']
+        if ("6dof" == dof):
+            self._joint_names = [self._prefix+'_shoulder_pan_joint',
+                                 self._prefix+'_shoulder_lift_joint',
+                                 self._prefix+'_elbow_joint',
+                                 self._prefix+'_wrist_1_joint',
+                                 self._prefix+'_wrist_2_joint',
+                                 self._prefix+'_wrist_3_joint']
+        elif ("7dof" == dof):
+            self._joint_names = [self._prefix + '_shoulder_pan_joint',
+                                 self._prefix + '_shoulder_lift_joint',
+                                 self._prefix + '_arm_half_joint',
+                                 self._prefix + '_elbow_joint',
+                                 self._prefix + '_wrist_spherical_1_joint',
+                                 self._prefix + '_wrist_spherical_2_joint',
+                                 self._prefix + '_wrist_3_joint']
+
+        else:
+            rospy.logerr("DoF needs to be set 6 or 7, cannot start MovoArmJTAS")
+            return
 
         """
         Controller parameters from arguments, messages, and dynamic
@@ -125,7 +138,7 @@ class MovoArmJTAS(object):
         self._goal_error = dict()
         self._path_thresh = dict()
         self._traj_smoother = TrajectorySmoother(rospy.get_name(),self._prefix)
-        self._ctl = SIArmController(self._prefix,gripper,interface,jaco_ip)
+        self._ctl = SIArmController(self._prefix,gripper,interface,jaco_ip, dof)
         self._ctl.Pause()
         self._estop_delay = 0
         self.home_arm_sub = rospy.Subscriber('/movo/home_arms', Bool, self._home_arms)
@@ -166,7 +179,8 @@ class MovoArmJTAS(object):
         self._gripper_fdbk = GripperCommandFeedback()
         self._gripper_result = GripperCommandResult()
         self._gripper_timeout = 6.0
-        
+        self._ctl.api.InitFingers()
+
     def _update_gripper_feedback(self, position):
         tmp = self._ctl.GetGripperFdbk()
         

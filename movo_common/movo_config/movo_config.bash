@@ -60,6 +60,8 @@ export MOVO_HAS_TWO_KINOVA_ARMS=true
 export KINOVA_RIGHT_ARM_IP_ADDRESS=10.66.171.15
 export KINOVA_LEFT_ARM_IP_ADDRESS=10.66.171.16
 export KINOVA_ARM_IFACE=eth0
+export MOVO_HAS_KINOVA_ARM_7DOF=true
+export MOVO_HAS_KINOVA_ARM_6DOF=false
 
 #gripper configurations
 

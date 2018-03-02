@@ -1,0 +1,71 @@
+controller_list:
+  - name: fake_left_arm_controller
+    joints:
+      - left_shoulder_pan_joint
+      - left_shoulder_lift_joint
+      - left_arm_half_joint
+      - left_elbow_joint
+      - left_wrist_spherical_1_joint
+      - left_wrist_spherical_2_joint
+      - left_wrist_3_joint
+  - name: fake_right_arm_controller
+    joints:
+      - right_shoulder_pan_joint
+      - right_shoulder_lift_joint
+      - right_arm_half_joint
+      - right_elbow_joint
+      - right_wrist_spherical_1_joint
+      - right_wrist_spherical_2_joint
+      - right_wrist_3_joint
+  - name: fake_torso_controller
+    joints:
+      - linear_joint
+  - name: fake_left_gripper_controller
+    joints:
+      - left_gripper_finger1_joint
+  - name: fake_right_gripper_controller
+    joints:
+      - right_gripper_finger1_joint
+  - name: fake_head_controller
+    joints:
+      - pan_joint
+      - tilt_joint
+  - name: fake_right_side_controller
+    joints:
+      - linear_joint
+      - right_shoulder_pan_joint
+      - right_shoulder_lift_joint
+      - right_arm_half_joint
+      - right_elbow_joint
+      - right_wrist_spherical_1_joint
+      - right_wrist_spherical_2_joint
+      - right_wrist_3_joint
+  - name: fake_left_side_controller
+    joints:
+      - linear_joint
+      - left_shoulder_pan_joint
+      - left_shoulder_lift_joint
+      - left_arm_half_joint
+      - left_elbow_joint
+      - left_wrist_spherical_1_joint
+      - left_wrist_spherical_2_joint
+      - left_wrist_3_joint
+  - name: fake_upper_body_controller
+    joints:
+      - linear_joint
+      - left_shoulder_pan_joint
+      - left_shoulder_lift_joint
+      - left_arm_half_joint
+      - left_elbow_joint
+      - left_wrist_spherical_1_joint
+      - left_wrist_spherical_2_joint
+      - left_wrist_3_joint
+      - pan_joint
+      - tilt_joint
+      - right_shoulder_pan_joint
+      - right_shoulder_lift_joint
+      - right_arm_half_joint
+      - right_elbow_joint
+      - right_wrist_spherical_1_joint
+      - right_wrist_spherical_2_joint
+      - right_wrist_3_joint

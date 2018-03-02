@@ -30,8 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  \file   kinova_api_wrapper.py
 
  \brief  This module contains a collection of functions low level interface
-         to the Kinova API in order to control an arm in cartesian velocity mode
-         it is really only useful for teleoperation
+         to the Kinova API in order to control an arm.
 
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
@@ -138,12 +137,20 @@ FINGER_FACTOR = (0.986111027/121.5)
 LARGE_ACTUATOR_VELOCITY =deg_to_rad(35.0) #maximum velocity of large actuator (joints 1-3) (deg/s)
 SMALL_ACTUATOR_VELOCITY =deg_to_rad(45.0) #maximum velocity of small actuator (joints 4-6) (deg/s)
 
-JOINT_VEL_LIMITS = [LARGE_ACTUATOR_VELOCITY,
-                    LARGE_ACTUATOR_VELOCITY,
-                    LARGE_ACTUATOR_VELOCITY,
-                    SMALL_ACTUATOR_VELOCITY,
-                    SMALL_ACTUATOR_VELOCITY,
-                    SMALL_ACTUATOR_VELOCITY]
+JOINT_6DOF_VEL_LIMITS = [LARGE_ACTUATOR_VELOCITY,
+                         LARGE_ACTUATOR_VELOCITY,
+                         LARGE_ACTUATOR_VELOCITY,
+                         SMALL_ACTUATOR_VELOCITY,
+                         SMALL_ACTUATOR_VELOCITY,
+                         SMALL_ACTUATOR_VELOCITY]
+
+JOINT_7DOF_VEL_LIMITS = [LARGE_ACTUATOR_VELOCITY,
+                         LARGE_ACTUATOR_VELOCITY,
+                         LARGE_ACTUATOR_VELOCITY,
+                         LARGE_ACTUATOR_VELOCITY,
+                         SMALL_ACTUATOR_VELOCITY,
+                         SMALL_ACTUATOR_VELOCITY,
+                         SMALL_ACTUATOR_VELOCITY]
 
 FINGER_ANGULAR_VEL_LIMIT = deg_to_rad(4500.0)*FINGER_FACTOR
 
@@ -152,12 +159,13 @@ TELEOP_CONTROL       = 1
 
 
 class KinovaAPI(object):
-    def __init__(self, prefix, interface='eth0', robotIpAddress="10.66.171.15", subnetMask="255.255.255.0", localCmdport = 24000,localBcastPort = 24024,robotPort = 44000):
+    def __init__(self, prefix, interface='eth0', robotIpAddress="10.66.171.15", subnetMask="255.255.255.0", localCmdport = 24000,localBcastPort = 24024,robotPort = 44000, dof="6dof"):
         
         self.init_success = False
         self.api_online = False
         self._prefix = prefix
         self.commErrCnt = 0
+        self.arm_dof = dof
         
         """
         Create the hooks for the API
@@ -277,18 +285,35 @@ class KinovaAPI(object):
         self._cart_cmd.Position.Fingers.Finger3 = cmds[6]/FINGER_FACTOR
         
     def send_angular_vel_cmds(self,cmds):
+        cmds_len = len(cmds)
         traj = TrajectoryPoint()
         traj.Position.Type = ANGULAR_VELOCITY
-        traj.Position.Actuators.Actuator1 = cmds[0]
-        traj.Position.Actuators.Actuator2 = cmds[1]
-        traj.Position.Actuators.Actuator3 = cmds[2]
-        traj.Position.Actuators.Actuator4 = cmds[3]
-        traj.Position.Actuators.Actuator5 = cmds[4]
-        traj.Position.Actuators.Actuator6 = cmds[5]
-        traj.Position.HandMode = 2
-        traj.Position.Fingers.Finger1 = cmds[6]/FINGER_FACTOR
-        traj.Position.Fingers.Finger2 = cmds[7]/FINGER_FACTOR
-        traj.Position.Fingers.Finger3 = cmds[8]/FINGER_FACTOR
+        if ("6dof" == self.arm_dof):
+            traj.Position.Actuators.Actuator1 = cmds[0]
+            traj.Position.Actuators.Actuator2 = cmds[1]
+            traj.Position.Actuators.Actuator3 = cmds[2]
+            traj.Position.Actuators.Actuator4 = cmds[3]
+            traj.Position.Actuators.Actuator5 = cmds[4]
+            traj.Position.Actuators.Actuator6 = cmds[5]
+            traj.Position.HandMode = 2
+            traj.Position.Fingers.Finger1 = cmds[6]/FINGER_FACTOR
+            traj.Position.Fingers.Finger2 = cmds[7]/FINGER_FACTOR
+            traj.Position.Fingers.Finger3 = cmds[8]/FINGER_FACTOR
+
+        elif ("7dof" == self.arm_dof):
+            traj.Position.Actuators.Actuator1 = cmds[0]
+            traj.Position.Actuators.Actuator2 = cmds[1]
+            traj.Position.Actuators.Actuator3 = cmds[2]
+            traj.Position.Actuators.Actuator4 = cmds[3]
+            traj.Position.Actuators.Actuator5 = cmds[4]
+            traj.Position.Actuators.Actuator6 = cmds[5]
+            traj.Position.Actuators.Actuator7 = cmds[6]
+            traj.Position.HandMode = 2
+            traj.Position.Fingers.Finger1 = cmds[7]/FINGER_FACTOR
+            traj.Position.Fingers.Finger2 = cmds[8]/FINGER_FACTOR
+            traj.Position.Fingers.Finger3 = cmds[9]/FINGER_FACTOR
+            #rospy.logerr("send_angular_vel_cmds:[%f] [%f] [%f] [%f] [%f] [%f] [%f]" %(cmds[0], cmds[1], cmds[2], cmds[3], cmds[4], cmds[5], cmds[6]))
+
         self.SendAdvanceTrajectory(traj)
     
     def send_cartesian_vel_cmd(self):
@@ -299,15 +324,28 @@ class KinovaAPI(object):
         api_stat= self.GetAngularPosition(byref(pos))
         
         if ( NO_ERROR_KINOVA == api_stat):
-            ret = [deg_to_rad(pos.Actuators.Actuator1),
-                   deg_to_rad(pos.Actuators.Actuator2-180.0),
-                   deg_to_rad(pos.Actuators.Actuator3-180.0),
-                   deg_to_rad(pos.Actuators.Actuator4),
-                   deg_to_rad(pos.Actuators.Actuator5),
-                   deg_to_rad(pos.Actuators.Actuator6),
-                   deg_to_rad(pos.Fingers.Finger1) *FINGER_FACTOR,
-                   deg_to_rad(pos.Fingers.Finger2) *FINGER_FACTOR,
-                   deg_to_rad(pos.Fingers.Finger3) *FINGER_FACTOR]
+            if ("6dof" == self.arm_dof):
+                ret = [deg_to_rad(pos.Actuators.Actuator1),
+                       deg_to_rad(pos.Actuators.Actuator2 - 180.0),
+                       deg_to_rad(pos.Actuators.Actuator3 - 180.0),
+                       deg_to_rad(pos.Actuators.Actuator4),
+                       deg_to_rad(pos.Actuators.Actuator5),
+                       deg_to_rad(pos.Actuators.Actuator6),
+                       deg_to_rad(pos.Fingers.Finger1) * FINGER_FACTOR,
+                       deg_to_rad(pos.Fingers.Finger2) * FINGER_FACTOR,
+                       deg_to_rad(pos.Fingers.Finger3) * FINGER_FACTOR]
+
+            elif ("7dof" == self.arm_dof):
+                ret = [deg_to_rad(pos.Actuators.Actuator1),
+                       deg_to_rad(pos.Actuators.Actuator2 - 180.0),
+                       deg_to_rad(pos.Actuators.Actuator3),
+                       deg_to_rad(pos.Actuators.Actuator4 - 180.0),
+                       deg_to_rad(pos.Actuators.Actuator5),
+                       deg_to_rad(pos.Actuators.Actuator6 - 180.0),
+                       deg_to_rad(pos.Actuators.Actuator7),
+                       deg_to_rad(pos.Fingers.Finger1) * FINGER_FACTOR,
+                       deg_to_rad(pos.Fingers.Finger2) * FINGER_FACTOR,
+                       deg_to_rad(pos.Fingers.Finger3) * FINGER_FACTOR]
         else:
             rospy.loginfo("Kinova API failed: GetAngularPosition (%d)",api_stat)
             ret = []
@@ -323,15 +361,27 @@ class KinovaAPI(object):
         api_stat = self.GetAngularVelocity(byref(vel))
 
         if (NO_ERROR_KINOVA == api_stat):
-            ret = [deg_to_rad(vel.Actuators.Actuator1 *2),
-                   deg_to_rad(vel.Actuators.Actuator2 *2),
-                   deg_to_rad(vel.Actuators.Actuator3 *2),
-                   deg_to_rad(vel.Actuators.Actuator4 *2),
-                   deg_to_rad(vel.Actuators.Actuator5 *2),
-                   deg_to_rad(vel.Actuators.Actuator6 *2),
-                   deg_to_rad(vel.Fingers.Finger1 *2) *FINGER_FACTOR,
-                   deg_to_rad(vel.Fingers.Finger2 *2) *FINGER_FACTOR,
-                   deg_to_rad(vel.Fingers.Finger3 *2) *FINGER_FACTOR]
+            if ("6dof" == self.arm_dof):
+                ret = [deg_to_rad(vel.Actuators.Actuator1 *2),
+                       deg_to_rad(vel.Actuators.Actuator2 *2),
+                       deg_to_rad(vel.Actuators.Actuator3 *2),
+                       deg_to_rad(vel.Actuators.Actuator4 *2),
+                       deg_to_rad(vel.Actuators.Actuator5 *2),
+                       deg_to_rad(vel.Actuators.Actuator6 *2),
+                       deg_to_rad(vel.Fingers.Finger1 *2) *FINGER_FACTOR,
+                       deg_to_rad(vel.Fingers.Finger2 *2) *FINGER_FACTOR,
+                       deg_to_rad(vel.Fingers.Finger3 *2) *FINGER_FACTOR]
+            elif ("7dof" == self.arm_dof):
+                ret = [deg_to_rad(vel.Actuators.Actuator1 *2),
+                       deg_to_rad(vel.Actuators.Actuator2 *2),
+                       deg_to_rad(vel.Actuators.Actuator3 *2),
+                       deg_to_rad(vel.Actuators.Actuator4 *2),
+                       deg_to_rad(vel.Actuators.Actuator5 *2),
+                       deg_to_rad(vel.Actuators.Actuator6 *2),
+                       deg_to_rad(vel.Actuators.Actuator7 *2),
+                       deg_to_rad(vel.Fingers.Finger1 *2) *FINGER_FACTOR,
+                       deg_to_rad(vel.Fingers.Finger2 *2) *FINGER_FACTOR,
+                       deg_to_rad(vel.Fingers.Finger3 *2) *FINGER_FACTOR]
         else:
             rospy.loginfo("Kinova API failed: GetAngularVelocity (%d)",api_stat)
             ret = []
@@ -346,15 +396,28 @@ class KinovaAPI(object):
         ret = [0]*2
 
         if (NO_ERROR_KINOVA == api_stat):
-            ret[0] = [current.Actuators.Actuator1,
-                              current.Actuators.Actuator2,
-                              current.Actuators.Actuator3,
-                              current.Actuators.Actuator4,
-                              current.Actuators.Actuator5,
-                              current.Actuators.Actuator6,
-                              current.Fingers.Finger1,
-                              current.Fingers.Finger2,
-                              current.Fingers.Finger3]
+            if ("6dof" == self.arm_dof):
+                ret[0] = [current.Actuators.Actuator1,
+                          current.Actuators.Actuator2,
+                          current.Actuators.Actuator3,
+                          current.Actuators.Actuator4,
+                          current.Actuators.Actuator5,
+                          current.Actuators.Actuator6,
+                          current.Fingers.Finger1,
+                          current.Fingers.Finger2,
+                          current.Fingers.Finger3]
+
+            elif ("7dof" == self.arm_dof):
+                ret[0] = [current.Actuators.Actuator1,
+                          current.Actuators.Actuator2,
+                          current.Actuators.Actuator3,
+                          current.Actuators.Actuator4,
+                          current.Actuators.Actuator5,
+                          current.Actuators.Actuator6,
+                          current.Actuators.Actuator7,
+                          current.Fingers.Finger1,
+                          current.Fingers.Finger2,
+                          current.Fingers.Finger3]
         else:
             rospy.loginfo("Kinova API failed: GetAngularCurrentMotor (%d)",api_stat)
             ret[0] = []
@@ -364,15 +427,27 @@ class KinovaAPI(object):
         api_stat = self.GetSensorsInfo(byref(info))
 
         if (NO_ERROR_KINOVA == api_stat):
-            ret[1] = [info.ActuatorTemp1,
-                      info.ActuatorTemp2,
-                      info.ActuatorTemp3,
-                      info.ActuatorTemp4,
-                      info.ActuatorTemp5,
-                      info.ActuatorTemp6,
-                      info.FingerTemp1,
-                      info.FingerTemp2,
-                      info.FingerTemp3]
+            if ("6dof" == self.arm_dof):
+                ret[1] = [info.ActuatorTemp1,
+                          info.ActuatorTemp2,
+                          info.ActuatorTemp3,
+                          info.ActuatorTemp4,
+                          info.ActuatorTemp5,
+                          info.ActuatorTemp6,
+                          info.FingerTemp1,
+                          info.FingerTemp2,
+                          info.FingerTemp3]
+            elif ("7dof" == self.arm_dof):
+                ret[1] = [info.ActuatorTemp1,
+                          info.ActuatorTemp2,
+                          info.ActuatorTemp3,
+                          info.ActuatorTemp4,
+                          info.ActuatorTemp5,
+                          info.ActuatorTemp6,
+                          info.ActuatorTemp7,
+                          info.FingerTemp1,
+                          info.FingerTemp2,
+                          info.FingerTemp3]
         else:
             rospy.loginfo("Kinova API failed: GetSensorsInfo (%d)",api_stat)
             ret[1] = []
@@ -385,15 +460,29 @@ class KinovaAPI(object):
         api_stat = self.GetAngularForce(byref(force))
 
         if(NO_ERROR_KINOVA == api_stat):
-            ret = [force.Actuators.Actuator1,
-                   force.Actuators.Actuator2,
-                   force.Actuators.Actuator3,
-                   force.Actuators.Actuator4,
-                   force.Actuators.Actuator5,
-                   force.Actuators.Actuator6,
-                   force.Fingers.Finger1,
-                   force.Fingers.Finger2,
-                   force.Fingers.Finger3]
+            if ("6dof" == self.arm_dof):
+                ret = [force.Actuators.Actuator1,
+                       force.Actuators.Actuator2,
+                       force.Actuators.Actuator3,
+                       force.Actuators.Actuator4,
+                       force.Actuators.Actuator5,
+                       force.Actuators.Actuator6,
+                       force.Fingers.Finger1,
+                       force.Fingers.Finger2,
+                       force.Fingers.Finger3]
+
+            elif ("7dof" == self.arm_dof):
+                ret = [force.Actuators.Actuator1,
+                       force.Actuators.Actuator2,
+                       force.Actuators.Actuator3,
+                       force.Actuators.Actuator4,
+                       force.Actuators.Actuator5,
+                       force.Actuators.Actuator6,
+                       force.Actuators.Actuator7,
+                       force.Fingers.Finger1,
+                       force.Fingers.Finger2,
+                       force.Fingers.Finger3]
+
         else:
             rospy.loginfo("Kinova API failed: GetAngularForce (%d)",api_stat)
             ret = []
