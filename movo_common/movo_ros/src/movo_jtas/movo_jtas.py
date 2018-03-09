@@ -34,7 +34,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
 from movo_joint_interface.jaco_joint_controller import SIArmController
-from trajectory_smoother import TrajectorySmoother 
+from trajectory_smoother import TrajectorySmoother
+from moveit_python import MoveGroupInterface
+from moveit_msgs.msg import MoveItErrorCodes
 
 from control_msgs.msg import (
     FollowJointTrajectoryAction, 
@@ -48,15 +50,16 @@ from control_msgs.msg import (
 from trajectory_msgs.msg import JointTrajectoryPoint
 from std_msgs.msg import UInt16,Bool
 from movo_msgs.msg import Status
+from threading import Thread
 
 import errno
+
 import math
 import rospy
 import actionlib
 import bisect
 import operator
 from copy import deepcopy
-
 
 def calc_grip_dist(b):
     l1 = 30.9476-87.0932*math.sin(b[0]-0.627445866)
@@ -83,7 +86,6 @@ def calc_grip_angle(x):
     
     return (a)
 
-
 class MovoArmJTAS(object):
     def __init__(self, prefix="", gripper="", interface='eth0', jaco_ip="10.66.171.15", dof="", rate=100.0):
         self._alive = False
@@ -104,6 +106,8 @@ class MovoArmJTAS(object):
         self._gripper_stall_to = 0.7
         self._gripper_pos_stall = False
         self._last_movement_time = rospy.get_time()
+        self.dof = dof
+        self._planner_homing = False
 
         """
         Define the joint names
@@ -115,6 +119,24 @@ class MovoArmJTAS(object):
                                  self._prefix+'_wrist_1_joint',
                                  self._prefix+'_wrist_2_joint',
                                  self._prefix+'_wrist_3_joint']
+
+            self._body_joints = ["right_elbow_joint",
+                                 "right_shoulder_lift_joint",
+                                 "right_shoulder_pan_joint",
+                                 "right_wrist_1_joint",
+                                 "right_wrist_2_joint",
+                                 "right_wrist_3_joint",
+                                 "left_elbow_joint",
+                                 "left_shoulder_lift_joint",
+                                 "left_shoulder_pan_joint",
+                                 "left_wrist_1_joint",
+                                 "left_wrist_2_joint",
+                                 "left_wrist_3_joint",
+                                 "linear_joint",
+                                 "pan_joint",
+                                 "tilt_joint"]
+            self._homed = [-2.135, -0.227, -1.478, -2.083, 1.445, 1.321, 2.135, 0.227, 1.478, 2.083, -1.445, -1.321, 0.25, 0.0, 0.0]
+
         elif ("7dof" == dof):
             self._joint_names = [self._prefix + '_shoulder_pan_joint',
                                  self._prefix + '_shoulder_lift_joint',
@@ -123,6 +145,25 @@ class MovoArmJTAS(object):
                                  self._prefix + '_wrist_spherical_1_joint',
                                  self._prefix + '_wrist_spherical_2_joint',
                                  self._prefix + '_wrist_3_joint']
+
+            self._body_joints = ["right_shoulder_pan_joint",
+                                 "right_shoulder_lift_joint",
+                                 "right_arm_half_joint",
+                                 "right_elbow_joint",
+                                 "right_wrist_spherical_1_joint",
+                                 "right_wrist_spherical_2_joint",
+                                 "right_wrist_3_joint",
+                                 "left_shoulder_pan_joint",
+                                 "left_shoulder_lift_joint",
+                                 "left_arm_half_joint",
+                                 "left_elbow_joint",
+                                 "left_wrist_spherical_1_joint",
+                                 "left_wrist_spherical_2_joint",
+                                 "left_wrist_3_joint",
+                                 "linear_joint",
+                                 "pan_joint",
+                                 "tilt_joint"]
+            self._homed = [-1.5, -0.2, -0.15, -2.0, 2.0, -1.24, -1.1, 1.5, 0.2, 0.15, 2.0, -2.0, 1.24, 1.1, 0.25, 0, 0]
 
         else:
             rospy.logerr("DoF needs to be set 6 or 7, cannot start MovoArmJTAS")
@@ -180,6 +221,30 @@ class MovoArmJTAS(object):
         self._gripper_result = GripperCommandResult()
         self._gripper_timeout = 6.0
         self._ctl.api.InitFingers()
+
+    def _home_arm_planner(self):
+        if self._prefix == 'left':
+            rospy.sleep(5)
+        else:
+            move_group_jtas = MoveGroupInterface("upper_body", "base_link")
+            move_group_jtas.setPlannerId("RRTConnectkConfigDefault")
+
+            success = False
+            while not rospy.is_shutdown() and not success:
+                result = move_group_jtas.moveToJointPosition(self._body_joints, self._homed, 0.05)
+                if result.error_code.val == MoveItErrorCodes.SUCCESS:
+                    rospy.logerr("_home_arm_planner completed ")
+                    success = True
+                else:
+                    rospy.logerr("_home_arm_planner: _home_arm_planner failed (%d)" % result.error_code.val)
+
+        self._arms_homing = True
+        self._ctl.api.MoveHome()
+        self._ctl.api.InitFingers()
+        self.home_arm_pub.publish(Bool(True))
+        rospy.sleep(2.0)
+        self._arms_homing = False
+        self._planner_homing = False
 
     def _update_gripper_feedback(self, position):
         tmp = self._ctl.GetGripperFdbk()
@@ -267,16 +332,12 @@ class MovoArmJTAS(object):
         self._gripper_server.set_aborted(self._gripper_result)
     
     def _home_arms(self,cmd):
-        self._arms_homing = cmd.data
+        if (True == cmd.data and self._planner_homing == False):
+            self._planner_homing = True
+            b_thread = Thread(target=self._home_arm_planner(), args='')
+            b_thread.daemon = True
+            b_thread.start()
 
-        if (True == self._arms_homing):
-            self._ctl.api.MoveHome()
-            self._ctl.api.InitFingers()
-            self.home_arm_pub.publish(Bool(True))
-            rospy.sleep(2.0)
-            self._arms_homing = False
-        
-    
     def _update_movo_status(self,status):
         if (0 != status.dynamic_response) or (False == self._ctl.GetCtlStatus()) or self._arms_homing:
             self.estop = True
