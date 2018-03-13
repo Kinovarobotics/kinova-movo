@@ -110,6 +110,17 @@ if [ ! -f ~/.ssh/id_rsa.pub ]; then
     fi
 fi
 
+echo "\nWould you like to initialize and build the local workspace?"
+read -r -p "Build local workspace? [y/N] " response
+if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
+then
+    echo "\n Building local workspace. \n\n"
+    cd ~/movo_ws/src
+    catkin_init_workspace
+    cd ~/movo_ws  
+    catkin_make
+fi
+
 echo -e "\nScript has finished configuring the remote PC.\n\nWould you like to connect to the physical Movo robot now?"
 
 read -r -p "Connect to the Movo [y/N] " response
