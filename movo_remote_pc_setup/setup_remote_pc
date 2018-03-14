@@ -119,6 +119,7 @@ then
     catkin_init_workspace
     cd ~/movo_ws  
     catkin_make
+    cd $MOVO_SETUP_DIR
 fi
 
 echo -e "\nScript has finished configuring the remote PC.\n\nWould you like to connect to the physical Movo robot now?"
@@ -188,6 +189,7 @@ then
     catkin_init_workspace
     cd ~/movo_ws  
     catkin_make
+    cd $MOVO_SETUP_DIR
     echo "STOPPING THE ROBOT SERVICE AND UNINSTALLING IT.........."
     sleep 1
     ssh -t movo@movo2 "bash -ic +m 'cd ~; ./env.sh; movostop; rosrun movo_bringup uninstall_movo_core; rm -rf ~/movo_ws; mkdir -p ~/movo_ws/src;'"
