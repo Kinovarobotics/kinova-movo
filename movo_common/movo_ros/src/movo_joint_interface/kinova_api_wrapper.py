@@ -154,11 +154,15 @@ JOINT_7DOF_VEL_LIMITS = [LARGE_ACTUATOR_VELOCITY,
 
 FINGER_ANGULAR_VEL_LIMIT = deg_to_rad(4500.0)*FINGER_FACTOR
 
-AUTONOMOUS_CONTROL   = 0
-TELEOP_CONTROL       = 1
-
 
 class KinovaAPI(object):
+
+
+    # Which control mode we use (used with set_control_mode())
+    ANGULAR_CONTROL    = 0
+    CARTESIAN_CONTROL  = 1
+
+
     def __init__(self, prefix, interface='eth0', robotIpAddress="10.66.171.15", subnetMask="255.255.255.0", localCmdport = 24000,localBcastPort = 24024,robotPort = 44000, dof="6dof"):
         
         self.init_success = False
@@ -257,10 +261,10 @@ class KinovaAPI(object):
         self.StopControlAPI()
         self.CloseAPI()
     
-    def set_control_mode(self,mode):
-        if (AUTONOMOUS_CONTROL == mode):
+    def set_control_mode(self, mode):
+        if (KinovaAPI.ANGULAR_CONTROL == mode):
             self.SetAngularControl()
-        elif (TELEOP_CONTROL == mode):
+        elif (KinovaAPI.CARTESIAN_CONTROL == mode):
             self.SetCartesianControl()
 
     def handle_comm_err(self, err):

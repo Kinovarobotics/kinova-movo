@@ -144,7 +144,7 @@ class SIArmController(object):
         self._teleop_cmd_sub = rospy.Subscriber("/movo/%s_arm/cartesian_vel_cmd"%self._prefix,JacoCartesianVelocityCmd,self._update_teleop_cmd)
         
         self._gripper_cmd = 0.0
-        self._ctl_mode = AUTONOMOUS_CONTROL
+        self._ctl_mode = KinovaAPI.ANGULAR_CONTROL
         self._jstpub = rospy.Publisher("/movo/%s_arm_controller/state"%self._prefix,JointTrajectoryControllerState,queue_size=10)
         self._jstmsg = JointTrajectoryControllerState()
         self._jstmsg.header.seq = 0
@@ -268,9 +268,9 @@ class SIArmController(object):
     def _update_teleop_cmd(self,cmds):
         with self._lock:
             self.api.update_cartesian_vel_cmd([cmds.x,cmds.y,cmds.z,cmds.theta_x,cmds.theta_y,cmds.theta_z,self._gripper_cmd])
-            if (self._ctl_mode != TELEOP_CONTROL):
-                self.api.set_control_mode(TELEOP_CONTROL)
-                self._ctl_mode = TELEOP_CONTROL
+            if (self._ctl_mode != KinovaAPI.CARTESIAN_CONTROL):
+                self._ctl_mode = KinovaAPI.CARTESIAN_CONTROL
+                self.api.set_control_mode(self._ctl_mode)
             self.last_teleop_cmd_update = rospy.get_time()
             
     def _update_teleop_gripper_cmd(self,cmd):
@@ -478,12 +478,12 @@ class SIArmController(object):
             if self.estop:
                 return
         
-            if (TELEOP_CONTROL == self._ctl_mode):
+            if (KinovaAPI.CARTESIAN_CONTROL == self._ctl_mode):
                 self._init_ext_joint_position_control()
                 self._init_ext_gripper_control()
                 if ((rospy.get_time() - self.last_teleop_cmd_update) >= 1.0):
-                    self.api.set_control_mode(AUTONOMOUS_CONTROL)
-                    self._ctl_mode = AUTONOMOUS_CONTROL
+                    self._ctl_mode = KinovaAPI.ANGULAR_CONTROL
+                    self.api.set_control_mode(self._ctl_mode)
                     return
                 
                 if ((rospy.get_time() - self.last_teleop_cmd_update) >= 0.5):
