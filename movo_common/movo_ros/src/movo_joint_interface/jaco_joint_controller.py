@@ -36,7 +36,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------"""
 from ctypes import *
 import rospy
-from movo_msgs.msg import JacoCartesianVelocityCmd,KinovaActuatorFdbk
+from movo_msgs.msg import (
+    JacoCartesianVelocityCmd,
+    JacoAngularVelocityCmd6DOF,
+    JacoAngularVelocityCmd7DOF,
+    KinovaActuatorFdbk
+)
 from sensor_msgs.msg import JointState
 from control_msgs.msg import JointTrajectoryControllerState
 from std_msgs.msg import Float32
@@ -49,15 +54,24 @@ from kinova_api_wrapper import *
 import operator
         
 class SIArmController(object):
+
+
+    # Enum for arm control modes
+    ANGULAR_POSITION   = 0
+    ANGULAR_VELOCITY   = 1
+    CARTESIAN_POSITION = 2
+    CARTESIAN_VELOCITY = 3
+
+
     def __init__(self, prefix="", gripper="", interface='eth0', jaco_ip="10.66.171.15", dof=""):
         """
-        Setup a lock for accessing data in the control loop
+        Constructor
         """
+
+        # Setup a lock for accessing data in the control loop
         self._lock = threading.Lock()
 
-        """
-        Assume success until posted otherwise
-        """
+        # Assume success until posted otherwise
         rospy.loginfo('Starting JACO2 control')
         self.init_success = True
         
@@ -65,9 +79,7 @@ class SIArmController(object):
         self.iface = interface
         self.arm_dof = dof
 
-        """
-        List of joint names
-        """
+        # List of joint names
         if ("6dof"== self.arm_dof):
             self._joint_names = [self._prefix+'_shoulder_pan_joint',
                                  self._prefix+'_shoulder_lift_joint',
@@ -90,9 +102,7 @@ class SIArmController(object):
                              
         self._num_joints = len(self._joint_names)
 
-        """
-        Create the hooks for the API
-        """
+        # Create the hooks for the API
         if ('left' == prefix):
             self.api = KinovaAPI('left',self.iface,jaco_ip,'255.255.255.0',24000,24024,44000, self.arm_dof)
         elif ('right' == prefix):
@@ -109,9 +119,7 @@ class SIArmController(object):
         self._position_hold = False
         self.estop = False
         
-        """
-        Initialize the joint feedback
-        """
+        # Initialize the joint feedback
         pos = self.api.get_angular_position()
         vel = self.api.get_angular_velocity()
         force = self.api.get_angular_force()
@@ -119,7 +127,6 @@ class SIArmController(object):
         self._joint_fb['position'] = pos[:self._num_joints]
         self._joint_fb['velocity'] = vel[:self._num_joints]
         self._joint_fb['force'] = force[:self._num_joints]
-
         
         if ("kg2" == gripper):
             self._gripper_joint_names = [self._prefix+'_gripper_finger1_joint',
@@ -137,14 +144,39 @@ class SIArmController(object):
             self._gripper_fb['velocity'] = vel[self._num_joints:self._num_joints+self.num_fingers]
             self._gripper_fb['force'] = force[self._num_joints:self._num_joints+self.num_fingers]
                 
-        """
-        Register the publishers and subscribers
-        """
-        self.last_teleop_cmd_update = rospy.get_time()-0.5
-        self._teleop_cmd_sub = rospy.Subscriber("/movo/%s_arm/cartesian_vel_cmd"%self._prefix,JacoCartesianVelocityCmd,self._update_teleop_cmd)
+        # Register the publishers and subscribers
+        self.last_cartesian_vel_cmd_update = rospy.get_time()-0.5
+        # X, Y, Z, ThetaX, ThetaY, ThetaZ, FingerVel
+        self._last_cartesian_vel_cmd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        self._cartesian_vel_cmd_sub = rospy.Subscriber(
+            "/movo/%s_arm/cartesian_vel_cmd" % self._prefix,
+            JacoCartesianVelocityCmd,
+            self._update_cartesian_vel_cmd
+        )
         
-        self._gripper_cmd = 0.0
-        self._ctl_mode = KinovaAPI.ANGULAR_CONTROL
+        self.last_angular_vel_cmd_update = rospy.get_time()-0.5
+        self._last_angular_vel_cmd = [0.0] * (self._num_joints + self.num_fingers)
+        if "6dof"== self.arm_dof:
+            self._angular_vel_cmd_sub = rospy.Subscriber(
+                "/movo/%s_arm/angular_vel_cmd" % self._prefix,
+                JacoAngularVelocityCmd6DOF,
+                self._update_angular_vel_cmd
+            )
+        elif "7dof" == self.arm_dof:
+            self._angular_vel_cmd_sub = rospy.Subscriber(
+                "/movo/%s_arm/angular_vel_cmd" % self._prefix,
+                JacoAngularVelocityCmd7DOF,
+                self._update_angular_vel_cmd
+            )
+        else:
+            # Error condition
+            rospy.logerr("DoF needs to be set 6 or 7, was {}".format(self.arm_dof))
+                self.Stop()
+                return
+
+        self._gripper_vel_cmd = 0.0
+        self._ctl_mode = SIArmController.ANGULAR_POSITION
+        self.api.set_control_mode(KinovaAPI.ANGULAR_CONTROL)
         self._jstpub = rospy.Publisher("/movo/%s_arm_controller/state"%self._prefix,JointTrajectoryControllerState,queue_size=10)
         self._jstmsg = JointTrajectoryControllerState()
         self._jstmsg.header.seq = 0
@@ -164,7 +196,7 @@ class SIArmController(object):
         self._jsmsg.header.stamp = rospy.get_rostime()
 
         if (0 != self.num_fingers):
-            self._teleop_gripper_cmd_sub = rospy.Subscriber("/movo/%s_gripper/vel_cmd"%self._prefix,Float32,self._update_teleop_gripper_cmd)
+            self._gripper_vel_cmd_sub = rospy.Subscriber("/movo/%s_gripper/vel_cmd"%self._prefix,Float32,self._update_gripper_vel_cmd)
             self._gripper_jspub = rospy.Publisher("/movo/%s_gripper/joint_states"%self._prefix,JointState,queue_size=10)
             self._gripper_jsmsg = JointState()
             self._gripper_jsmsg.header.seq = 0
@@ -172,9 +204,7 @@ class SIArmController(object):
             self._gripper_jsmsg.header.stamp = rospy.get_rostime()
             self._gripper_jsmsg.name  = self._gripper_joint_names
         
-        """
-        This starts the controller in cart vel mode so that teleop is active by default
-        """
+        # Set initial parameters for the controller
         if (0 != self.num_fingers):
             self._gripper_pid = [None]*self.num_fingers
             for i in range(self.num_fingers):
@@ -195,50 +225,23 @@ class SIArmController(object):
         for i in range(self._num_joints):
             self._pid[i] = JacoPID(5.0,0.0,0.8)
 
-        """
-        self._pid[0] = JacoPID(5.0,0.0,0.8)
-        self._pid[1] = JacoPID(5.0,0.0,0.8)
-        self._pid[2] = JacoPID(5.0,0.0,0.8)
-        self._pid[3] = JacoPID(5.0,0.0,0.8)
-        self._pid[4] = JacoPID(5.0,0.0,0.8) 
-        self._pid[5] = JacoPID(5.0,0.0,0.8)
-        """
-
         self.pause_controller = False 
                 
         self._init_ext_joint_position_control()
         self._init_ext_gripper_control()
         
-        """
-        Set temporary tucked position after homing
-        """
-        """
-        if 'left' == self._prefix:
-            self._arm_cmds['position'][1]+= deg_to_rad(80.0)
-            self._arm_cmds['position'][2]+= deg_to_rad(50.0)
-            self._arm_cmds['position'][4]-= deg_to_rad(90.0)
-        else:
-            self._arm_cmds['position'][1]-= deg_to_rad(80.0)
-            self._arm_cmds['position'][2]-= deg_to_rad(50.0)
-            self._arm_cmds['position'][4]+= deg_to_rad(90.0)
-        """
-        
-        """
-        Update the feedback once to get things initialized
-        """
+        # Update the feedback once to get things initialized
         self._update_controller_data()
         
-        """
-        Start the controller
-        """ 
+        # Start the controller
         rospy.loginfo("Starting the %s controller"%self._prefix)
         self._done = False
         self._t1 = rospy.Timer(rospy.Duration(0.01),self._run_ctl)
         
     def _init_ext_joint_position_control(self):    
         """
-        Initialize the PID controllers, command interface, data processing and controller data
-        for the arm
+        Initialize the PID controllers, command interface, data processing and
+        controller data for the arm
         """
         for pid in self._pid:
             pid.initialize()    
@@ -253,28 +256,83 @@ class SIArmController(object):
 
     def _init_ext_gripper_control(self):
         """
-        Initialize the PID controllers, command interface, data processing and controller data
-        for the gripper
+        Initialize the PID controllers, command interface, data processing and
+        controller data for the gripper
         """        
         if (0 != self.num_fingers):
             for pid in self._gripper_pid:
                 pid.initialize()
             self._gripper_pid_error = [0.0]*self.num_fingers
             self._gripper_pid_output = [0.0]*self.num_fingers
-            self._gripper_cmds = self._gripper_fb['position']
-            self._gripper_vff.Reset(self._gripper_cmds)
-            self._gripper_rate_limit.Reset(self._gripper_cmds) 
-
-    def _update_teleop_cmd(self,cmds):
-        with self._lock:
-            self.api.update_cartesian_vel_cmd([cmds.x,cmds.y,cmds.z,cmds.theta_x,cmds.theta_y,cmds.theta_z,self._gripper_cmd])
-            if (self._ctl_mode != KinovaAPI.CARTESIAN_CONTROL):
-                self._ctl_mode = KinovaAPI.CARTESIAN_CONTROL
-                self.api.set_control_mode(self._ctl_mode)
-            self.last_teleop_cmd_update = rospy.get_time()
+            self._gripper_pos_cmds = self._gripper_fb['position']
+            self._gripper_vff.Reset(self._gripper_pos_cmds)
+            self._gripper_rate_limit.Reset(self._gripper_pos_cmds)
             
-    def _update_teleop_gripper_cmd(self,cmd):
-        self._gripper_cmd = cmd.data
+    def _update_gripper_vel_cmd(self,cmd):
+        self._gripper_vel_cmd = cmd.data
+
+    def _update_cartesian_vel_cmd(self,cmds):
+        with self._lock:
+
+            self._last_cartesian_vel_cmd = [
+                cmds.x,
+                cmds.y,
+                cmds.z,
+                cmds.theta_x,
+                cmds.theta_y,
+                cmds.theta_z,
+                self._gripper_vel_cmd
+            ]
+            
+            # Switch control mode if needs be
+            if (self._ctl_mode != SIArmController.CARTESIAN_VELOCITY):
+                self._ctl_mode = SIArmController.CARTESIAN_VELOCITY
+                self.api.set_control_mode(KinovaAPI.CARTESIAN_CONTROL)
+
+            self.last_cartesian_vel_cmd_update = rospy.get_time()
+
+    def _update_angular_vel_cmd(self,cmds):
+        with self._lock:
+
+            if "6dof" == self.arm_dof:
+
+                self._last_angular_vel_cmd = [
+                    cmds.theta_shoulder_pan_joint,
+                    cmds.theta_shoulder_lift_joint,
+                    cmds.theta_elbow_joint,
+                    cmds.theta_wrist_1_joint,
+                    cmds.theta_wrist_2_joint,
+                    cmds.theta_wrist_3_joint
+                ]
+
+            elif "7dof" == self.arm_dof:
+                
+                self._last_angular_vel_cmd = [
+                    cmds.theta_shoulder_pan_joint,
+                    cmds.theta_shoulder_lift_joint,
+                    cmds.theta_arm_half_joint,
+                    cmds.theta_elbow_joint,
+                    cmds.theta_wrist_spherical_1_joint,
+                    cmds.theta_wrist_spherical_2_joint,
+                    cmds.theta_wrist_3_joint
+                ]
+
+            else:
+                # Error condition
+                rospy.logerr("DoF needs to be set 6 or 7, was {}".format(self.arm_dof))
+                    self.Stop()
+                    return
+
+            # Append gripper commands to the cmds list
+            for i in range(3):
+                self._last_angular_vel_cmd.append(self._gripper_vel_cmd)
+            
+            # Switch control mode if needs be
+            if (self._ctl_mode != SIArmController.ANGULAR_VELOCITY):
+                self._ctl_mode = SIArmController.ANGULAR_VELOCITY
+                self.api.set_control_mode(KinovaAPI.ANGULAR_CONTROL)
+
+            self.last_angular_vel_cmd_update = rospy.get_time()
         
     def SetEstop(self):
         self._init_ext_joint_position_control()
@@ -292,7 +350,7 @@ class SIArmController(object):
                 pass
             try:
                 self._jspub.unregister()
-                self._teleop_cmd_sub.unregister()
+                self._cartesian_vel_cmd_sub.unregister()
                 self._jspub.unregister()
             except:
                 pass
@@ -315,7 +373,6 @@ class SIArmController(object):
     def Resume(self):
         self.pause_controller = False
         
-        
     def GetCtlStatus(self):
         return self.api.api_online
         
@@ -332,7 +389,11 @@ class SIArmController(object):
         with self._lock:
             self._position_hold=False
         
-    def CommandJoints(self,pos,vel=None,acc=None):
+    def CommandJoints(self, pos, vel=None, acc=None):
+        """
+        Command the arm with desired joint positions
+        Supports soft velocity and acceleration constraints
+        """
         if self._position_hold:
             return False
 
@@ -358,9 +419,12 @@ class SIArmController(object):
                 
         return True
     
-    def CommandGripper(self,finger_pos):
+    def CommandGripper(self, finger_pos):
+        """
+        Command the gripper with a desired finger position
+        """
         with self._lock:        
-            self._gripper_cmds = [finger_pos]*self.num_fingers                    
+            self._gripper_pos_cmds = [finger_pos]*self.num_fingers
 
     def GetGripperFdbk(self):
         gripperfdbk = [0]*3        
@@ -375,7 +439,7 @@ class SIArmController(object):
     
     def StopGripper(self):
         with self._lock:
-            self._gripper_cmds = self._gripper_fb['position']    
+            self._gripper_pos_cmds = self._gripper_fb['position']    
 
     def GetCurrentJointPosition(self, joint_names):
         with self._lock:
@@ -470,35 +534,49 @@ class SIArmController(object):
         
         with self._lock:
             
-            """
-            First update the controller data
-            """
+            # First update the controller data
             self._update_controller_data()
-            
+
+            # Don't do anything if we're e-stopped
             if self.estop:
                 return
-        
-            if (KinovaAPI.CARTESIAN_CONTROL == self._ctl_mode):
-                self._init_ext_joint_position_control()
-                self._init_ext_gripper_control()
-                if ((rospy.get_time() - self.last_teleop_cmd_update) >= 1.0):
-                    self._ctl_mode = KinovaAPI.ANGULAR_CONTROL
-                    self.api.set_control_mode(self._ctl_mode)
-                    return
-                
-                if ((rospy.get_time() - self.last_teleop_cmd_update) >= 0.5):
-                    self.api.update_cartesian_vel_cmd([0.0,0.0,0.0,0.0,0.0,0.0,0.0])
-                self.api.send_cartesian_vel_cmd()
-                return
-            
-            if (True == self.pause_controller):
-                self._init_ext_joint_position_control()
-                cmds = [0.0] * self._num_joints
-            else:
 
-                """
-                Compute the error and update the feedforward terms
-                """
+            if (True == self.pause_controller):
+                # If we're paused, don't run any PID calcs, just output zero
+                # commands
+
+                self._init_ext_joint_position_control()
+                # XXX ajs 19/Mar/2018 Not sure if the gripper should be
+                # initialised here as well? Original code didn't. 
+                #self._init_ext_gripper_control()
+
+                if (SIArmController.CARTESIAN_VELOCITY == self._ctl_mode) or\
+                    (SIArmController.CARTESIAN_POSITION == self._ctl_mode):
+
+                    # Send zero cartesian commands
+                    # X, Y, Z, ThetaX, ThetaY, ThetaZ, FingerVel
+                    self.api.update_cartesian_vel_cmd([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+                    self.api.send_cartesian_vel_cmd()
+
+                elif (SIArmController.ANGULAR_VELOCITY == self._ctl_mode) or\
+                    (SIArmController.ANGULAR_POSITION == self._ctl_mode):
+
+                    # Send zero angular commands to all joints and the fingers
+                    self.api.send_angular_vel_cmds([0.0] * (self._num_joints + self.num_fingers))
+
+                else:
+                    rospy.logerr("{} arm controller: Unrecognized control mode {}".format(
+                        self._prefix,
+                        self._ctl_mode
+                    ))
+
+                return
+
+            if (SIArmController.ANGULAR_POSITION == self._ctl_mode):
+                # Handle angular position control - a PID loop tracks the
+                # desired positions, and computes controller velocities
+
+                # Compute the error and update the feedforward terms
                 arm_cmds_lim = self._arm_rate_limit.Update(self._arm_cmds['position'])
                 vff = self._arm_vff_diff.Update(arm_cmds_lim)
                 scaled_ff_vel = map(operator.mul, vff, [1.0] * self._num_joints)
@@ -512,42 +590,136 @@ class SIArmController(object):
                     self._pid_output = [rad_to_deg(limit(self._pid_output[i],JOINT_6DOF_VEL_LIMITS[i])) for i in range(self._num_joints)]
                 if ("7dof" == self.arm_dof):
                     self._pid_output = [rad_to_deg(limit(self._pid_output[i],JOINT_7DOF_VEL_LIMITS[i])) for i in range(self._num_joints)]
-            
-                """
-                Send the command via the API
-                """
+                
+                # Prepare command array
                 cmds = self._pid_output
 
-            if (0 != self.num_fingers):
-                gripper_cmds_lim = self._gripper_rate_limit.Update(self._gripper_cmds)
-                vff = self._gripper_vff.Update(gripper_cmds_lim)
-                self._gripper_pid_error =  map(operator.sub, gripper_cmds_lim, self._gripper_fb['position'])
-                self._gripper_pid_output = [self._gripper_pid[i].compute_output(self._gripper_pid_error[i]) for i in range(self.num_fingers)]
-                self._gripper_pid_output =  map(operator.add, self._gripper_pid_output, vff)                
-                self._gripper_pid_output = [rad_to_deg(limit(self._gripper_pid_output[i],FINGER_ANGULAR_VEL_LIMIT)) for i in range(self.num_fingers)]
-            
-            for i in range(3):
-                if (i < self.num_fingers):
-                    cmds.append(self._gripper_pid_output[i])
-                else:
-                    cmds.append(0.0)
+                # Compute finger rates
+                if (0 != self.num_fingers):
+                    gripper_cmds_lim = self._gripper_rate_limit.Update(self._gripper_pos_cmds)
+                    vff = self._gripper_vff.Update(gripper_cmds_lim)
+                    self._gripper_pid_error =  map(operator.sub, gripper_cmds_lim, self._gripper_fb['position'])
+                    self._gripper_pid_output = [self._gripper_pid[i].compute_output(self._gripper_pid_error[i]) for i in range(self.num_fingers)]
+                    self._gripper_pid_output =  map(operator.add, self._gripper_pid_output, vff)                
+                    self._gripper_pid_output = [rad_to_deg(limit(self._gripper_pid_output[i],FINGER_ANGULAR_VEL_LIMIT)) for i in range(self.num_fingers)]
+                
+                # Append gripper commands to the cmds list
+                for i in range(3):
+                    if (i < self.num_fingers):
+                        cmds.append(self._gripper_pid_output[i])
+                    else:
+                        cmds.append(0.0)
 
-            self.api.send_angular_vel_cmds(cmds)
-            
-            """
-            Publish the controller state
-            """    
-            self._jstmsg.header.frame_id = ''
-            self._jstmsg.header.stamp = rospy.get_rostime()
-            self._jstmsg.desired.positions=self._arm_cmds['position']
-            self._jstmsg.desired.velocities=self._arm_cmds['velocity']
-            self._jstmsg.desired.accelerations=self._arm_cmds['acceleration']
-            self._jstmsg.actual.positions=self._joint_fb['position']
-            self._jstmsg.actual.velocities=self._joint_fb['velocity']
-            self._jstmsg.actual.accelerations=[0.0]*self._num_joints
-            self._jstmsg.error.positions = self._pid_error
-            self._jstmsg.error.velocities= map(operator.sub, self._arm_cmds['velocity'], self._joint_fb['velocity']) 
-            self._jstmsg.error.accelerations=[0.0]*self._num_joints                
-            self._jstpub.publish(self._jstmsg) 
-            self._jstmsg.header.seq +=1                       
-     
+                # Send the command via the API
+                self.api.send_angular_vel_cmds(cmds)
+
+                # Finally, publish the angular position controller state
+                self._jstmsg.header.frame_id = ''
+                self._jstmsg.header.stamp = rospy.get_rostime()
+                self._jstmsg.desired.positions=self._arm_cmds['position']
+                self._jstmsg.desired.velocities=self._arm_cmds['velocity']
+                self._jstmsg.desired.accelerations=self._arm_cmds['acceleration']
+                self._jstmsg.actual.positions=self._joint_fb['position']
+                self._jstmsg.actual.velocities=self._joint_fb['velocity']
+                self._jstmsg.actual.accelerations=[0.0]*self._num_joints
+                self._jstmsg.error.positions = self._pid_error
+                self._jstmsg.error.velocities= map(operator.sub, self._arm_cmds['velocity'], self._joint_fb['velocity']) 
+                self._jstmsg.error.accelerations=[0.0]*self._num_joints
+                self._jstpub.publish(self._jstmsg) 
+                self._jstmsg.header.seq +=1
+
+            elif (SIArmController.ANGULAR_VELOCITY == self._ctl_mode):
+                # Handle angular velocity control - angular velocities are
+                # directly passed through to the lower level controller
+
+                self._init_ext_joint_position_control()
+                self._init_ext_gripper_control()
+
+                # Safety check: If it has been more than 1 second since
+                # the last command, drop back to angular position control
+                if ((rospy.get_time() - self.last_angular_vel_cmd_update) >= 1.0):
+                    self._ctl_mode = SIArmController.ANGULAR_POSITION
+                    self.api.set_control_mode(KinovaAPI.ANGULAR_CONTROL)
+                    return
+                
+                # Safety check: If it has been more than 0.5 seconds since
+                # the last command, zero the velocities
+                if ((rospy.get_time() - self.last_angular_vel_cmd_update) >= 0.5):
+                    self._last_angular_vel_cmd = [0.0] * (self._num_joints + self.num_fingers)
+
+                # Safety check: Apply rate limits for arm joints
+                cmd_limited = self._last_angular_vel_cmd
+                for joint in range(self._num_joints):
+
+                    if "6dof" == self.arm_dof:
+                        cmd_limited[joint] = rad_to_deg(
+                            limit(
+                                deg_to_rad(cmd_limited[joint]),
+                                JOINT_6DOF_VEL_LIMITS[joint]
+                            )
+                        )
+                    elif "7dof" == self.arm_dof:
+                        cmd_limited[joint] = rad_to_deg(
+                            limit(
+                                deg_to_rad(cmd_limited[joint]),
+                                JOINT_7DOF_VEL_LIMITS[joint]
+                            )
+                        )
+                    else:
+                        # Error condition
+                        rospy.logerr("DoF needs to be set 6 or 7, was {}".format(self.arm_dof))
+                        self.Stop()
+                        return
+
+                # Safety check: Apply rate limits for finger joints
+                for finger in range(self.num_fingers):
+                    cmd_limited[self._num_joints + finger] = rad_to_deg(
+                        limit(
+                            deg_to_rad(cmd_limited[self._num_joints + finger]),
+                            FINGER_ANGULAR_VEL_LIMIT
+                        )
+                    )
+
+                # Command angular velocities
+                self.api.send_angular_vel_cmds(cmd_limited)
+
+            elif (SIArmController.CARTESIAN_POSITION == self._ctl_mode):
+                # Cartesian position control not yet implemented
+                # (requires PID calcs because the underlying driver needs
+                # velocities)
+
+                rospy.logerr("{} arm controller: Cartesian velocity control not yet implemented".format(
+                    self._prefix
+                ))
+
+            elif (SIArmController.CARTESIAN_VELOCITY == self._ctl_mode):
+                # Handle cartesian velocity control mode - cartesian
+                # velocities are passed through to the lower level controller
+                # after some basic safety / timeout checks
+
+                self._init_ext_joint_position_control()
+                self._init_ext_gripper_control()
+
+                # Safety check: If it has been more than 1 second since
+                # the last command, drop back to angular position control
+                if ((rospy.get_time() - self.last_cartesian_vel_cmd_update) >= 1.0):
+                    self._ctl_mode = SIArmController.ANGULAR_POSITION
+                    self.api.set_control_mode(KinovaAPI.ANGULAR_CONTROL)
+                    return
+                
+                # Safety check: If it has been more than 0.5 seconds since
+                # the last command, zero the velocities
+                if ((rospy.get_time() - self.last_cartesian_vel_cmd_update) >= 0.5):
+                    self._last_cartesian_vel_cmd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+                # Command cartesian velocities
+                self.api.send_cartesian_vel_cmd(self._last_cartesian_vel_cmd)
+
+            else:
+                # Unknown control mode
+                rospy.logerr("{} arm controller: Unrecognized control mode {}".format(
+                    self._prefix,
+                    self._ctl_mode
+                ))
+
+            return
