@@ -555,8 +555,7 @@ class SIArmController(object):
 
                     # Send zero cartesian commands
                     # X, Y, Z, ThetaX, ThetaY, ThetaZ, FingerVel
-                    self.api.update_cartesian_vel_cmd([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-                    self.api.send_cartesian_vel_cmd()
+                    self.api.send_cartesian_vel_cmd([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 
                 elif (SIArmController.ANGULAR_VELOCITY == self._ctl_mode) or\
                     (SIArmController.ANGULAR_POSITION == self._ctl_mode):
