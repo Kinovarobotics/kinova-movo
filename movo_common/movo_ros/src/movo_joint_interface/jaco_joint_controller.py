@@ -171,8 +171,8 @@ class SIArmController(object):
         else:
             # Error condition
             rospy.logerr("DoF needs to be set 6 or 7, was {}".format(self.arm_dof))
-                self.Stop()
-                return
+            self.Stop()
+            return
 
         self._gripper_vel_cmd = 0.0
         self._ctl_mode = SIArmController.ANGULAR_POSITION
@@ -320,8 +320,8 @@ class SIArmController(object):
             else:
                 # Error condition
                 rospy.logerr("DoF needs to be set 6 or 7, was {}".format(self.arm_dof))
-                    self.Stop()
-                    return
+                self.Stop()
+                return
 
             # Append gripper commands to the cmds list
             for i in range(3):
