@@ -289,9 +289,13 @@ class SIArmController(object):
                 self._ctl_mode = SIArmController.CARTESIAN_VELOCITY
                 self.api.set_control_mode(KinovaAPI.CARTESIAN_CONTROL)
 
+            # Un-pause the controller
+            self.pause_controller = False
+
             self.last_cartesian_vel_cmd_update = rospy.get_time()
 
     def _update_angular_vel_cmd(self,cmds):
+
         with self._lock:
 
             if "6dof" == self.arm_dof:
@@ -331,6 +335,9 @@ class SIArmController(object):
             if (self._ctl_mode != SIArmController.ANGULAR_VELOCITY):
                 self._ctl_mode = SIArmController.ANGULAR_VELOCITY
                 self.api.set_control_mode(KinovaAPI.ANGULAR_CONTROL)
+
+            # Un-pause the controller
+            self.pause_controller = False
 
             self.last_angular_vel_cmd_update = rospy.get_time()
         
@@ -635,10 +642,12 @@ class SIArmController(object):
                 self._init_ext_gripper_control()
 
                 # Safety check: If it has been more than 1 second since
-                # the last command, drop back to angular position control
+                # the last command, drop back to angular position control and
+                # pause the controller
                 if ((rospy.get_time() - self.last_angular_vel_cmd_update) >= 1.0):
                     self._ctl_mode = SIArmController.ANGULAR_POSITION
                     self.api.set_control_mode(KinovaAPI.ANGULAR_CONTROL)
+                    self.pause_controller = True
                     return
                 
                 # Safety check: If it has been more than 0.5 seconds since
@@ -704,6 +713,7 @@ class SIArmController(object):
                 if ((rospy.get_time() - self.last_cartesian_vel_cmd_update) >= 1.0):
                     self._ctl_mode = SIArmController.ANGULAR_POSITION
                     self.api.set_control_mode(KinovaAPI.ANGULAR_CONTROL)
+                    self.pause_controller = True
                     return
                 
                 # Safety check: If it has been more than 0.5 seconds since
