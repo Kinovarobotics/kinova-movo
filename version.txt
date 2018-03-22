@@ -1,7 +1,7 @@
 1.1.0
 -----
 
-2018-02-23
+2018-03-13
 ----------
 
 Description
@@ -26,6 +26,12 @@ Bug Fixes
 Known Issues
 ------------
 - Pick and place demo still need tweek to be working at every attempt.
+- The fingers must closed before issuing the arms homing 
+  commands (with button #8 on the USB joystick), otherwise they could hit something
+  on the homing path.
+- The arms must not be laying on the ground when the MOVO is powered up. As part of
+  the start-up process, the fingers open and could be damaged if they are in contact with
+  a rigid suface.
 
 ================================================================================
 1.0.0
