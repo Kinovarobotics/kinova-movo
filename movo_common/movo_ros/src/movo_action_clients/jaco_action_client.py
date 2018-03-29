@@ -53,9 +53,11 @@ class JacoActionClient(object):
         if ''==dof:
             rospy.logerr('DoF parameter needs to be set 6 or 7')
             return
+        
+        self._arm = arm
 
         self._client = actionlib.SimpleActionClient(
-            'movo/%s_arm_controller/follow_joint_trajectory'%arm,
+            'movo/%s_arm_controller/follow_joint_trajectory'%self._arm,
             FollowJointTrajectoryAction,
         )
         self._goal = FollowJointTrajectoryGoal()
@@ -69,7 +71,7 @@ class JacoActionClient(object):
                          " before running example.")
             rospy.signal_shutdown("Timed out waiting for Action Server")
             sys.exit(1)
-        self.clear(arm)
+        self.clear()
 
     def add_point(self, positions, time):
         point = JointTrajectoryPoint()
@@ -94,25 +96,25 @@ class JacoActionClient(object):
     def result(self):
         return self._client.get_result()
 
-    def clear(self, arm='right'):
+    def clear(self):
         self._goal = FollowJointTrajectoryGoal()
         self._goal.goal_time_tolerance = self._goal_time_tolerance
         if('6dof'==self.dof):
-            self._goal.trajectory.joint_names = ['%s_shoulder_pan_joint'%arm,
-                                                 '%s_shoulder_lift_joint'%arm,
-                                                 '%s_elbow_joint'%arm,
-                                                 '%s_wrist_1_joint'%arm,
-                                                 '%s_wrist_2_joint'%arm,
-                                                 '%s_wrist_3_joint'%arm]
+            self._goal.trajectory.joint_names = ['%s_shoulder_pan_joint'%self._arm,
+                                                 '%s_shoulder_lift_joint'%self._arm,
+                                                 '%s_elbow_joint'%self._arm,
+                                                 '%s_wrist_1_joint'%self._arm,
+                                                 '%s_wrist_2_joint'%self._arm,
+                                                 '%s_wrist_3_joint'%self._arm]
                                              
      	elif('7dof'==self.dof):
-            self._goal.trajectory.joint_names = ['%s_shoulder_pan_joint'%arm,
-                                                 '%s_shoulder_lift_joint'%arm,
-                                                 '%s_arm_half_joint'%arm,
-                                                 '%s_elbow_joint'%arm,
-                                                 '%s_wrist_spherical_1_joint'%arm,
-                                                 '%s_wrist_spherical_2_joint'%arm,
-                                                 '%s_wrist_3_joint'%arm]
+            self._goal.trajectory.joint_names = ['%s_shoulder_pan_joint'%self._arm,
+                                                 '%s_shoulder_lift_joint'%self._arm,
+                                                 '%s_arm_half_joint'%self._arm,
+                                                 '%s_elbow_joint'%self._arm,
+                                                 '%s_wrist_spherical_1_joint'%self._arm,
+                                                 '%s_wrist_spherical_2_joint'%self._arm,
+                                                 '%s_wrist_3_joint'%self._arm]
 
         else:
             rospy.logerr('DoF needs to be set 6 or 7')
