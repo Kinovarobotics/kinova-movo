@@ -57,9 +57,18 @@ class SIArmController(object):
 
 
     # Enum for arm control modes
-    ANGULAR_POSITION   = 0
+    # Traectory is the default mode - supports specifying angular or cartesian
+    # position trajectories with optional soft velocity and acceleration
+    # constraints. A PID controller in this class tracks the setpoints and
+    # commands the requisite underlying angular velocities
+    TRAJECTORY         = 0
+
+    # Angular velocity mode - angular velocities are passed directly through
+    # to the lower layer API
     ANGULAR_VELOCITY   = 1
-    CARTESIAN_POSITION = 2
+
+    # Cartesian velocity mode - cartesian velocities are passed directly
+    # through to the lower layer API
     CARTESIAN_VELOCITY = 3
 
 
@@ -175,7 +184,7 @@ class SIArmController(object):
             return
 
         self._gripper_vel_cmd = 0.0
-        self._ctl_mode = SIArmController.ANGULAR_POSITION
+        self._ctl_mode = SIArmController.TRAJECTORY
         self.api.set_control_mode(KinovaAPI.ANGULAR_CONTROL)
         self._jstpub = rospy.Publisher("/movo/%s_arm_controller/state"%self._prefix,JointTrajectoryControllerState,queue_size=10)
         self._jstmsg = JointTrajectoryControllerState()
@@ -557,15 +566,14 @@ class SIArmController(object):
                 # initialised here as well? Original code didn't. 
                 #self._init_ext_gripper_control()
 
-                if (SIArmController.CARTESIAN_VELOCITY == self._ctl_mode) or\
-                    (SIArmController.CARTESIAN_POSITION == self._ctl_mode):
+                if (SIArmController.CARTESIAN_VELOCITY == self._ctl_mode):
 
                     # Send zero cartesian commands
                     # X, Y, Z, ThetaX, ThetaY, ThetaZ, FingerVel
                     self.api.send_cartesian_vel_cmd([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 
                 elif (SIArmController.ANGULAR_VELOCITY == self._ctl_mode) or\
-                    (SIArmController.ANGULAR_POSITION == self._ctl_mode):
+                    (SIArmController.TRAJECTORY == self._ctl_mode):
 
                     # Send zero angular commands to all joints and the fingers
                     self.api.send_angular_vel_cmds([0.0] * (self._num_joints + self.num_fingers))
@@ -578,9 +586,10 @@ class SIArmController(object):
 
                 return
 
-            if (SIArmController.ANGULAR_POSITION == self._ctl_mode):
-                # Handle angular position control - a PID loop tracks the
-                # desired positions, and computes controller velocities
+            if (SIArmController.TRAJECTORY == self._ctl_mode):
+                # Handle trajectory control - a PID loop tracks the desired
+                # positions (in angular or cartesian space), and computes
+                # requisite angular controller velocities
 
                 # Compute the error and update the feedforward terms
                 arm_cmds_lim = self._arm_rate_limit.Update(self._arm_cmds['position'])
@@ -642,10 +651,10 @@ class SIArmController(object):
                 self._init_ext_gripper_control()
 
                 # Safety check: If it has been more than 1 second since
-                # the last command, drop back to angular position control and
+                # the last command, drop back to trajectory control and
                 # pause the controller
                 if ((rospy.get_time() - self.last_angular_vel_cmd_update) >= 1.0):
-                    self._ctl_mode = SIArmController.ANGULAR_POSITION
+                    self._ctl_mode = SIArmController.TRAJECTORY
                     self.api.set_control_mode(KinovaAPI.ANGULAR_CONTROL)
                     self.pause_controller = True
                     return
@@ -691,15 +700,6 @@ class SIArmController(object):
                 # Command angular velocities
                 self.api.send_angular_vel_cmds(cmd_limited)
 
-            elif (SIArmController.CARTESIAN_POSITION == self._ctl_mode):
-                # Cartesian position control not yet implemented
-                # (requires PID calcs because the underlying driver needs
-                # velocities)
-
-                rospy.logerr("{} arm controller: Cartesian positoin control not yet implemented".format(
-                    self._prefix
-                ))
-
             elif (SIArmController.CARTESIAN_VELOCITY == self._ctl_mode):
                 # Handle cartesian velocity control mode - cartesian
                 # velocities are passed through to the lower level controller
@@ -711,7 +711,7 @@ class SIArmController(object):
                 # Safety check: If it has been more than 1 second since
                 # the last command, drop back to angular position control
                 if ((rospy.get_time() - self.last_cartesian_vel_cmd_update) >= 1.0):
-                    self._ctl_mode = SIArmController.ANGULAR_POSITION
+                    self._ctl_mode = SIArmController.TRAJECTORY
                     self.api.set_control_mode(KinovaAPI.ANGULAR_CONTROL)
                     self.pause_controller = True
                     return
