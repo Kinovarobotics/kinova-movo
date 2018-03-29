@@ -696,7 +696,7 @@ class SIArmController(object):
                 # (requires PID calcs because the underlying driver needs
                 # velocities)
 
-                rospy.logerr("{} arm controller: Cartesian velocity control not yet implemented".format(
+                rospy.logerr("{} arm controller: Cartesian positoin control not yet implemented".format(
                     self._prefix
                 ))
 
