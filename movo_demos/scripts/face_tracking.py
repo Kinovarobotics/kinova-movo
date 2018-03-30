@@ -94,19 +94,14 @@ class FaceTracking:
         # rate.sleep()
         rospy.spin()
 
-
-    # this call back function is trigged on each time detect a face.
-    # Otherwise, subscriber do not hear message from the topic /face_detector/faces_cloud/
-
-    def _face_tracking(self, msg):
-
+    def _find_nearest_face(self, msg):
         # clear the list of founded faces in this moment
         del self.list_faces[:]
 
         print "=============================================="
 
         # when detected face is bad, face_detector send msg with empty pose []
-        if(len(msg.points) == 0):
+        if (len(msg.points) == 0):
             print("no valid face detected")
 
         # valid face found
@@ -120,21 +115,31 @@ class FaceTracking:
             dist_nearest_face = min(face.dist for face in self.list_faces)
 
             # idx_nearest_face is one element list
-            idx_nearest_face = [index for index in range(len(self.list_faces)) if self.list_faces[index].dist == dist_nearest_face]
+            idx_nearest_face = [index for index in range(len(self.list_faces)) if
+                                self.list_faces[index].dist == dist_nearest_face]
             print "the nearest face has index ", idx_nearest_face, ", distance to camera is ", dist_nearest_face
             print "self.list_faces[idx_nearest_face].x is ", self.list_faces[idx_nearest_face[0]].x
 
             self.nearest_face = self.list_faces[idx_nearest_face[0]]
 
-            pan_cmd = np.arctan2(self.nearest_face.x, self.nearest_face.z)
-            tilt_cmd = -1.0 * np.arctan2(self.nearest_face.y, np.linalg.norm(np.array([self.nearest_face.x, self.nearest_face.z])))
-            print "head motion cmd [pan, tilt] is [", np.degrees(pan_cmd), ", ", np.degrees(tilt_cmd), "] degree"
+    def _head_motion(self):
+        pan_cmd = np.arctan2(self.nearest_face.x, self.nearest_face.z)
+        tilt_cmd = -1.0 * np.arctan2(self.nearest_face.y, np.linalg.norm(np.array([self.nearest_face.x, self.nearest_face.z])))
+        print "head motion cmd [pan, tilt] is [", np.degrees(pan_cmd), ", ", np.degrees(tilt_cmd), "] degree"
 
-        # if(rospy.Time.now().to_sec() - pointCloudData.header.stamp.to_sec() < 1):
-        #     head_pose_to_camera = pointCloudData.points
-        #     print head_pose_to_camera
 
-        # movo_head = HeadActionClient()
+    # this call back function is trigged on each time detect a face.
+    # Otherwise, subscriber do not hear message from the topic /face_detector/faces_cloud/
+    def _face_tracking(self, msg):
+        self._find_nearest_face(msg)
+        self._head_motion()
+
+
+    # if(rospy.Time.now().to_sec() - pointCloudData.header.stamp.to_sec() < 1):
+    #     head_pose_to_camera = pointCloudData.points
+    #     print head_pose_to_camera
+
+    # movo_head = HeadActionClient()
 
 if __name__ == "__main__":
     print ("start the node")
