@@ -78,9 +78,7 @@ class Face:
 class FaceTracking:
     def __init__(self):
         self.list_faces = []
-        self.idx_nearest_face = []
-        self.valid_face = False
-        self.enable_tracking = False
+        self.nearest_face = Face()
 
         # just for testing
         self.fakeface = Face()
@@ -121,9 +119,16 @@ class FaceTracking:
             # dist_nearest_face = min(self.list_faces, key=lambda x: x.dist).dist
             dist_nearest_face = min(face.dist for face in self.list_faces)
 
-            self.idx_nearest_face = [index for index in range(len(self.list_faces)) if self.list_faces[index].dist == dist_nearest_face]
-            print "the nearest face has index ", self.idx_nearest_face, ", distance to camera is ", dist_nearest_face
+            # idx_nearest_face is one element list
+            idx_nearest_face = [index for index in range(len(self.list_faces)) if self.list_faces[index].dist == dist_nearest_face]
+            print "the nearest face has index ", idx_nearest_face, ", distance to camera is ", dist_nearest_face
+            print "self.list_faces[idx_nearest_face].x is ", self.list_faces[idx_nearest_face[0]].x
 
+            self.nearest_face = self.list_faces[idx_nearest_face[0]]
+
+            pan_cmd = np.arctan2(self.nearest_face.x, self.nearest_face.z)
+            tilt_cmd = -1.0 * np.arctan2(self.nearest_face.y, np.linalg.norm(np.array([self.nearest_face.x, self.nearest_face.z])))
+            print "head motion cmd [pan, tilt] is [", np.degrees(pan_cmd), ", ", np.degrees(tilt_cmd), "] degree"
 
         # if(rospy.Time.now().to_sec() - pointCloudData.header.stamp.to_sec() < 1):
         #     head_pose_to_camera = pointCloudData.points
