@@ -35,17 +35,56 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import roslib; roslib.load_manifest('face_detector')
 import rospy
+
+
 from sensor_msgs.msg import PointCloud
 from people_msgs.msg import PositionMeasurementArray
 import face_detector.msg
 # from movo_action_clients.head_action_client import HeadActionClient
 
+import numpy as np
+from operator import attrgetter # min of list of class attributes
+
+class Face:
+    def __init__(self, detected_face = None):
+        if(detected_face == None):
+            self.x = 0.0
+            self.y = 0.0
+            self.z = 0.0
+            self.dist = np.linalg.norm(np.array([self.x, self.y, self.z]))
+        else:
+            self.x = detected_face.x
+            self.y = detected_face.y
+            self.z = detected_face.z
+            self.dist = np.linalg.norm(np.array([self.x, self.y, self.z]))
+        # self.valid = False
+        self.id = 0 # useful when subscribed to PositionMeasurementArray
+
+    def update(self, detected_face):
+        # if detected_face.id == self.id
+        self.x = detected_face.x
+        self.y = detected_face.y
+        self.z = detected_face.z
+        self.dist = np.linalg.norm(np.array([self.x, self.y, self.z]))
+
+    def update_by_xyz(self, x, y, z):
+        # if detected_face.id == self.id
+        self.x = x
+        self.y = y
+        self.z = z
+        self.dist = np.linalg.norm(np.array([self.x, self.y, self.z]))
+
 
 class FaceTracking:
     def __init__(self):
-        self.candidate_id = []
+        self.list_faces = []
+        self.idx_nearest_face = []
         self.valid_face = False
         self.enable_tracking = False
+
+        # just for testing
+        self.fakeface = Face()
+        self.fakeface.update_by_xyz(1, 2, 3)
 
         # # set running rate as 0.1s for face tracking.
         # rate = rospy.Rate(0.1)
@@ -63,7 +102,29 @@ class FaceTracking:
 
     def _face_tracking(self, msg):
 
-        print("Receive face information")
+        # clear the list of founded faces in this moment
+        del self.list_faces[:]
+
+        print "=============================================="
+
+        # when detected face is bad, face_detector send msg with empty pose []
+        if(len(msg.points) == 0):
+            print("no valid face detected")
+
+        # valid face found
+        else:
+            for detected_face in msg.points:
+                self.list_faces.append(Face(detected_face))
+            self.list_faces.append(self.fakeface)
+
+            # extract the face which is nearest to the camera frame
+            # dist_nearest_face = min(self.list_faces, key=lambda x: x.dist).dist
+            dist_nearest_face = min(face.dist for face in self.list_faces)
+
+            self.idx_nearest_face = [index for index in range(len(self.list_faces)) if self.list_faces[index].dist == dist_nearest_face]
+            print "the nearest face has index ", self.idx_nearest_face, ", distance to camera is ", dist_nearest_face
+
+
         # if(rospy.Time.now().to_sec() - pointCloudData.header.stamp.to_sec() < 1):
         #     head_pose_to_camera = pointCloudData.points
         #     print head_pose_to_camera
