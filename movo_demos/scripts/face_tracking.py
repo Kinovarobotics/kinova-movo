@@ -35,14 +35,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import roslib; roslib.load_manifest('face_detector')
 import rospy
-
-
+import numpy as np
 from sensor_msgs.msg import PointCloud
+from sensor_msgs.msg import JointState
+
+from movo.utils import *
+from movo_msgs.msg import PanTiltCmd
+from movo_action_clients.head_action_client import HeadActionClient
+
 from people_msgs.msg import PositionMeasurementArray
 import face_detector.msg
-# from movo_action_clients.head_action_client import HeadActionClient
 
-import numpy as np
 from operator import attrgetter # min of list of class attributes
 
 class Face:
@@ -77,6 +80,9 @@ class Face:
 
 class FaceTracking:
     def __init__(self):
+
+        self.last_run_time = rospy.get_time()
+
         self.list_faces = []
         self.nearest_face = Face()
 
@@ -89,16 +95,23 @@ class FaceTracking:
 
         self.face_detector_sub = rospy.Subscriber("/face_detector/faces_cloud", PointCloud, self._face_tracking)
         # self.face_detector_sub = rospy.Subscriber("/face_detector/people_tracker_measuremes_array", PositionMeasurementArray, self._face_tracking)
-        print ("FaceTracking initialization")
+
+        self.head_motion_pub = rospy.Publisher("/movo/head/cmd", PanTiltCmd, queue_size=10)
+        self.head_cmd = PanTiltCmd()
+
+        self.movo_head_action = HeadActionClient()
+
+        self.pantilt_vel_lim = rospy.get_param('~sim_teleop_pan_tilt_vel_limit', 0.524)
 
         # rate.sleep()
+        print ("FaceTracking initialization")
         rospy.spin()
 
     def _find_nearest_face(self, msg):
         # clear the list of founded faces in this moment
         del self.list_faces[:]
 
-        print "=============================================="
+        print "\n=============================================="
 
         # when detected face is bad, face_detector send msg with empty pose []
         if (len(msg.points) == 0):
@@ -117,33 +130,89 @@ class FaceTracking:
             # idx_nearest_face is one element list
             idx_nearest_face = [index for index in range(len(self.list_faces)) if
                                 self.list_faces[index].dist == dist_nearest_face]
-            print "the nearest face has index ", idx_nearest_face, ", distance to camera is ", dist_nearest_face
-            print "self.list_faces[idx_nearest_face].x is ", self.list_faces[idx_nearest_face[0]].x
-
             self.nearest_face = self.list_faces[idx_nearest_face[0]]
+            print "the nearest face has index ", idx_nearest_face[0], ", distance to camera is ", dist_nearest_face
 
-    def _head_motion(self):
+
+    def _head_motion_action(self, max_pan_vel, max_tilt_vel):
         pan_cmd = np.arctan2(self.nearest_face.x, self.nearest_face.z)
         tilt_cmd = -1.0 * np.arctan2(self.nearest_face.y, np.linalg.norm(np.array([self.nearest_face.x, self.nearest_face.z])))
-        print "head motion cmd [pan, tilt] is [", np.degrees(pan_cmd), ", ", np.degrees(tilt_cmd), "] degree"
+        print "raw head motion increment [pan, tilt] is trun ",  "right" if pan_cmd>0 else "left: ",  round(abs(np.degrees(pan_cmd)),1) , " degree, turn ", "up" if tilt_cmd>0 else "down ", round(abs(np.degrees(tilt_cmd)),1), " degree"
+
+        # assume movo can run face detection at a rate of 2hz (based on real time topic hz)
+        face_detector_rate = 2
+
+        # rectify the pan-tilt cmd (increment) of each loop based on maximum velicity and refreshing rate
+        pan_cmd_rect = min(pan_cmd, max_pan_vel/face_detector_rate)
+        tilt_cmd_rect = min(tilt_cmd, max_pan_vel/face_detector_rate)
+
+        tmp_head = rospy.wait_for_message("/movo/head/joint_states", JointState)
+        current_angles = tmp_head.position
+
+        # clear trajectory list and add current pose of pan tilt
+        self.movo_head_action.clear()
+        time_from_start = 0.0
+        self.movo_head_action.add_point(list(current_angles), 0.0)
+
+        # take the maximum time from pan motion and tilt motion
+        time_duration = max(pan_cmd_rect/max_pan_vel, tilt_cmd_rect/max_pan_vel)
+        self.movo_head_action.add_point([pan_cmd_rect, tilt_cmd_rect], time_from_start + time_duration)
+
+        print "raw head motion cmd [pan, tilt] is trun ", "right" if pan_cmd_rect > 0 else "left: ", round(
+            abs(np.degrees(pan_cmd_rect)), 1), " degree, turn ", "up" if tilt_cmd_rect > 0 else "down ", round(
+            abs(np.degrees(tilt_cmd_rect)), 1), " degree"
+
+        self.movo_head_action.start()
+        self.movo_head_action.wait(time_from_start + time_duration)
+
+
+    def _head_motion_pub(self):
+        dt = rospy.get_time() - self.last_run_time
+        self.last_run_time = rospy.get_time()
+
+        pan_cmd = np.arctan2(self.nearest_face.x, self.nearest_face.z)
+        tilt_cmd = -1.0 * np.arctan2(self.nearest_face.y, np.linalg.norm(np.array([self.nearest_face.x, self.nearest_face.z])))
+        print "raw head motion cmd [pan, tilt] is trun ",  "right" if pan_cmd>0 else "left: ",  round(abs(np.degrees(pan_cmd)),1) , " degree, turn ", "up" if tilt_cmd>0 else "down ", round(abs(np.degrees(tilt_cmd)),1), " degree"
+
+        vel_cmd = [0.0, 0.0]
+
+        # regulate velocity between 0 to 1 as joystick input
+        vel_cmd[0] = pan_cmd/abs(pan_cmd) * min(abs(pan_cmd)/self.pantilt_vel_lim, 1.0)
+        vel_cmd[1] = tilt_cmd/abs(tilt_cmd) * min(abs(tilt_cmd)/self.pantilt_vel_lim, 1.0)
+
+        self.head_cmd.pan_cmd.pos_rad += vel_cmd[0] * self.pantilt_vel_lim * dt
+        self.head_cmd.tilt_cmd.pos_rad += vel_cmd[1] * self.pantilt_vel_lim * dt
+
+        self.head_cmd.pan_cmd.pos_rad = limit_f(self.head_cmd.pan_cmd.pos_rad, (math.pi / 2.0))
+        self.head_cmd.tilt_cmd.pos_rad = limit_f(self.head_cmd.tilt_cmd.pos_rad, (math.pi / 2.0))
+
+        self.head_cmd.pan_cmd.vel_rps = 50.0 * (math.pi / 180.0)
+        self.head_cmd.tilt_cmd.vel_rps = 50.0 * (math.pi / 180.0)
+
+        print "modified head motion cmd increment [pan, tilt] is trun ", "right" if self.head_cmd.pan_cmd.pos_rad > 0 else "left: ", round(
+            abs(np.degrees(self.head_cmd.pan_cmd.pos_rad)), 1), " degree, turn ", "up" if self.head_cmd.tilt_cmd.pos_rad > 0 else "down ", round(
+            abs(np.degrees(self.head_cmd.tilt_cmd.pos_rad)), 1), " degree"
+
+        print "modified head motion cmd increment [pan, tilt] is trun ", "right" if self.head_cmd.pan_cmd.pos_rad > 0 else "left: ", round(
+            abs(np.degrees(self.head_cmd.pan_cmd.pos_rad)), 1), " degree, turn ", "up" if self.head_cmd.tilt_cmd.pos_rad > 0 else "down ", round(
+            abs(np.degrees(self.head_cmd.tilt_cmd.pos_rad)), 1), " degree"
+
+        self.head_motion_pub.publish(self.head_cmd)
 
 
     # this call back function is trigged on each time detect a face.
     # Otherwise, subscriber do not hear message from the topic /face_detector/faces_cloud/
     def _face_tracking(self, msg):
         self._find_nearest_face(msg)
-        self._head_motion()
+        # self._head_motion_action(0.2, 0.2)
+        self._head_motion_pub()
 
-
-    # if(rospy.Time.now().to_sec() - pointCloudData.header.stamp.to_sec() < 1):
-    #     head_pose_to_camera = pointCloudData.points
-    #     print head_pose_to_camera
-
-    # movo_head = HeadActionClient()
 
 if __name__ == "__main__":
     print ("start the node")
     rospy.init_node("face_detection")
+    rospy.wait_for_message("/movo/head/joint_states", JointState)
+    rospy.wait_for_message("/face_detector/faces_cloud", PointCloud)
 
     # start face tracking
     FaceTracking()
