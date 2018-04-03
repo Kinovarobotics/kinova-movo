@@ -112,7 +112,7 @@ class FaceTracking:
         # clear the list of founded faces in this moment
         del self.list_faces[:]
 
-        print "\n=============================================="
+        # print "\n=============================================="
 
         # when detected face is bad, face_detector send msg with empty pose []
         if (len(msg.points) == 0):
@@ -132,13 +132,13 @@ class FaceTracking:
             idx_nearest_face = [index for index in range(len(self.list_faces)) if
                                 self.list_faces[index].dist == dist_nearest_face]
             self.nearest_face = self.list_faces[idx_nearest_face[0]]
-            print "the nearest face has index ", idx_nearest_face[0], ", distance to camera is ", dist_nearest_face
+            # print "the nearest face has index ", idx_nearest_face[0], ", distance to camera is ", dist_nearest_face
 
 
     def _head_motion_action(self, max_pan_vel, max_tilt_vel):
         pan_cmd = np.arctan2(self.nearest_face.x, self.nearest_face.z)
         tilt_cmd = -1.0 * np.arctan2(self.nearest_face.y, np.linalg.norm(np.array([self.nearest_face.x, self.nearest_face.z])))
-        print "raw head motion increment [pan, tilt] is trun ",  "right" if pan_cmd>0 else "left: ",  round(abs(np.degrees(pan_cmd)),1) , " degree, turn ", "up" if tilt_cmd>0 else "down ", round(abs(np.degrees(tilt_cmd)),1), " degree"
+        # print "raw head motion increment [pan, tilt] is trun ",  "right" if pan_cmd>0 else "left: ",  round(abs(np.degrees(pan_cmd)),1) , " degree, turn ", "up" if tilt_cmd>0 else "down ", round(abs(np.degrees(tilt_cmd)),1), " degree"
 
         # assume movo can run face detection at a rate of 2hz (based on real time topic hz)
         face_detector_rate = 2
@@ -159,9 +159,9 @@ class FaceTracking:
         time_duration = max(pan_cmd_rect/max_pan_vel, tilt_cmd_rect/max_pan_vel)
         self.movo_head_action.add_point([pan_cmd_rect, tilt_cmd_rect], time_from_start + time_duration)
 
-        print "raw head motion cmd [pan, tilt] is trun ", "right" if pan_cmd_rect > 0 else "left: ", round(
-            abs(np.degrees(pan_cmd_rect)), 1), " degree, turn ", "up" if tilt_cmd_rect > 0 else "down ", round(
-            abs(np.degrees(tilt_cmd_rect)), 1), " degree"
+        # print "raw head motion cmd [pan, tilt] is trun ", "right" if pan_cmd_rect > 0 else "left: ", round(
+        #     abs(np.degrees(pan_cmd_rect)), 1), " degree, turn ", "up" if tilt_cmd_rect > 0 else "down ", round(
+        #     abs(np.degrees(tilt_cmd_rect)), 1), " degree"
 
         self.movo_head_action.start()
         self.movo_head_action.wait(time_from_start + time_duration)
@@ -173,7 +173,7 @@ class FaceTracking:
 
         pan_cmd = np.arctan2(self.nearest_face.x, self.nearest_face.z)
         tilt_cmd = -1.0 * np.arctan2(self.nearest_face.y, np.linalg.norm(np.array([self.nearest_face.x, self.nearest_face.z])))
-        print "raw head motion cmd [pan, tilt] is trun ",  "right" if pan_cmd>0 else "left: ",  round(abs(np.degrees(pan_cmd)),1) , " degree, turn ", "up" if tilt_cmd>0 else "down ", round(abs(np.degrees(tilt_cmd)),1), " degree"
+        # print "raw head motion cmd [pan, tilt] is trun ",  "right" if pan_cmd>0 else "left: ",  round(abs(np.degrees(pan_cmd)),1) , " degree, turn ", "up" if tilt_cmd>0 else "down ", round(abs(np.degrees(tilt_cmd)),1), " degree"
 
         vel_cmd = [0.0, 0.0]
 
@@ -190,15 +190,16 @@ class FaceTracking:
         self.head_cmd.pan_cmd.vel_rps = 50.0 * (math.pi / 180.0)
         self.head_cmd.tilt_cmd.vel_rps = 50.0 * (math.pi / 180.0)
 
-        print "modified head motion cmd increment [pan, tilt] is trun ", "right" if self.head_cmd.pan_cmd.pos_rad > 0 else "left: ", round(
-            abs(np.degrees(self.head_cmd.pan_cmd.pos_rad)), 1), " degree, turn ", "up" if self.head_cmd.tilt_cmd.pos_rad > 0 else "down ", round(
-            abs(np.degrees(self.head_cmd.tilt_cmd.pos_rad)), 1), " degree"
-
-        print "modified head motion cmd increment [pan, tilt] is trun ", "right" if self.head_cmd.pan_cmd.pos_rad > 0 else "left: ", round(
-            abs(np.degrees(self.head_cmd.pan_cmd.pos_rad)), 1), " degree, turn ", "up" if self.head_cmd.tilt_cmd.pos_rad > 0 else "down ", round(
-            abs(np.degrees(self.head_cmd.tilt_cmd.pos_rad)), 1), " degree"
+        # print "modified head motion cmd increment [pan, tilt] is trun ", "right" if self.head_cmd.pan_cmd.pos_rad > 0 else "left: ", round(
+        #     abs(np.degrees(self.head_cmd.pan_cmd.pos_rad)), 1), " degree, turn ", "up" if self.head_cmd.tilt_cmd.pos_rad > 0 else "down ", round(
+        #     abs(np.degrees(self.head_cmd.tilt_cmd.pos_rad)), 1), " degree"
+        #
+        # print "modified head motion cmd increment [pan, tilt] is trun ", "right" if self.head_cmd.pan_cmd.pos_rad > 0 else "left: ", round(
+        #     abs(np.degrees(self.head_cmd.pan_cmd.pos_rad)), 1), " degree, turn ", "up" if self.head_cmd.tilt_cmd.pos_rad > 0 else "down ", round(
+        #     abs(np.degrees(self.head_cmd.tilt_cmd.pos_rad)), 1), " degree"
 
         self.head_motion_pub.publish(self.head_cmd)
+        # print "publish from movo_teleop, pan_cmd.pos_rad is ", self.head_cmd.pan_cmd.pos_rad, ", tilt_cmd.pos_rad is ", self.head_cmd.tilt_cmd.pos_rad
 
 
     # this call back function is trigged on each time detect a face.
