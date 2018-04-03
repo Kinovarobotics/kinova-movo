@@ -42,6 +42,7 @@ from sensor_msgs.msg import JointState
 from movo.utils import *
 from movo_msgs.msg import PanTiltCmd
 from movo_action_clients.head_action_client import HeadActionClient
+from movo.movo_teleop_full_system import MovoTeleopFullSystem
 
 from people_msgs.msg import PositionMeasurementArray
 import face_detector.msg
@@ -213,6 +214,10 @@ if __name__ == "__main__":
     rospy.init_node("face_detection")
     rospy.wait_for_message("/movo/head/joint_states", JointState)
     rospy.wait_for_message("/face_detector/faces_cloud", PointCloud)
+
+    # disable head pan-tilt motion input from joystick
+    joystick_telelop = MovoTeleopFullSystem()
+    joystick_telelop.run_pan_tilt_ctl = False
 
     # start face tracking
     FaceTracking()
