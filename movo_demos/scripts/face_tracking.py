@@ -84,6 +84,11 @@ class FaceTracking:
 
         self.last_run_time = rospy.get_time()
 
+        # camera related parameters
+        self.max_pan_view_angle = np.radians(30)
+        self.max_tilt_view_angle = np.radians(20)
+        self.max_dt_lag = 0.5
+
         self.list_faces = []
         self.nearest_face = Face()
         self.is_face_detected = False
@@ -167,12 +172,16 @@ class FaceTracking:
 
 
     def _head_motion_pub(self):
-        dt = rospy.get_time() - self.last_run_time
+        rospy.loginfo("======================================")
+        dt = min(rospy.get_time() - self.last_run_time, self.max_dt_lag)
         self.last_run_time = rospy.get_time()
 
         if self.is_face_detected:
             pan_cmd = np.arctan2(self.nearest_face.x, self.nearest_face.z)
             tilt_cmd = -1.0 * np.arctan2(self.nearest_face.y, np.linalg.norm(np.array([self.nearest_face.x, self.nearest_face.z])))
+            rospy.loginfo("Camera view (raw data) [pan_angle tilt_angle] are [%f, %f] degrees \n", np.degrees(pan_cmd), np.degrees(tilt_cmd))
+            pan_cmd = np.clip(pan_cmd, -1.0*self.max_pan_view_angle, self.max_pan_view_angle)
+            tilt_cmd = np.clip(tilt_cmd, -1.0 * self.max_tilt_view_angle, self.max_tilt_view_angle)
 
             # regulate velocity between 0 to 1 as joystick input
             pan_vel_cmd = pan_cmd/abs(pan_cmd) * min(abs(pan_cmd)/self.pantilt_vel_lim, 1.0)
@@ -185,11 +194,12 @@ class FaceTracking:
 
         pan_increment = pan_vel_cmd * self.pantilt_vel_lim * dt
         tilt_increment = tilt_vel_cmd * self.pantilt_vel_lim * dt
+        rospy.loginfo("Increment in dt [%f seconds] of [pan tilt] are [%f, %f] degrees \n", dt, np.degrees(pan_increment),
+                      np.degrees(tilt_increment))
 
         self.head_cmd.pan_cmd.pos_rad += pan_increment
         self.head_cmd.tilt_cmd.pos_rad += tilt_increment
 
-        rospy.loginfo("======================================")
         info = "head motion increment [pan, tilt] is trun " + ("right: " if pan_increment > 0 else "left: ") + \
                str(round(abs(np.degrees(pan_increment)), 1)) + " degree, turn " + ("up: " if tilt_increment > 0 else "down: ") + \
                str(round(abs(np.degrees(tilt_increment)), 1)) + " degree. "
