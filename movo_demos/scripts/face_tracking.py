@@ -78,6 +78,7 @@ class FaceTracking:
 
         self.face_detector_sub = rospy.Subscriber("/face_detector/faces_cloud", PointCloud, self._face_tracking)
         # self.face_detector_sub = rospy.Subscriber("/face_detector/people_tracker_measuremes_array", PositionMeasurementArray, self._face_tracking)
+        self.head_joint_state_sub = rospy.Subscriber("/movo/head/joint_states", JointState, self._joint_state_cb)
 
         self.head_motion_pub = rospy.Publisher("/movo/head/cmd", PanTiltCmd, queue_size=10)
         self.head_cmd = PanTiltCmd()
@@ -87,6 +88,18 @@ class FaceTracking:
         # rate.sleep()
         rospy.loginfo("FaceTracking initialization")
         rospy.spin()
+
+
+    def _joint_state_cb(self, msg):
+        # update current pan-tilt pose
+        self.head_cmd.pan_cmd.pos_rad = msg.position[0]
+        self.head_cmd.tilt_cmd.pos_rad = msg.position[1]
+        self.head_cmd.pan_cmd.vel_rps = msg.velocity[0]
+        self.head_cmd.tilt_cmd.vel_rps = msg.velocity[1]
+
+        # only run at the start
+        self.head_joint_state_sub.unregister()
+
 
     def _find_nearest_face(self, msg):
         # clear the list of founded faces in this moment
