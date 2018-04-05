@@ -74,7 +74,6 @@ class FaceTracking:
 
         self.list_faces = []
         self.nearest_face = Face()
-        self.is_face_detected = False
 
         self.face_detector_sub = rospy.Subscriber("/face_detector/faces_cloud", PointCloud, self._face_tracking)
         # self.face_detector_sub = rospy.Subscriber("/face_detector/people_tracker_measuremes_array", PositionMeasurementArray, self._face_tracking)
@@ -107,7 +106,6 @@ class FaceTracking:
 
         # when detected face is bad, face_detector send msg with empty pose []
         if (len(msg.points) == 0):
-            rospy.loginfo("no valid face detected")
             return False
 
         # valid face found
@@ -130,24 +128,20 @@ class FaceTracking:
         dt = min(rospy.get_time() - self.last_run_time, self.max_dt_lag)
         self.last_run_time = rospy.get_time()
 
-        if self.is_face_detected:
-            pan_cmd = np.arctan2(self.nearest_face.x, self.nearest_face.z)
-            tilt_cmd = -1.0 * np.arctan2(self.nearest_face.y, np.linalg.norm(np.array([self.nearest_face.x, self.nearest_face.z])))
-            rospy.loginfo("Camera view (raw data) [pan_angle tilt_angle] are [%f, %f] degrees \n", np.degrees(pan_cmd), np.degrees(tilt_cmd))
-            pan_cmd = np.clip(pan_cmd, -1.0*self.max_pan_view_angle, self.max_pan_view_angle)
-            tilt_cmd = np.clip(tilt_cmd, -1.0 * self.max_tilt_view_angle, self.max_tilt_view_angle)
+        pan_cmd = np.arctan2(self.nearest_face.x, self.nearest_face.z)
+        tilt_cmd = -1.0 * np.arctan2(self.nearest_face.y, np.linalg.norm(np.array([self.nearest_face.x, self.nearest_face.z])))
+        rospy.loginfo("Camera view (raw data) [pan_angle tilt_angle] are [%f, %f] degrees \n", np.degrees(pan_cmd), np.degrees(tilt_cmd))
+        pan_cmd = np.clip(pan_cmd, -1.0*self.max_pan_view_angle, self.max_pan_view_angle)
+        tilt_cmd = np.clip(tilt_cmd, -1.0 * self.max_tilt_view_angle, self.max_tilt_view_angle)
 
-            # regulate velocity between 0 to 1 as joystick input
-            pan_vel_cmd = pan_cmd/abs(pan_cmd) * min(abs(pan_cmd)/self.pantilt_vel_lim, 1.0)
-            tilt_vel_cmd = tilt_cmd/abs(tilt_cmd) * min(abs(tilt_cmd)/self.pantilt_vel_lim, 1.0)
-        else:
-            pan_cmd = 0.0
-            tilt_cmd = 0.0
-            pan_vel_cmd = 0.0
-            tilt_vel_cmd = 0.0
+        # regulate velocity between 0 to 1 as joystick input
+        # pan_vel_cmd = pan_cmd/abs(pan_cmd) * min(abs(pan_cmd)/self.pantilt_vel_lim, 1.0)
+        # tilt_vel_cmd = tilt_cmd/abs(tilt_cmd) * min(abs(tilt_cmd)/self.pantilt_vel_lim, 1.0)
 
-        pan_increment = pan_vel_cmd * self.pantilt_vel_lim * dt
-        tilt_increment = tilt_vel_cmd * self.pantilt_vel_lim * dt
+        # pan_increment = pan_vel_cmd * self.pantilt_vel_lim * dt
+        # tilt_increment = tilt_vel_cmd * self.pantilt_vel_lim * dt
+        pan_increment = np.clip(pan_cmd, -self.pantilt_vel_lim, self.pantilt_vel_lim) * dt
+        tilt_increment = np.clip(tilt_cmd, -self.pantilt_vel_lim, self.pantilt_vel_lim) * dt
         rospy.loginfo("Increment in dt [%f seconds] of [pan tilt] are [%f, %f] degrees \n", dt, np.degrees(pan_increment),
                       np.degrees(tilt_increment))
 
@@ -167,9 +161,10 @@ class FaceTracking:
     # this call back function is trigged on each time detect a face.
     # Otherwise, subscriber do not hear message from the topic /face_detector/faces_cloud/
     def _face_tracking(self, msg):
-        self.is_face_detected = self._find_nearest_face(msg)
-        # self._head_motion_action(0.2, 0.2)
-        self._head_motion_pub()
+        if self._find_nearest_face(msg):
+            self._head_motion_pub()
+        else:
+            rospy.loginfo("detected face is not clear for face tracking")
 
 
 if __name__ == "__main__":
