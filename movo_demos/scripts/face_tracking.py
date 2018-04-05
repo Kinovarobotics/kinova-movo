@@ -140,19 +140,13 @@ class FaceTracking:
 
         self.head_cmd.pan_cmd.pos_rad += pan_increment
         self.head_cmd.tilt_cmd.pos_rad += tilt_increment
-
-        info = "head motion increment [pan, tilt] is trun " + ("right: " if pan_increment > 0 else "left: ") + \
-               str(round(abs(np.degrees(pan_increment)), 1)) + " degree, turn " + ("up: " if tilt_increment > 0 else "down: ") + \
-               str(round(abs(np.degrees(tilt_increment)), 1)) + " degree. "
-        rospy.loginfo(info)
-
         rospy.loginfo("raw command for [pan tilt] are [%f, %f] degrees \n", np.degrees(self.head_cmd.pan_cmd.pos_rad), np.degrees(self.head_cmd.tilt_cmd.pos_rad))
 
-        self.head_cmd.pan_cmd.pos_rad = limit_f(self.head_cmd.pan_cmd.pos_rad, (math.pi / 2.0))
-        self.head_cmd.tilt_cmd.pos_rad = limit_f(self.head_cmd.tilt_cmd.pos_rad, (math.pi / 2.0))
+        self.head_cmd.pan_cmd.pos_rad = np.clip(self.head_cmd.pan_cmd.pos_rad, (-math.pi / 2.0), (math.pi / 2.0))
+        self.head_cmd.tilt_cmd.pos_rad = np.clip(self.head_cmd.tilt_cmd.pos_rad, (-math.pi / 2.0), (math.pi / 2.0))
 
-        self.head_cmd.pan_cmd.vel_rps = 50.0 * (math.pi / 180.0)
-        self.head_cmd.tilt_cmd.vel_rps = 50.0 * (math.pi / 180.0)
+        self.head_cmd.pan_cmd.vel_rps = self.pantilt_vel_lim
+        self.head_cmd.tilt_cmd.vel_rps = self.pantilt_vel_lim
 
         self.head_motion_pub.publish(self.head_cmd)
 
