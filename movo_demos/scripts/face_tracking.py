@@ -83,6 +83,8 @@ class FaceTracking:
         self.head_cmd = PanTiltCmd()
 
         self.pantilt_vel_lim = rospy.get_param('~sim_teleop_pan_tilt_vel_limit', 0.524)
+        # pose increment inside deadzone, no need to send cmd
+        self.pantilt_pose_deadzone = np.radians(5.0)
 
         # rate.sleep()
         rospy.loginfo("FaceTracking initialization")
@@ -134,28 +136,31 @@ class FaceTracking:
         pan_cmd = np.clip(pan_cmd, -1.0*self.max_pan_view_angle, self.max_pan_view_angle)
         tilt_cmd = np.clip(tilt_cmd, -1.0 * self.max_tilt_view_angle, self.max_tilt_view_angle)
 
-        # regulate velocity between 0 to 1 as joystick input
-        # pan_vel_cmd = pan_cmd/abs(pan_cmd) * min(abs(pan_cmd)/self.pantilt_vel_lim, 1.0)
-        # tilt_vel_cmd = tilt_cmd/abs(tilt_cmd) * min(abs(tilt_cmd)/self.pantilt_vel_lim, 1.0)
+        if ( (abs(pan_cmd) > self.pantilt_pose_deadzone) or (abs(tilt_cmd) > self.pantilt_pose_deadzone) ):
+            # regulate velocity between 0 to 1 as joystick input
+            # pan_vel_cmd = pan_cmd/abs(pan_cmd) * min(abs(pan_cmd)/self.pantilt_vel_lim, 1.0)
+            # tilt_vel_cmd = tilt_cmd/abs(tilt_cmd) * min(abs(tilt_cmd)/self.pantilt_vel_lim, 1.0)
 
-        # pan_increment = pan_vel_cmd * self.pantilt_vel_lim * dt
-        # tilt_increment = tilt_vel_cmd * self.pantilt_vel_lim * dt
-        pan_increment = np.clip(pan_cmd, -self.pantilt_vel_lim, self.pantilt_vel_lim) * dt
-        tilt_increment = np.clip(tilt_cmd, -self.pantilt_vel_lim, self.pantilt_vel_lim) * dt
-        rospy.loginfo("Increment in dt [%f seconds] of [pan tilt] are [%f, %f] degrees \n", dt, np.degrees(pan_increment),
-                      np.degrees(tilt_increment))
+            # pan_increment = pan_vel_cmd * self.pantilt_vel_lim * dt
+            # tilt_increment = tilt_vel_cmd * self.pantilt_vel_lim * dt
+            pan_increment = np.clip(pan_cmd, -self.pantilt_vel_lim, self.pantilt_vel_lim) * dt
+            tilt_increment = np.clip(tilt_cmd, -self.pantilt_vel_lim, self.pantilt_vel_lim) * dt
+            rospy.loginfo("Increment in dt [%f seconds] of [pan tilt] are [%f, %f] degrees \n", dt, np.degrees(pan_increment),
+                          np.degrees(tilt_increment))
 
-        self.head_cmd.pan_cmd.pos_rad += pan_increment
-        self.head_cmd.tilt_cmd.pos_rad += tilt_increment
-        rospy.loginfo("raw command for [pan tilt] are [%f, %f] degrees \n", np.degrees(self.head_cmd.pan_cmd.pos_rad), np.degrees(self.head_cmd.tilt_cmd.pos_rad))
+            self.head_cmd.pan_cmd.pos_rad += pan_increment
+            self.head_cmd.tilt_cmd.pos_rad += tilt_increment
+            rospy.loginfo("raw command for [pan tilt] are [%f, %f] degrees \n", np.degrees(self.head_cmd.pan_cmd.pos_rad), np.degrees(self.head_cmd.tilt_cmd.pos_rad))
 
-        self.head_cmd.pan_cmd.pos_rad = np.clip(self.head_cmd.pan_cmd.pos_rad, (-math.pi / 2.0), (math.pi / 2.0))
-        self.head_cmd.tilt_cmd.pos_rad = np.clip(self.head_cmd.tilt_cmd.pos_rad, (-math.pi / 2.0), (math.pi / 2.0))
+            self.head_cmd.pan_cmd.pos_rad = np.clip(self.head_cmd.pan_cmd.pos_rad, (-math.pi / 2.0), (math.pi / 2.0))
+            self.head_cmd.tilt_cmd.pos_rad = np.clip(self.head_cmd.tilt_cmd.pos_rad, (-math.pi / 2.0), (math.pi / 2.0))
 
-        self.head_cmd.pan_cmd.vel_rps = self.pantilt_vel_lim
-        self.head_cmd.tilt_cmd.vel_rps = self.pantilt_vel_lim
+            self.head_cmd.pan_cmd.vel_rps = self.pantilt_vel_lim
+            self.head_cmd.tilt_cmd.vel_rps = self.pantilt_vel_lim
 
-        self.head_motion_pub.publish(self.head_cmd)
+        # only send cmd when increment is outside dead zone
+        # if ( (abs(pan_cmd) > self.pantilt_pose_deadzone) or (abs(tilt_cmd) > self.pantilt_pose_deadzone) ):
+            self.head_motion_pub.publish(self.head_cmd)
 
 
     # this call back function is trigged on each time detect a face.
