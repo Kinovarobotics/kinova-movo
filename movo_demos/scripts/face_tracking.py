@@ -86,6 +86,7 @@ class FaceTracking:
 
         self.list_faces = []
         self.nearest_face = Face()
+        self.is_face_detected = False
 
         # just for testing
         self.fakeface = Face()
@@ -115,12 +116,12 @@ class FaceTracking:
         # when detected face is bad, face_detector send msg with empty pose []
         if (len(msg.points) == 0):
             rospy.loginfo("no valid face detected")
+            return False
 
         # valid face found
         else:
             for detected_face in msg.points:
                 self.list_faces.append(Face(detected_face))
-            self.list_faces.append(self.fakeface)
 
             # extract the face which is nearest to the camera frame
             # dist_nearest_face = min(self.list_faces, key=lambda x: x.dist).dist
@@ -130,6 +131,7 @@ class FaceTracking:
             idx_nearest_face = [index for index in range(len(self.list_faces)) if
                                 self.list_faces[index].dist == dist_nearest_face]
             self.nearest_face = self.list_faces[idx_nearest_face[0]]
+            return True
 
 
     def _head_motion_action(self, max_pan_vel, max_tilt_vel):
@@ -168,27 +170,32 @@ class FaceTracking:
         dt = rospy.get_time() - self.last_run_time
         self.last_run_time = rospy.get_time()
 
-        pan_cmd = np.arctan2(self.nearest_face.x, self.nearest_face.z)
-        tilt_cmd = -1.0 * np.arctan2(self.nearest_face.y, np.linalg.norm(np.array([self.nearest_face.x, self.nearest_face.z])))
+        if self.is_face_detected:
+            pan_cmd = np.arctan2(self.nearest_face.x, self.nearest_face.z)
+            tilt_cmd = -1.0 * np.arctan2(self.nearest_face.y, np.linalg.norm(np.array([self.nearest_face.x, self.nearest_face.z])))
 
-        vel_cmd = [0.0, 0.0]
+            # regulate velocity between 0 to 1 as joystick input
+            pan_vel_cmd = pan_cmd/abs(pan_cmd) * min(abs(pan_cmd)/self.pantilt_vel_lim, 1.0)
+            tilt_vel_cmd = tilt_cmd/abs(tilt_cmd) * min(abs(tilt_cmd)/self.pantilt_vel_lim, 1.0)
+        else:
+            pan_cmd = 0.0
+            tilt_cmd = 0.0
+            pan_vel_cmd = 0.0
+            tilt_vel_cmd = 0.0
 
-        # regulate velocity between 0 to 1 as joystick input
-        vel_cmd[0] = pan_cmd/abs(pan_cmd) * min(abs(pan_cmd)/self.pantilt_vel_lim, 1.0)
-        vel_cmd[1] = tilt_cmd/abs(tilt_cmd) * min(abs(tilt_cmd)/self.pantilt_vel_lim, 1.0)
-
-        pan_increment = vel_cmd[0] * self.pantilt_vel_lim * dt
-        tilt_increment = vel_cmd[1] * self.pantilt_vel_lim * dt
+        pan_increment = pan_vel_cmd * self.pantilt_vel_lim * dt
+        tilt_increment = tilt_vel_cmd * self.pantilt_vel_lim * dt
 
         self.head_cmd.pan_cmd.pos_rad += pan_increment
         self.head_cmd.tilt_cmd.pos_rad += tilt_increment
 
-        info = "head motion increment [pan, tilt] is trun " + ("right" if pan_increment > 0 else "left: ") + \
-               str(round(abs(np.degrees(pan_increment)), 1)) + " degree, turn " + ("up" if tilt_increment > 0 else "down ") +\
+        rospy.loginfo("======================================")
+        info = "head motion increment [pan, tilt] is trun " + ("right: " if pan_increment > 0 else "left: ") + \
+               str(round(abs(np.degrees(pan_increment)), 1)) + " degree, turn " + ("up: " if tilt_increment > 0 else "down: ") + \
                str(round(abs(np.degrees(tilt_increment)), 1)) + " degree. "
         rospy.loginfo(info)
 
-        rospy.loginfo("raw command for [pan tilt] are [%f, %f] degrees", self.head_cmd.pan_cmd.pos_rad, self.head_cmd.tilt_cmd.pos_rad)
+        rospy.loginfo("raw command for [pan tilt] are [%f, %f] degrees \n", np.degrees(self.head_cmd.pan_cmd.pos_rad), np.degrees(self.head_cmd.tilt_cmd.pos_rad))
 
         self.head_cmd.pan_cmd.pos_rad = limit_f(self.head_cmd.pan_cmd.pos_rad, (math.pi / 2.0))
         self.head_cmd.tilt_cmd.pos_rad = limit_f(self.head_cmd.tilt_cmd.pos_rad, (math.pi / 2.0))
@@ -202,7 +209,7 @@ class FaceTracking:
     # this call back function is trigged on each time detect a face.
     # Otherwise, subscriber do not hear message from the topic /face_detector/faces_cloud/
     def _face_tracking(self, msg):
-        self._find_nearest_face(msg)
+        self.is_face_detected = self._find_nearest_face(msg)
         # self._head_motion_action(0.2, 0.2)
         self._head_motion_pub()
 
@@ -211,7 +218,6 @@ if __name__ == "__main__":
     rospy.loginfo("start the node")
     rospy.init_node("face_detection")
     rospy.wait_for_message("/movo/head/joint_states", JointState)
-    rospy.wait_for_message("/face_detector/faces_cloud", PointCloud)
 
     # disable head pan-tilt motion input from joystick
     joystick_telelop = MovoTeleopFullSystem()
