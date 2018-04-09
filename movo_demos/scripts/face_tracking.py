@@ -78,7 +78,7 @@ class FaceTracking:
         # self.face_detector_sub = rospy.Subscriber("/face_detector/people_tracker_measuremes_array", PositionMeasurementArray, self._face_tracking)
         self.head_joint_state_sub = rospy.Subscriber("/movo/head/joint_states", JointState, self._joint_state_cb)
 
-        self.head_motion_pub = rospy.Publisher("/movo/head/cmd", PanTiltCmd, queue_size=10)
+        self.head_motion_pub = rospy.Publisher("/movo/head/face_tracking/cmd", PanTiltCmd, queue_size=10)
         self.head_cmd = PanTiltCmd()
 
         # self.pantilt_vel_lim = rospy.get_param('~sim_teleop_pan_tilt_vel_limit', 0.524)
