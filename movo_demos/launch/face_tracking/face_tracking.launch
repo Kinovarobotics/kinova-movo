@@ -1,0 +1,49 @@
+<launch>
+
+  <!-- Following args `camera` and `depth_ns` together consist the namespace prefix, and the args `*_topic` make the body of the topic for face_detector node to subscribe. In the example below, you're subscribing to: 
+
+        /camera/rgb/image_rect_color
+        /camera/depth_ns/image_rect_raw 
+   -->
+
+  <arg name="local" default="true"/>
+  <machine name="movo1" address="movo1" usr="movo"
+             env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+
+  <arg name="camera" default="kinect2" />
+  <arg name="rgb_ns" default="qhd" />
+  <arg name="depth_ns" default="qhd" />
+  <arg name="image_topic" default="image_color_rect" />
+  <arg name="depth_topic" default="image_depth_rect" />
+  <arg name="fixed_frame" default="kinect2_rgb_optical_frame" />
+
+  <arg name="paramfile_classifier" default="$(find face_detector)/param/classifier.yaml"/>
+
+  <!--include file="$(find openni_launch)/launch/openni.launch"/-->
+  <node name="$(anon dynparam)" pkg="dynamic_reconfigure" type="dynparam" args="set_from_parameters $(arg camera)/driver">
+    <param name="depth_registration" type="bool" value="true" />
+  </node>
+
+  <include file="$(find face_detector)/launch/face_detector_common.launch">
+    <arg name="camera" value="$(arg camera)" />
+    <arg name="rgb_ns" value="$(arg rgb_ns)" />
+    <arg name="image_topic" value="$(arg image_topic)" />
+    <arg name="depth_topic" value="$(arg depth_topic)" />    
+    <arg name="depth_ns" value="$(arg depth_ns)" />
+    <arg name="fixed_frame" value="$(arg fixed_frame)" />
+
+    <arg name="classifier_name" value="frontalface" />
+    <arg name="paramfile_classifier" value="$(arg paramfile_classifier)"/>
+    <arg name="classifier_reliability" value="0.9"/>
+    <arg name="do_continuous" value="true" />
+    <arg name="do_publish_faces_of_unknown_size" value="false" />
+    <arg name="do_display" value="true" />
+    <arg name="use_rgbd" value="true" />
+    <arg name="approximate_sync" value="true" />
+  </include>
+
+  <node name="face_tracking" pkg="movo_demos" type="face_tracking.py" output="screen"/>
+
+  <node pkg="topic_tools" type="mux_select" name="head_cmd_face_tracking" args="head_cmd_mux /movo/head/face_tracking/cmd" output="screen"/>
+
+</launch>

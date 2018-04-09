@@ -1,0 +1,14 @@
+<!--Launch file to mux the command for head motion-->
+
+<launch>
+    <arg name="local" default="true"/>
+
+    <machine name="movo1" address="movo1" user="movo"
+                 env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+
+    <node pkg="topic_tools" type="mux" name="head_cmd_mux" args="/movo/head/cmd /movo/head/teleop/cmd /movo/head/face_tracking/cmd mux:=head_cmd_mux" output="screen">
+        <param name="lazy" type="bool" value="false"/>
+        <param name="initial_topic" type="str" value="/movo/head/teleop/cmd"/>
+    </node>
+
+</launch>

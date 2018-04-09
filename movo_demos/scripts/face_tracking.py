@@ -41,7 +41,6 @@ from sensor_msgs.msg import JointState
 
 from movo.utils import *
 from movo_msgs.msg import PanTiltCmd
-from movo.movo_teleop_full_system import MovoTeleopFullSystem
 
 from people_msgs.msg import PositionMeasurementArray
 
@@ -79,7 +78,7 @@ class FaceTracking:
         # self.face_detector_sub = rospy.Subscriber("/face_detector/people_tracker_measuremes_array", PositionMeasurementArray, self._face_tracking)
         self.head_joint_state_sub = rospy.Subscriber("/movo/head/joint_states", JointState, self._joint_state_cb)
 
-        self.head_motion_pub = rospy.Publisher("/movo/head/cmd", PanTiltCmd, queue_size=10)
+        self.head_motion_pub = rospy.Publisher("/movo/head/face_tracking/cmd", PanTiltCmd, queue_size=10)
         self.head_cmd = PanTiltCmd()
 
         # self.pantilt_vel_lim = rospy.get_param('~sim_teleop_pan_tilt_vel_limit', 0.524)
@@ -171,10 +170,6 @@ if __name__ == "__main__":
     rospy.loginfo("start the node")
     rospy.init_node("face_detection")
     rospy.wait_for_message("/movo/head/joint_states", JointState)
-
-    # disable head pan-tilt motion input from joystick
-    joystick_telelop = MovoTeleopFullSystem()
-    joystick_telelop.run_pan_tilt_ctl = False
 
     # start face tracking
     FaceTracking()
