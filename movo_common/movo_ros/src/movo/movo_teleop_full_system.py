@@ -168,7 +168,7 @@ class MovoTeleopFullSystem(object):
         self.gripper_pub[1] = rospy.Publisher('/movo/left_gripper/cmd', GripperCmd, queue_size=10)
         self.kgripper_pub[1] = rospy.Publisher('/movo/left_gripper/vel_cmd', Float32, queue_size=10)
         
-        self.p_pub = rospy.Publisher("/movo/head/cmd", PanTiltCmd, queue_size=100)
+        self.p_pub = rospy.Publisher("/movo/head/teleop/cmd", PanTiltCmd, queue_size=100)
         self.pt_cmds = PanTiltCmd()
 
         rospy.Subscriber('/joy', Joy, self._movo_teleop)

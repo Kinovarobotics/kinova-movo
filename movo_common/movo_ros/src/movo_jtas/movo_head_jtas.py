@@ -94,7 +94,7 @@ class MovoHeadJTAS(object):
         self._js = rospy.wait_for_message("/movo/head/joint_states",JointState)
         self.pos_targets = self._get_current_position(self._joint_names)
         self._sub = rospy.Subscriber("/movo/head/joint_states",JointState,self._update_movo_joint_states)
-        self._cmd_pub=rospy.Publisher("/movo/head/cmd",PanTiltCmd,queue_size=10)
+        self._cmd_pub=rospy.Publisher("/movo/head/jtas/cmd",PanTiltCmd,queue_size=10)
         self._server.start()
         
         self.init_success=True
