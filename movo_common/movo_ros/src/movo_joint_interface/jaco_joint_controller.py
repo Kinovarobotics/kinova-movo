@@ -136,7 +136,7 @@ class SIArmController(object):
             self._gripper_fb['position'] = pos[self._num_joints:self._num_joints+self.num_fingers]
             self._gripper_fb['velocity'] = vel[self._num_joints:self._num_joints+self.num_fingers]
             self._gripper_fb['force'] = force[self._num_joints:self._num_joints+self.num_fingers]
-                
+
         """
         Register the publishers and subscribers
         """
@@ -171,7 +171,13 @@ class SIArmController(object):
             self._gripper_jsmsg.header.frame_id = ''
             self._gripper_jsmsg.header.stamp = rospy.get_rostime()
             self._gripper_jsmsg.name  = self._gripper_joint_names
-        
+
+        self._cartesianforce_pub = rospy.Publisher("/movo/%s_arm/cartesianforce"%self._prefix, JacoCartesianVelocityCmd, queue_size=10)
+        self._cartesianforce_msg = JacoCartesianVelocityCmd()
+        self._cartesianforce_msg.header.seq = 0
+        self._cartesianforce_msg.header.frame_id = ''
+        self._cartesianforce_msg.header.stamp = rospy.get_rostime()
+
         """
         This starts the controller in cart vel mode so that teleop is active by default
         """
@@ -398,8 +404,9 @@ class SIArmController(object):
     def _update_controller_data(self):
         pos = self.api.get_angular_position()
         vel = self.api.get_angular_velocity()
-        force = self.api.get_angular_force()
+        angular_force = self.api.get_angular_force()
         sensor_data = self.api.get_sensor_data()
+        cartesian_force = self.api.get_cartesian_force()
 
         if(len(sensor_data[0]) > 0):
             self._actfdbk_msg.current = sensor_data[0]
@@ -417,8 +424,8 @@ class SIArmController(object):
         if(len(vel) > 0):
             self._joint_fb['velocity'] = vel[:self._num_joints]
 
-        if(len(force) > 0):
-            self._joint_fb['force'] = force[:self._num_joints]
+        if(len(angular_force) > 0):
+            self._joint_fb['force'] = angular_force[:self._num_joints]
 
 
         tmp = [0.0]*self._num_joints
@@ -454,8 +461,8 @@ class SIArmController(object):
             if (len(vel) > 0):
                 self._gripper_fb['velocity'] = vel[self._num_joints:self._num_joints+self.num_fingers]
 
-            if (len(force) > 0):
-                self._gripper_fb['force'] = force[self._num_joints:self._num_joints+self.num_fingers]
+            if (len(angular_force) > 0):
+                self._gripper_fb['force'] = angular_force[self._num_joints:self._num_joints+self.num_fingers]
             
             self._gripper_jsmsg.header.stamp = rospy.get_rostime()
             self._gripper_jsmsg.position = self._gripper_fb['position']
@@ -463,6 +470,18 @@ class SIArmController(object):
             self._gripper_jsmsg.effort = self._gripper_fb['force']
             self._gripper_jspub.publish(self._gripper_jsmsg)
             self._gripper_jsmsg.header.seq+=1
+
+        # update and publish cartesian force (wrench)
+        self._cartesianforce_msg.header.stamp = rospy.get_rostime()
+        self._cartesianforce_msg.x = cartesian_force[0]
+        self._cartesianforce_msg.y = cartesian_force[1]
+        self._cartesianforce_msg.z = cartesian_force[2]
+        self._cartesianforce_msg.theta_x = cartesian_force[3]
+        self._cartesianforce_msg.theta_y = cartesian_force[4]
+        self._cartesianforce_msg.theta_z = cartesian_force[5]
+
+        self._cartesianforce_pub.publish(self._cartesianforce_msg)
+        self._cartesianforce_msg.header.seq += 1
 
     def _run_ctl(self,events):
         if self._is_shutdown():
@@ -549,5 +568,4 @@ class SIArmController(object):
             self._jstmsg.error.velocities= map(operator.sub, self._arm_cmds['velocity'], self._joint_fb['velocity']) 
             self._jstmsg.error.accelerations=[0.0]*self._num_joints                
             self._jstpub.publish(self._jstmsg) 
-            self._jstmsg.header.seq +=1                       
-     
+            self._jstmsg.header.seq +=1

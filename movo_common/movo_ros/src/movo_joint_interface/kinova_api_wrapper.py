@@ -522,11 +522,7 @@ class KinovaAPI(object):
                    force.Coordinates.Z,
                    force.Coordinates.ThetaX,
                    force.Coordinates.ThetaY,
-                   force.Coordinates.ThetaZ,
-                   force.Fingers.Finger1,
-                   force.Fingers.Finger2,
-                   force.Fingers.Finger3]
-
+                   force.Coordinates.ThetaZ]
         else:
             rospy.loginfo("Kinova API failed: GetCartesianForce (%d)",api_stat)
             ret = []
