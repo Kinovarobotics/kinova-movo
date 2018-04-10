@@ -124,13 +124,14 @@ class SensorInfo(Structure):
                 ("FingerTemp1",c_float),
                 ("FingerTemp2",c_float),
                 ("FingerTemp3",c_float)]
-    
+
 NO_ERROR_KINOVA = 1
 LARGE_ACTUATOR_VELOCITY =deg_to_rad(35.0) #maximum velocity of large actuator (joints 1-3) (deg/s)
 SMALL_ACTUATOR_VELOCITY =deg_to_rad(45.0) #maximum velocity of small actuator (joints 4-6) (deg/s)
 ANGULAR_POSITION   = 2
 CARTESIAN_VELOCITY = 7
 ANGULAR_VELOCITY   = 8
+GRAVITY_VECTOR_SIZE = 3
 
 FINGER_FACTOR = (0.986111027/121.5)
 
@@ -201,6 +202,8 @@ class KinovaAPI(object):
         self.MoveHome = self.kinova.Ethernet_MoveHome
         self.InitFingers = self.kinova.Ethernet_InitFingers
         self.DevInfoArrayType = ( KinovaDevice * 20 )
+        self.SetGravityVector = self.kinova.Ethernet_SetGravityVector
+        self.SetGravityVector.argtypes = [POINTER(c_float)]
         
         local_ip = get_ip_address(interface)
         eth_cfg = EthernetCommConfig()
@@ -490,3 +493,14 @@ class KinovaAPI(object):
         self.handle_comm_err(api_stat)
         return ret
 
+
+    def set_gravity_vector(self, gravity_x, gravity_y, gravity_z):
+        gravity_vector = (c_float*GRAVITY_VECTOR_SIZE)(gravity_x, gravity_y, gravity_z)
+        api_stat = self.SetGravityVector(gravity_vector)
+
+        if (NO_ERROR_KINOVA == api_stat):
+            rospy.loginfo("The gravity vector is set to [%f, %f, %f]", gravity_x, gravity_y, gravity_z)
+        else:
+            rospy.logerr("Failed to set gravity vector to [%f, %f, %f]", gravity_x, gravity_y, gravity_z)
+
+        self.handle_comm_err(api_stat)
