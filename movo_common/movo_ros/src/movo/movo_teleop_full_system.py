@@ -262,18 +262,20 @@ class MovoTeleopFullSystem(object):
             self.run_pan_tilt_ctl = False
             self._init_pan_tilt = False
         elif self.button_state['pan_tilt_ctl']:
+            # only mux topic when run_pan_tilt_ctl is changed from False to true
+            if self.run_pan_tilt_ctl == False:
+                self.head_cmd_current_source_index = (self.head_cmd_current_source_index + 1) % len(self.head_cmd_source)
+                rospy.wait_for_service('/head_cmd_mux/select')
+                switch_request = MuxSelectRequest()
+                switch_request.topic = '/movo/head/' + self.head_cmd_source[self.head_cmd_current_source_index] + '/cmd'
+
+            self.head_cmd_srv.call(switch_request)
             self.run_arm_ctl = False
             self.run_arm_ctl_right = False
             self.run_arm_ctl_left = False
             self.run_pan_tilt_ctl = True
             self._init_pan_tilt = True
 
-            # each push set to next cmd source
-            self.head_cmd_current_source_index = (self.head_cmd_current_source_index + 1) % len(self.head_cmd_source)
-            rospy.wait_for_service('/head_cmd_mux/select')
-            switch_request = MuxSelectRequest()
-            switch_request.topic = '/movo/head/' + self.head_cmd_source[self.head_cmd_current_source_index] + '/cmd'
-            self.head_cmd_srv.call(switch_request)
 
             
         if self.button_state['estop']:
