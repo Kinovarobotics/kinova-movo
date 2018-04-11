@@ -131,13 +131,13 @@ class FaceTracking:
 
 
     def _head_motion_pub(self):
-        rospy.loginfo("======================================")
+        rospy.logdebug("======================================")
         dt = min(rospy.get_time() - self.last_run_time, self.max_dt_lag)
         self.last_run_time = rospy.get_time()
 
         pan_cmd = np.arctan2(self.nearest_face.x, self.nearest_face.z)
         tilt_cmd = -1.0 * np.arctan2(self.nearest_face.y, np.linalg.norm(np.array([self.nearest_face.x, self.nearest_face.z])))
-        rospy.loginfo("Camera view (raw data) [pan_angle tilt_angle] are [%f, %f] degrees \n", np.degrees(pan_cmd), np.degrees(tilt_cmd))
+        rospy.logdebug("Camera view (raw data) [pan_angle tilt_angle] are [%f, %f] degrees \n", np.degrees(pan_cmd), np.degrees(tilt_cmd))
         pan_cmd = np.clip(pan_cmd, -1.0*self.max_pan_view_angle, self.max_pan_view_angle)
         tilt_cmd = np.clip(tilt_cmd, -1.0 * self.max_tilt_view_angle, self.max_tilt_view_angle)
 
@@ -145,13 +145,13 @@ class FaceTracking:
         if ( (abs(pan_cmd) > self.pantilt_pose_deadzone) or (abs(tilt_cmd) > self.pantilt_pose_deadzone) ):
             pan_increment = np.clip(pan_cmd, -self.pan_vel_lim, self.pan_vel_lim) * dt
             tilt_increment = np.clip(tilt_cmd, -self.tilt_vel_lim, self.tilt_vel_lim) * dt
-            rospy.loginfo("Increment in dt [%f seconds] of [pan tilt] are [%f, %f] degrees \n", dt, np.degrees(pan_increment),
+            rospy.logdebug("Increment in dt [%f seconds] of [pan tilt] are [%f, %f] degrees \n", dt, np.degrees(pan_increment),
                           np.degrees(tilt_increment))
 
             with self.sync_head_pose_mutex:
                 self.head_cmd.pan_cmd.pos_rad += pan_increment
                 self.head_cmd.tilt_cmd.pos_rad += tilt_increment
-                rospy.loginfo("raw command for [pan tilt] are [%f, %f] degrees \n", np.degrees(self.head_cmd.pan_cmd.pos_rad), np.degrees(self.head_cmd.tilt_cmd.pos_rad))
+                rospy.logdebug("raw command for [pan tilt] are [%f, %f] degrees \n", np.degrees(self.head_cmd.pan_cmd.pos_rad), np.degrees(self.head_cmd.tilt_cmd.pos_rad))
 
                 self.head_cmd.pan_cmd.pos_rad = np.clip(self.head_cmd.pan_cmd.pos_rad, np.radians(-90.0), np.radians(90.0))
                 self.head_cmd.tilt_cmd.pos_rad = np.clip(self.head_cmd.tilt_cmd.pos_rad, np.radians(-45.0), np.radians(60.0))
@@ -168,7 +168,7 @@ class FaceTracking:
         if self._find_nearest_face(msg):
             self._head_motion_pub()
         else:
-            rospy.loginfo("detected face is not clear for face tracking")
+            rospy.logwarn("detected face is not clear for face tracking")
 
 
 if __name__ == "__main__":
