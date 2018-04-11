@@ -137,6 +137,12 @@ class SIArmController(object):
             self._gripper_fb['velocity'] = vel[self._num_joints:self._num_joints+self.num_fingers]
             self._gripper_fb['force'] = force[self._num_joints:self._num_joints+self.num_fingers]
 
+
+        """
+        Reset gravity vector to [0.0 9.81 0.0], along with positive y axis of kinova_arm base
+        """
+        self.api.set_gravity_vector(0.0, 9.81, 0.0)
+
         """
         Register the publishers and subscribers
         """
