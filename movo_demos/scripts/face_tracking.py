@@ -33,9 +33,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
 
+import numpy as np
+import threading
 import roslib; roslib.load_manifest('people_msgs')
 import rospy
-import numpy as np
 from sensor_msgs.msg import PointCloud
 from sensor_msgs.msg import JointState
 
@@ -74,6 +75,8 @@ class FaceTracking:
         self.list_faces = []
         self.nearest_face = Face()
 
+        self.sync_head_pose_mutex = threading.Lock()
+
         self.face_detector_sub = rospy.Subscriber("/face_detector/faces_cloud", PointCloud, self._face_tracking)
         # self.face_detector_sub = rospy.Subscriber("/face_detector/people_tracker_measuremes_array", PositionMeasurementArray, self._face_tracking)
         self.head_joint_state_sub = rospy.Subscriber("/movo/head/joint_states", JointState, self._joint_state_cb)
@@ -93,14 +96,15 @@ class FaceTracking:
 
 
     def _joint_state_cb(self, msg):
+        with self.sync_head_pose_mutex:
         # update current pan-tilt pose
-        self.head_cmd.pan_cmd.pos_rad = msg.position[0]
-        self.head_cmd.tilt_cmd.pos_rad = msg.position[1]
-        self.head_cmd.pan_cmd.vel_rps = msg.velocity[0]
-        self.head_cmd.tilt_cmd.vel_rps = msg.velocity[1]
+            self.head_cmd.pan_cmd.pos_rad = msg.position[0]
+            self.head_cmd.tilt_cmd.pos_rad = msg.position[1]
+            self.head_cmd.pan_cmd.vel_rps = msg.velocity[0]
+            self.head_cmd.tilt_cmd.vel_rps = msg.velocity[1]
 
         # only run at the start
-        self.head_joint_state_sub.unregister()
+        # self.head_joint_state_sub.unregister()
 
 
     def _find_nearest_face(self, msg):
@@ -144,17 +148,18 @@ class FaceTracking:
             rospy.loginfo("Increment in dt [%f seconds] of [pan tilt] are [%f, %f] degrees \n", dt, np.degrees(pan_increment),
                           np.degrees(tilt_increment))
 
-            self.head_cmd.pan_cmd.pos_rad += pan_increment
-            self.head_cmd.tilt_cmd.pos_rad += tilt_increment
-            rospy.loginfo("raw command for [pan tilt] are [%f, %f] degrees \n", np.degrees(self.head_cmd.pan_cmd.pos_rad), np.degrees(self.head_cmd.tilt_cmd.pos_rad))
+            with self.sync_head_pose_mutex:
+                self.head_cmd.pan_cmd.pos_rad += pan_increment
+                self.head_cmd.tilt_cmd.pos_rad += tilt_increment
+                rospy.loginfo("raw command for [pan tilt] are [%f, %f] degrees \n", np.degrees(self.head_cmd.pan_cmd.pos_rad), np.degrees(self.head_cmd.tilt_cmd.pos_rad))
 
-            self.head_cmd.pan_cmd.pos_rad = np.clip(self.head_cmd.pan_cmd.pos_rad, np.radians(-90.0), np.radians(90.0))
-            self.head_cmd.tilt_cmd.pos_rad = np.clip(self.head_cmd.tilt_cmd.pos_rad, np.radians(-45.0), np.radians(60.0))
+                self.head_cmd.pan_cmd.pos_rad = np.clip(self.head_cmd.pan_cmd.pos_rad, np.radians(-90.0), np.radians(90.0))
+                self.head_cmd.tilt_cmd.pos_rad = np.clip(self.head_cmd.tilt_cmd.pos_rad, np.radians(-45.0), np.radians(60.0))
 
-            self.head_cmd.pan_cmd.vel_rps = self.pan_vel_lim
-            self.head_cmd.tilt_cmd.vel_rps = self.tilt_vel_lim
+                self.head_cmd.pan_cmd.vel_rps = self.pan_vel_lim
+                self.head_cmd.tilt_cmd.vel_rps = self.tilt_vel_lim
 
-            self.head_motion_pub.publish(self.head_cmd)
+                self.head_motion_pub.publish(self.head_cmd)
 
 
     # this call back function is trigged on each time detect a face.
