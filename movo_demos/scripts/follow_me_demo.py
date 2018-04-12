@@ -51,8 +51,9 @@ class FollowMe:
         else:
             raise ValueError("Please check ros parameter /init_robot/jaco_dof, it should be either '6dof' or '7dof' ")
 
-        # If all joints below this value, follow-me motion is deactivated. Otherwise, if any pass threshold, follow-me activated
+        # TODO: If all joints below this value, follow-me motion is deactivated. Otherwise, if any pass threshold, follow-me activated
         self.joint_force_deadzone = [0] * self._dof
+
         # below which cartesian force considered as zero, independent in each axis or each arm
         self.cartesian_force_deadzone = 10
 
@@ -77,9 +78,6 @@ class FollowMe:
         self._base_cfg_pub = rospy.Publisher("/movo/gp_command", ConfigCmd, queue_size = 10)
         self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 10)
         self._base_cfg_msg = ConfigCmd()
-        self._base_cfg_msg.header.seq = 0
-        self._base_cfg_msg.header.stamp = rospy.get_rostime()
-        self._base_cfg_msg.header.frame_id = "base_link"
         self._base_cfg_msg.gp_cmd = "GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE"
         self._base_cfg_msg.gp_param = "TRACTOR_REQUEST"
 
@@ -151,7 +149,7 @@ class FollowMe:
                     # make sure robot can move the base
                     self._base_cfg_msg.header.stamp = rospy.get_rostime()
                     self._base_cfg_pub.publish(self._base_cfg_msg)
-                    self._base_cfg_msg.header.seq += 1
+                    self._base_cfg_msg.header.seq
                     self._base_cfg_pub.unregister()
 
                     self._first_run = False
