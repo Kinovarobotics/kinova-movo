@@ -37,6 +37,7 @@ import rospy
 from geometry_msgs.msg import Twist
 
 from movo_msgs.msg import JacoCartesianVelocityCmd
+from movo_msgs.msg import ConfigCmd
 
 class FollowMe:
     def __init__(self):
@@ -53,19 +54,27 @@ class FollowMe:
         # below which cartesian force considered as zero, independent in each axis or each arm
         self.cartesian_force_deadzone = 10
 
-        self._base_force = JacoCartesianVelocityCmd()
-        self._base_force.header.seq = 0
-        self._base_force.header.stamp = rospy.get_rostime()
-        self._base_force.header.frame_id = "base_link"
+        self._first_run = True
+
 
         self._right_cartesian_force_sub = rospy.Subscriber("/movo/right_arm/cartesianforce", JacoCartesianVelocityCmd, self._right_cartesian_force_cb)
         # self._right_cartesian_force_sub = rospy.Subscriber("/movo/right_arm/cartesianforce")
+        self._base_force_msg = JacoCartesianVelocityCmd()
+        self._base_force_msg.header.seq = 0
+        self._base_force_msg.header.stamp = rospy.get_rostime()
+        self._base_force_msg.header.frame_id = "base_link"
 
         # for develop and debug purpose
         self._base_force_pub = rospy.Publisher("/movo/base/cartesianforce", JacoCartesianVelocityCmd, queue_size = 10)
 
-        # self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 10)
-        self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size=10)
+        self._base_cfg_pub = rospy.Publisher("/movo/gp_command", ConfigCmd, queue_size = 10)
+        self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 10)
+        self._base_cfg_msg = ConfigCmd()
+        self._base_cfg_msg.header.seq = 0
+        self._base_cfg_msg.header.stamp = rospy.get_rostime()
+        self._base_cfg_msg.header.frame_id = "base_link"
+        self._base_cfg_msg.gp_cmd = "GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE"
+        self._base_cfg_msg.gp_param = "TRACTOR_REQUEST"
 
         rospy.loginfo("Follow Me initialization finished")
         rospy.spin()
@@ -83,8 +92,8 @@ class FollowMe:
         gain = 0.01
 
         base_cmd_vel = Twist()
-        base_cmd_vel.linear.x = gain * self._base_force.x
-        base_cmd_vel.linear.y = gain * self._base_force.y
+        base_cmd_vel.linear.x = gain * self._base_force_msg.x
+        base_cmd_vel.linear.y = gain * self._base_force_msg.y
         base_cmd_vel.linear.z = 0.0
         base_cmd_vel.angular.x = 0.0
         base_cmd_vel.angular.y = 0.0
@@ -99,28 +108,37 @@ class FollowMe:
         Use transformation matrix by tf could make it very general for more complex cases, eg: both frames are changing
         """
 
-        self._base_force.header.stamp = rospy.get_rostime()
-        self._base_force.header.seq += 1
+        self._base_force_msg.header.stamp = rospy.get_rostime()
+        self._base_force_msg.header.seq += 1
 
         # since transformation matrix between two frames are constant and simple
         # preceeding -1.0, expressively indicating the converting arm-counter-force to user-applied-force
-        self._base_force.x = -1.0 * msg.z
-        self._base_force.y = -1.0 * -msg.x
-        self._base_force.z = -1.0 * -msg.y
-        self._base_force.theta_x = -1.0 * msg.theta_z
-        self._base_force.theta_y = -1.0 * -msg.theta_x
-        self._base_force.theta_z = -1.0 * -msg.theta_y
+        self._base_force_msg.x = -1.0 * msg.z
+        self._base_force_msg.y = -1.0 * -msg.x
+        self._base_force_msg.z = -1.0 * -msg.y
+        self._base_force_msg.theta_x = -1.0 * msg.theta_z
+        self._base_force_msg.theta_y = -1.0 * -msg.theta_x
+        self._base_force_msg.theta_z = -1.0 * -msg.theta_y
 
         # debug info
-        self._base_force_pub.publish(self._base_force)
+        self._base_force_pub.publish(self._base_force_msg)
 
         # regulate base_force with dead zone
-        if abs(self._base_force.x) < self.cartesian_force_deadzone:
-            self._base_force.x = 0.0
-        if abs(self._base_force.y) < self.cartesian_force_deadzone:
-            self._base_force.y = 0.0
-        if abs(self._base_force.z) < self.cartesian_force_deadzone:
-            self._base_force.z = 0.0
+        if abs(self._base_force_msg.x) < self.cartesian_force_deadzone:
+            self._base_force_msg.x = 0.0
+        if abs(self._base_force_msg.y) < self.cartesian_force_deadzone:
+            self._base_force_msg.y = 0.0
+        if abs(self._base_force_msg.z) < self.cartesian_force_deadzone:
+            self._base_force_msg.z = 0.0
+
+        if self._first_run:
+            # make sure robot can move the base
+            self._base_cfg_msg.header.stamp = rospy.get_rostime()
+            self._base_cfg_pub.publish(self._base_cfg_msg)
+            self._base_cfg_msg.header.seq += 1
+            self._base_cfg_pub.unregister()
+
+            self._first_run = False
 
         # publish base velocity command
         self._base_cmd_pub.publish(self._base_admittance_model())
