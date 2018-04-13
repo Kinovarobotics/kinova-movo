@@ -210,6 +210,8 @@ class KinovaAPI(object):
         self.SetGravityVector.argtypes = [POINTER(c_float)]
         self.GetCartesianForce = self.kinova.Ethernet_GetCartesianForce
         self.GetCartesianForce.argtypes = [POINTER(CartesianPosition)]
+        self.GetAngularForceGravityFree = self.kinova.Ethernet_GetAngularForceGravityFree
+        self.GetAngularForceGravityFree.argtypes = [POINTER(AngularPosition)]
 
         local_ip = get_ip_address(interface)
         eth_cfg = EthernetCommConfig()
@@ -525,6 +527,35 @@ class KinovaAPI(object):
                    force.Coordinates.ThetaZ]
         else:
             rospy.loginfo("Kinova API failed: GetCartesianForce (%d)",api_stat)
+            ret = []
+
+        self.handle_comm_err(api_stat)
+        return ret
+
+
+    def get_angular_force_gravity_free(self):
+        force = AngularPosition()
+        api_stat = self.GetAngularForceGravityFree(byref(force))
+
+        if(NO_ERROR_KINOVA == api_stat):
+            if ("6dof" == self.arm_dof):
+                ret = [force.Actuators.Actuator1,
+                       force.Actuators.Actuator2,
+                       force.Actuators.Actuator3,
+                       force.Actuators.Actuator4,
+                       force.Actuators.Actuator5,
+                       force.Actuators.Actuator6]
+
+            elif ("7dof" == self.arm_dof):
+                ret = [force.Actuators.Actuator1,
+                       force.Actuators.Actuator2,
+                       force.Actuators.Actuator3,
+                       force.Actuators.Actuator4,
+                       force.Actuators.Actuator5,
+                       force.Actuators.Actuator6,
+                       force.Actuators.Actuator7]
+        else:
+            rospy.loginfo("Kinova API failed: GetAngularForceGravityFree (%d)",api_stat)
             ret = []
 
         self.handle_comm_err(api_stat)
