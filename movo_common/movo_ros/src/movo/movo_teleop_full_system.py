@@ -276,7 +276,7 @@ class MovoTeleopFullSystem(object):
                 switch_request = MuxSelectRequest()
                 switch_request.topic = '/movo/head/' + self.head_cmd_source[self.head_cmd_current_source_index] + '/cmd'
                 self.head_cmd_srv.call(switch_request)
-                
+
             self.run_arm_ctl = False
             self.run_arm_ctl_right = False
             self.run_arm_ctl_left = False
