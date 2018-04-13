@@ -39,6 +39,7 @@ from geometry_msgs.msg import Twist
 from std_msgs.msg import String
 
 from movo_msgs.msg import JacoCartesianVelocityCmd
+from movo.system_defines import TRACTOR_REQUEST
 from movo_msgs.msg import ConfigCmd
 
 class FollowMe:
@@ -58,7 +59,7 @@ class FollowMe:
         self.cartesian_force_deadzone = 10
 
         self._first_run = True
-
+        self._timer_time = rospy.get_rostime()
 
         self._right_cartesian_force_sub = rospy.Subscriber("/movo/right_arm/cartesianforce", JacoCartesianVelocityCmd, self._right_cartesian_force_cb)
         # self._right_cartesian_force_sub = rospy.Subscriber("/movo/right_arm/cartesianforce")
@@ -75,11 +76,11 @@ class FollowMe:
         # for develop and debug purpose
         self._base_force_pub = rospy.Publisher("/movo/base/cartesianforce", JacoCartesianVelocityCmd, queue_size = 10)
 
-        self._base_cfg_pub = rospy.Publisher("/movo/gp_command", ConfigCmd, queue_size = 10)
         self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 10)
+
+        self._base_cfg_pub = rospy.Publisher("/movo/gp_command", ConfigCmd, queue_size = 10)
         self._base_cfg_msg = ConfigCmd()
-        self._base_cfg_msg.gp_cmd = "GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE"
-        self._base_cfg_msg.gp_param = "TRACTOR_REQUEST"
+
 
         rospy.loginfo("Follow Me initialization finished")
         rospy.spin()
@@ -146,12 +147,19 @@ class FollowMe:
                     self._base_force_msg.z = 0.0
 
                 if self._first_run:
-                    # make sure robot can move the base
+                    # mimic press joystick button 4 continuously for 0.1sec. Publish just one time with first run not working
+                    while rospy.get_rostime() - self._timer_time < rospy.Duration(0.1):
+                        # make sure robot can move the base
+                        self._base_cfg_msg.gp_cmd = "GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE"
+                        self._base_cfg_msg.gp_param = TRACTOR_REQUEST
+                        self._base_cfg_msg.header.stamp = rospy.get_rostime()
+                        self._base_cfg_pub.publish(self._base_cfg_msg)
+                        # self._base_cfg_pub.unregister()
+
+                    self._base_cfg_msg.gp_cmd = 'GENERAL_PURPOSE_CMD_NONE'
+                    self._base_cfg_msg.gp_param = 0
                     self._base_cfg_msg.header.stamp = rospy.get_rostime()
                     self._base_cfg_pub.publish(self._base_cfg_msg)
-                    self._base_cfg_msg.header.seq
-                    self._base_cfg_pub.unregister()
-
                     self._first_run = False
 
                 # publish base velocity command
