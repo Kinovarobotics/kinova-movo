@@ -37,9 +37,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from ctypes import *
 import rospy
 from movo_msgs.msg import JacoCartesianVelocityCmd,KinovaActuatorFdbk
+from movo_msgs.msg import JacoStatus
 from sensor_msgs.msg import JointState
 from control_msgs.msg import JointTrajectoryControllerState
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, String
 import threading
 import math
 from angles import *
@@ -183,6 +184,14 @@ class SIArmController(object):
         self._cartesianforce_msg.header.seq = 0
         self._cartesianforce_msg.header.frame_id = ''
         self._cartesianforce_msg.header.stamp = rospy.get_rostime()
+
+
+        self._angularforce_gravityfree_pub = rospy.Publisher("/movo/%s_arm/angularforce_gravityfree"%self._prefix, JacoStatus, queue_size=10)
+        self._angularforce_gravityfree_msg = JacoStatus()
+        self._angularforce_gravityfree_msg.header.seq = 0
+        self._angularforce_gravityfree_msg.header.frame_id = ''
+        self._angularforce_gravityfree_msg.header.stamp = rospy.get_rostime()
+        self._angularforce_gravityfree_msg.type = "angularforce_gravityfree"
 
         """
         This starts the controller in cart vel mode so that teleop is active by default
@@ -413,6 +422,7 @@ class SIArmController(object):
         angular_force = self.api.get_angular_force()
         sensor_data = self.api.get_sensor_data()
         cartesian_force = self.api.get_cartesian_force()
+        angular_force_gravity_free = self.api.get_angular_force_gravity_free()
 
         if(len(sensor_data[0]) > 0):
             self._actfdbk_msg.current = sensor_data[0]
@@ -488,6 +498,14 @@ class SIArmController(object):
 
         self._cartesianforce_pub.publish(self._cartesianforce_msg)
         self._cartesianforce_msg.header.seq += 1
+
+
+        # update and publish angular force gravity free(joint torque)
+        self._angularforce_gravityfree_msg.header.stamp = rospy.get_rostime()
+        self._angularforce_gravityfree_msg.joint = [round(x, 3) for x in angular_force_gravity_free]
+        self._angularforce_gravityfree_pub.publish(self._angularforce_gravityfree_msg)
+        self._angularforce_gravityfree_msg.header.seq += 1
+
 
     def _run_ctl(self,events):
         if self._is_shutdown():
