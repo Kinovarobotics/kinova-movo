@@ -52,8 +52,14 @@ class FollowMe:
         else:
             raise ValueError("Please check ros parameter /init_robot/jaco_dof, it should be either '6dof' or '7dof' ")
 
-        # TODO: If all joints below this value, follow-me motion is deactivated. Otherwise, if any pass threshold, follow-me activated
-        self.joint_force_deadzone = [0] * self._dof
+        # below which considered as a level noise could reach, no external force applied to corresponding joint except gravity force.
+        # values are based on test data when robot in different configuration, does not guarantee no external is applied for sure.
+        # can be used as a "soft" "loose" "lower" boundary to detect external joint force
+        self.angular_force_gravity_free_deadzone = [5.7, 2.0, 0.5, 2.0, 1.5, 0.5]
+
+        # above which considered surely external force applied to corresponding joints. However, below these values, it is also possible that external forces are applied
+        # can be used as a "hard" "strict" "higher" boundary to detect external joint force
+        self.angular_force_gravity_free_certainty = [6.0, 3.0, 3.0, 3.0, 2.0, 1.0]
 
         # below which cartesian force considered as zero, independent in each axis or each arm
         self.cartesian_force_deadzone = 10
