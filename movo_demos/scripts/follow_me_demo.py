@@ -41,6 +41,7 @@ from std_msgs.msg import String
 from movo_msgs.msg import JacoCartesianVelocityCmd
 from movo.system_defines import TRACTOR_REQUEST
 from movo_msgs.msg import ConfigCmd
+from movo_msgs.msg import JacoStatus
 
 class FollowMe:
     def __init__(self):
@@ -90,6 +91,10 @@ class FollowMe:
         self._teleop_control_mode = ''
         self._teleop_control_mode_mutex = threading.RLock()
 
+        self._angular_force_gravity_free_sub = rospy.Subscriber("/movo/right_arm/angularforce_gravityfree", JacoStatus, self._angular_force_gravity_free_cb)
+        self._angular_force_gravity_free_mutex = threading.Lock()
+        self._angular_force_gravity_free = [0.0] * self._dof
+
         # for develop and debug purpose
         self._base_force_pub = rospy.Publisher("/movo/base/cartesianforce", JacoCartesianVelocityCmd, queue_size = 10)
 
@@ -130,6 +135,12 @@ class FollowMe:
             self._teleop_control_mode = msg.data
 
 
+    def _angular_force_gravity_free_cb(self, msg):
+        with self._angular_force_gravity_free_mutex:
+            if msg.type == "angularforce_gravityfree":
+                self._angular_force_gravity_free = msg.joint
+
+
     def _right_cartesian_force_cb(self, msg):
         """
         Transform force vector w.r.t. jaco arm frame to force vector w.r.t. movo_base frame.
@@ -140,6 +151,16 @@ class FollowMe:
                 rospy.logdebug("follow me will not be activated if corresponding arm control is enabled")
                 return None
 
+        with self._angular_force_gravity_free_mutex:
+            if all( [x<y for x,y in zip(self._angular_force_gravity_free, self.angular_force_gravity_free_deadzone)] ):
+                rospy.logdebug("In each joint, the gravity-free torque is below noise threshold, consider as no force applied")
+                return None
+            elif all( [x<y for x,y in zip(self._angular_force_gravity_free[self._dof-3:], self.angular_force_gravity_free_deadzone[self._dof-3:])] ):
+                rospy.logdebug("The applied force is before the wrist, it will cause unexpected motion")
+                return None
+            else:
+                # rospy.logdebug("The applied force detected after robot wrist, follow me in process")
+                pass
 
         self._base_force_msg.header.stamp = rospy.get_rostime()
         self._base_force_msg.header.seq += 1
@@ -186,7 +207,7 @@ class FollowMe:
 
 if __name__ == "__main__":
     rospy.loginfo("start Follow Me Demo")
-    rospy.init_node("follow_me")
+    rospy.init_node("follow_me", log_level=rospy.INFO)
     rospy.loginfo("waiting for topic: /movo/right_arm/cartesianforce")
     rospy.wait_for_message("/movo/right_arm/cartesianforce", JacoCartesianVelocityCmd)
 
