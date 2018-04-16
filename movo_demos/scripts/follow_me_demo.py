@@ -127,49 +127,50 @@ class FollowMe:
         with self._teleop_control_mode_mutex:
             if self._teleop_control_mode in ["home_arms", "estop", "arm_ctl_right"]:
                 rospy.logdebug("follow me will not be activated if corresponding arm control is enabled")
-                pass
-            else:
-                self._base_force_msg.header.stamp = rospy.get_rostime()
-                self._base_force_msg.header.seq += 1
+                return None
 
-                # since transformation matrix between two frames are constant and simple
-                # preceeding -1.0, expressively indicating the converting arm-counter-force to user-applied-force
-                self._base_force_msg.x = -1.0 * msg.z
-                self._base_force_msg.y = -1.0 * -msg.x
-                self._base_force_msg.z = -1.0 * -msg.y
-                self._base_force_msg.theta_x = -1.0 * msg.theta_z
-                self._base_force_msg.theta_y = -1.0 * -msg.theta_x
-                self._base_force_msg.theta_z = -1.0 * -msg.theta_y
 
-                # debug info
-                self._base_force_pub.publish(self._base_force_msg)
+        self._base_force_msg.header.stamp = rospy.get_rostime()
+        self._base_force_msg.header.seq += 1
 
-                # regulate base_force with dead zone
-                if abs(self._base_force_msg.x) < self.cartesian_force_deadzone:
-                    self._base_force_msg.x = 0.0
-                if abs(self._base_force_msg.y) < self.cartesian_force_deadzone:
-                    self._base_force_msg.y = 0.0
-                if abs(self._base_force_msg.z) < self.cartesian_force_deadzone:
-                    self._base_force_msg.z = 0.0
+        # since transformation matrix between two frames are constant and simple
+        # preceeding -1.0, expressively indicating the converting arm-counter-force to user-applied-force
+        self._base_force_msg.x = -1.0 * msg.z
+        self._base_force_msg.y = -1.0 * -msg.x
+        self._base_force_msg.z = -1.0 * -msg.y
+        self._base_force_msg.theta_x = -1.0 * msg.theta_z
+        self._base_force_msg.theta_y = -1.0 * -msg.theta_x
+        self._base_force_msg.theta_z = -1.0 * -msg.theta_y
 
-                if self._first_run:
-                    # mimic press joystick button 4 continuously for 0.1sec. Publish just one time with first run not working
-                    while rospy.get_rostime() - self._timer_time < rospy.Duration(0.1):
-                        # make sure robot can move the base
-                        self._base_cfg_msg.gp_cmd = "GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE"
-                        self._base_cfg_msg.gp_param = TRACTOR_REQUEST
-                        self._base_cfg_msg.header.stamp = rospy.get_rostime()
-                        self._base_cfg_pub.publish(self._base_cfg_msg)
-                        # self._base_cfg_pub.unregister()
+        # debug info
+        self._base_force_pub.publish(self._base_force_msg)
 
-                    self._base_cfg_msg.gp_cmd = 'GENERAL_PURPOSE_CMD_NONE'
-                    self._base_cfg_msg.gp_param = 0
-                    self._base_cfg_msg.header.stamp = rospy.get_rostime()
-                    self._base_cfg_pub.publish(self._base_cfg_msg)
-                    self._first_run = False
+        # regulate base_force with dead zone
+        if abs(self._base_force_msg.x) < self.cartesian_force_deadzone:
+            self._base_force_msg.x = 0.0
+        if abs(self._base_force_msg.y) < self.cartesian_force_deadzone:
+            self._base_force_msg.y = 0.0
+        if abs(self._base_force_msg.z) < self.cartesian_force_deadzone:
+            self._base_force_msg.z = 0.0
 
-                # publish base velocity command
-                self._base_cmd_pub.publish(self._base_admittance_model())
+        if self._first_run:
+            # mimic press joystick button 4 continuously for 0.1sec. Publish just one time with first run not working
+            while rospy.get_rostime() - self._timer_time < rospy.Duration(0.1):
+                # make sure robot can move the base
+                self._base_cfg_msg.gp_cmd = "GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE"
+                self._base_cfg_msg.gp_param = TRACTOR_REQUEST
+                self._base_cfg_msg.header.stamp = rospy.get_rostime()
+                self._base_cfg_pub.publish(self._base_cfg_msg)
+                # self._base_cfg_pub.unregister()
+
+            self._base_cfg_msg.gp_cmd = 'GENERAL_PURPOSE_CMD_NONE'
+            self._base_cfg_msg.gp_param = 0
+            self._base_cfg_msg.header.stamp = rospy.get_rostime()
+            self._base_cfg_pub.publish(self._base_cfg_msg)
+            self._first_run = False
+
+        # publish base velocity command
+        self._base_cmd_pub.publish(self._base_admittance_model())
 
 
 if __name__ == "__main__":
