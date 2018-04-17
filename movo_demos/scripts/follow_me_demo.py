@@ -215,8 +215,9 @@ class FollowMe:
         # TODO: the torque on arm end-effector could also be used for more comprehensive solution
         self._base_force_msg.theta_x = 0.0
         self._base_force_msg.theta_y = 0.0
-        # movo_base_torque_z = -arm_base_force_x * offset_x_arm_base_w.r.t._movo_base - arm_base_force_z * offset_y_arm_base_w.r.t._movo_base
-        self._base_force_msg.theta_z = -1.0* (-1.0 * msg.x) *self._armbase_to_movobase_trans[0] - (-1.0 * msg.z) *self._armbase_to_movobase_trans[1]
+        with self._tf_mutex:
+            # movo_base_torque_z = -arm_base_force_x * offset_x_arm_base_w.r.t._movo_base - arm_base_force_z * offset_y_arm_base_w.r.t._movo_base
+            self._base_force_msg.theta_z = -1.0* (-1.0 * msg.x) *self._armbase_to_movobase_trans[0] - (-1.0 * msg.z) *self._armbase_to_movobase_trans[1]
 
         # debug info
         self._base_force_pub.publish(self._base_force_msg)
