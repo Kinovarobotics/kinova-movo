@@ -35,7 +35,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import threading
 
 import rospy
+import tf
 from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Transform
 from std_msgs.msg import String
 
 from movo_msgs.msg import JacoCartesianVelocityCmd
@@ -95,6 +97,17 @@ class FollowMe:
         self._angular_force_gravity_free_mutex = threading.Lock()
         self._angular_force_gravity_free = [0.0] * self._dof
 
+        # transformation between frames
+        # arm base with repect to movo base is constant reference frame
+        self._armbase_to_movobase = Transform()
+        # arm end-effector frame with repect to movo base is a varying reference frame
+        self._armeef_to_movobase = Transform()
+        self._tf_listener = tf.TransformListener()
+        self._tf_mutex = threading.Lock()
+        # self._tf_listener_timer = rospy.Timer(0.01, self._tf_listener_timer_cb)
+        self._tf_thread = threading.Thread(target=self._tf_update)
+        self._tf_thread.start()
+
         # for develop and debug purpose
         self._base_force_pub = rospy.Publisher("/movo/base/cartesianforce", JacoCartesianVelocityCmd, queue_size = 10)
 
@@ -141,6 +154,23 @@ class FollowMe:
                 self._angular_force_gravity_free = msg.joint
 
 
+    def _tf_update(self):
+        rate = rospy.Rate(10.0)
+        while not rospy.is_shutdown():
+            try:
+                if self._tf_listener.frameExists("base_link") and self._tf_listener.frameExists("right_base_link"):
+                    (trans, rot) = self._tf_listener.lookupTransform("/base_link", "/right_base_link", rospy.Time(0))
+                    with self._tf_mutex:
+                        print trans, rot
+                else:
+                    rospy.loginfo("Did not find frames /base_link or /right_base_link")
+            except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+                rospy.logerr("Failed to get the transform in follow me demo")
+                continue
+
+            rate.sleep()
+
+
     def _right_cartesian_force_cb(self, msg):
         """
         Transform force vector w.r.t. jaco arm frame to force vector w.r.t. movo_base frame.
@@ -167,6 +197,7 @@ class FollowMe:
 
         # since transformation matrix between two frames are constant and simple
         # preceeding -1.0, expressively indicating the converting arm-counter-force to user-applied-force
+        # IMPORTANT: the reference frame of force is the arm base, then transformed to movo base. However, the reference frame of torque is the end-effector frame.
         self._base_force_msg.x = -1.0 * msg.z
         self._base_force_msg.y = -1.0 * -msg.x
         self._base_force_msg.z = -1.0 * -msg.y
