@@ -129,15 +129,16 @@ class FollowMe:
         :return:
         """
         # 1N corresponding to 0.001m per second
-        gain = 0.01
+        trans_gain = 0.01
+        rot_gain = 0.08
 
         base_cmd_vel = Twist()
-        base_cmd_vel.linear.x = gain * self._base_force_msg.x
-        base_cmd_vel.linear.y = gain * self._base_force_msg.y
+        base_cmd_vel.linear.x = trans_gain * self._base_force_msg.x
+        base_cmd_vel.linear.y = trans_gain * self._base_force_msg.y
         base_cmd_vel.linear.z = 0.0
         base_cmd_vel.angular.x = 0.0
         base_cmd_vel.angular.y = 0.0
-        base_cmd_vel.angular.z = 0.0
+        base_cmd_vel.angular.z = rot_gain* self._base_force_msg.theta_z
 
         return base_cmd_vel
 
@@ -206,15 +207,16 @@ class FollowMe:
         self._base_force_msg.header.stamp = rospy.get_rostime()
         self._base_force_msg.header.seq += 1
 
-        # since transformation matrix between two frames are constant and simple
         # preceeding -1.0, expressively indicating the converting arm-counter-force to user-applied-force
         # IMPORTANT: the reference frame of force is the arm base, then transformed to movo base. However, the reference frame of torque is the end-effector frame.
         self._base_force_msg.x = -1.0 * msg.z
         self._base_force_msg.y = -1.0 * -msg.x
         self._base_force_msg.z = -1.0 * -msg.y
-        self._base_force_msg.theta_x = -1.0 * msg.theta_z
-        self._base_force_msg.theta_y = -1.0 * -msg.theta_x
-        self._base_force_msg.theta_z = -1.0 * -msg.theta_y
+        # TODO: the torque on arm end-effector could also be used for more comprehensive solution
+        self._base_force_msg.theta_x = 0.0
+        self._base_force_msg.theta_y = 0.0
+        # movo_base_torque_z = -arm_base_force_x * offset_x_arm_base_w.r.t._movo_base - arm_base_force_z * offset_y_arm_base_w.r.t._movo_base
+        self._base_force_msg.theta_z = -1.0* (-1.0 * msg.x) *self._armbase_to_movobase_trans[0] - (-1.0 * msg.z) *self._armbase_to_movobase_trans[1]
 
         # debug info
         self._base_force_pub.publish(self._base_force_msg)
