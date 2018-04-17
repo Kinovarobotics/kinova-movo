@@ -33,11 +33,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
 import threading
+import numpy
 
 import rospy
 import tf
 from geometry_msgs.msg import Twist
-from geometry_msgs.msg import Transform
 from std_msgs.msg import String
 
 from movo_msgs.msg import JacoCartesianVelocityCmd
@@ -98,10 +98,10 @@ class FollowMe:
         self._angular_force_gravity_free = [0.0] * self._dof
 
         # transformation between frames
-        # arm base with repect to movo base is constant reference frame
-        self._armbase_to_movobase = Transform()
-        # arm end-effector frame with repect to movo base is a varying reference frame
-        self._armeef_to_movobase = Transform()
+        self._armbase_to_movobase_trans = numpy.zeros((3,1))
+        self._armbase_to_movobase_rot = numpy.eye(3)
+        self._armeef_to_movobase_trans = numpy.zeros((3,1))
+        self._armeef_to_movobase_rot = numpy.eye(3)
         self._tf_listener = tf.TransformListener()
         self._tf_mutex = threading.Lock()
         # self._tf_listener_timer = rospy.Timer(0.01, self._tf_listener_timer_cb)
@@ -115,7 +115,6 @@ class FollowMe:
 
         self._base_cfg_pub = rospy.Publisher("/movo/gp_command", ConfigCmd, queue_size = 10)
         self._base_cfg_msg = ConfigCmd()
-
 
         rospy.loginfo("Follow Me initialization finished")
         rospy.spin()
@@ -161,9 +160,21 @@ class FollowMe:
                 if self._tf_listener.frameExists("base_link") and self._tf_listener.frameExists("right_base_link"):
                     (trans, rot) = self._tf_listener.lookupTransform("/base_link", "/right_base_link", rospy.Time(0))
                     with self._tf_mutex:
-                        print trans, rot
+                        self._armbase_to_movobase_trans = trans
+                        self._armbase_to_movobase_rot = tf.transformations.quaternion_matrix(rot)[0:3, 0:3]
+                    rospy.logdebug("right_base_link w.r.t. movobase: translation [%3.3f, %3.3f, %3.3f]", trans[0], trans[1], trans[2])
                 else:
                     rospy.loginfo("Did not find frames /base_link or /right_base_link")
+
+
+                if self._tf_listener.frameExists("base_link") and self._tf_listener.frameExists("right_ee_link"):
+                    (trans, rot) = self._tf_listener.lookupTransform("/base_link", "/right_ee_link", rospy.Time(0))
+                    with self._tf_mutex:
+                        self._armeef_to_movobase_trans = trans
+                        self._armeef_to_movobase_rot = tf.transformations.quaternion_matrix(rot)[0:3, 0:3]
+                else:
+                    rospy.loginfo("Did not find frames /base_link or /right_base_link")
+
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
                 rospy.logerr("Failed to get the transform in follow me demo")
                 continue
