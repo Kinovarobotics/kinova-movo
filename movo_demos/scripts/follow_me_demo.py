@@ -76,7 +76,8 @@ class FollowMe:
 
 
         # below which cartesian force considered as zero, independent in each axis or each arm
-        self.cartesian_force_deadzone = 10
+        self.cartesian_force_deadzone = 10.0
+        self.cartesian_torque_deadzone = 1.0
 
         self._first_run = True
         self._timer_time = rospy.get_rostime()
@@ -130,11 +131,13 @@ class FollowMe:
         """
         # 1N corresponding to 0.001m per second
         trans_gain = 0.01
-        rot_gain = 0.08
+        rot_gain = 0.05
 
         base_cmd_vel = Twist()
-        base_cmd_vel.linear.x = trans_gain * self._base_force_msg.x
-        base_cmd_vel.linear.y = trans_gain * self._base_force_msg.y
+        # base_cmd_vel.linear.x = trans_gain * self._base_force_msg.x
+        # base_cmd_vel.linear.y = trans_gain * self._base_force_msg.y
+        base_cmd_vel.linear.x = 0.0
+        base_cmd_vel.linear.y = 0.0
         base_cmd_vel.linear.z = 0.0
         base_cmd_vel.angular.x = 0.0
         base_cmd_vel.angular.y = 0.0
@@ -208,16 +211,28 @@ class FollowMe:
         self._base_force_msg.header.seq += 1
 
         # preceeding -1.0, expressively indicating the converting arm-counter-force to user-applied-force
-        # IMPORTANT: the reference frame of force is the arm base, then transformed to movo base. However, the reference frame of torque is the end-effector frame.
+        # IMPORTANT: the reference frame of force is the arm base, then transformed to movo base.
         self._base_force_msg.x = -1.0 * msg.z
         self._base_force_msg.y = -1.0 * -msg.x
         self._base_force_msg.z = -1.0 * -msg.y
+        # IMPORTANT: Based on tests, the reference frame of torque is another frame which is constant w.r.t. the end-effector frame.
         # TODO: the torque on arm end-effector could also be used for more comprehensive solution
-        self._base_force_msg.theta_x = 0.0
-        self._base_force_msg.theta_y = 0.0
+        torque_temp_frame_x = -1.0 * msg.theta_x
+        torque_temp_frame_y = -1.0 * msg.theta_y
+        torque_temp_frame_z = -1.0 * msg.theta_z
+        # transfer temp_torque_frame to end-effector frame
+        torque_eef_frame_x = 1.0 * torque_temp_frame_z
+        torque_eef_frame_y = -1.0 * torque_temp_frame_x
+        torque_eef_frame_z = -1.0 * torque_temp_frame_y
+        rospy.logdebug("torque in eef_frame is " + ", ".join("%3.3f" % x for x in [torque_eef_frame_x, torque_eef_frame_y, torque_eef_frame_z]))
+
         with self._tf_mutex:
-            # movo_base_torque_z = -arm_base_force_x * offset_x_arm_base_w.r.t._movo_base - arm_base_force_z * offset_y_arm_base_w.r.t._movo_base
-            self._base_force_msg.theta_z = -1.0* (-1.0 * msg.x) *self._armbase_to_movobase_trans[0] - (-1.0 * msg.z) *self._armbase_to_movobase_trans[1]
+            # movo_base_torque_z = Rotation_matrix_of_eef_frame_w.r.t._movo_base * Torque_eef_frame
+            base_force_wrench = self._armeef_to_movobase_rot.dot(numpy.array([torque_eef_frame_x, torque_eef_frame_y, torque_eef_frame_z]).reshape(3,1))
+            self._base_force_msg.theta_x = base_force_wrench[0]
+            self._base_force_msg.theta_y = base_force_wrench[1]
+            self._base_force_msg.theta_z = base_force_wrench[2]
+            rospy.logdebug("base_force_wrench is " + ", ".join("%3.3f"%x for x in base_force_wrench))
 
         # debug info
         self._base_force_pub.publish(self._base_force_msg)
@@ -229,6 +244,12 @@ class FollowMe:
             self._base_force_msg.y = 0.0
         if abs(self._base_force_msg.z) < self.cartesian_force_deadzone:
             self._base_force_msg.z = 0.0
+        if abs(self._base_force_msg.theta_x) < self.cartesian_torque_deadzone:
+            self._base_force_msg.theta_x = 0.0
+        if abs(self._base_force_msg.theta_y) < self.cartesian_torque_deadzone:
+            self._base_force_msg.theta_y = 0.0
+        if abs(self._base_force_msg.theta_z) < self.cartesian_torque_deadzone:
+            self._base_force_msg.theta_z = 0.0
 
         if self._first_run:
             # mimic press joystick button 4 continuously for 0.1sec. Publish just one time with first run not working
@@ -252,7 +273,8 @@ class FollowMe:
 
 if __name__ == "__main__":
     rospy.loginfo("start Follow Me Demo")
-    rospy.init_node("follow_me", log_level=rospy.INFO)
+    rospy.init_node("follow_me", log_level=rospy.DEBUG)
+    # rospy.init_node("follow_me", log_level=rospy.INFO)
     rospy.loginfo("waiting for topic: /movo/right_arm/cartesianforce")
     rospy.wait_for_message("/movo/right_arm/cartesianforce", JacoCartesianVelocityCmd)
 
