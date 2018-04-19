@@ -74,6 +74,8 @@ class FollowMe:
         else:
             raise ValueError("Please check ros parameter /init_robot/jaco_dof, it should be either '6dof' or '7dof' ")
 
+        # torque along hand axis could be more accurate for base rotation control
+        self._eef_torque_x = 0.0
 
         # below which cartesian force considered as zero, independent in each axis or each arm
         self.cartesian_force_deadzone = 10.0
@@ -144,7 +146,8 @@ class FollowMe:
         base_cmd_vel.angular.x = 0.0
         base_cmd_vel.angular.y = 0.0
         # base_cmd_vel.angular.z = 0.0
-        base_cmd_vel.angular.z = numpy.clip(rot_gain * self._base_force_msg.theta_z, -self._base_rotation_speed_max, self._base_rotation_speed_max)
+        # base_cmd_vel.angular.z = numpy.clip(rot_gain * self._base_force_msg.theta_z, -self._base_rotation_speed_max, self._base_rotation_speed_max)
+        base_cmd_vel.angular.z = numpy.clip(rot_gain * self._eef_torque_x, -self._base_rotation_speed_max, self._base_rotation_speed_max)
         return base_cmd_vel
 
 
@@ -226,6 +229,7 @@ class FollowMe:
         torque_eef_frame_x = 1.0 * torque_temp_frame_z
         torque_eef_frame_y = -1.0 * torque_temp_frame_x
         torque_eef_frame_z = -1.0 * torque_temp_frame_y
+        self._eef_torque_x = torque_eef_frame_x
         rospy.logdebug("torque in eef_frame is " + ", ".join("%3.3f" % x for x in [torque_eef_frame_x, torque_eef_frame_y, torque_eef_frame_z]))
 
         with self._tf_mutex:
