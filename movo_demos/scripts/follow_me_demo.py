@@ -78,6 +78,8 @@ class FollowMe:
         # below which cartesian force considered as zero, independent in each axis or each arm
         self.cartesian_force_deadzone = 10.0
         self.cartesian_torque_deadzone = 1.0
+        self._base_translation_speed_max = 0.1
+        self._base_rotation_speed_max = 0.15
 
         self._first_run = True
         self._timer_time = rospy.get_rostime()
@@ -110,9 +112,9 @@ class FollowMe:
         self._tf_thread.start()
 
         # for develop and debug purpose
-        self._base_force_pub = rospy.Publisher("/movo/base/cartesianforce", JacoCartesianVelocityCmd, queue_size = 10)
+        self._base_force_pub = rospy.Publisher("/movo/base/cartesianforce", JacoCartesianVelocityCmd, queue_size = 1)
 
-        self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 10)
+        self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 1)
 
         self._base_cfg_pub = rospy.Publisher("/movo/gp_command", ConfigCmd, queue_size = 10)
         self._base_cfg_msg = ConfigCmd()
@@ -134,15 +136,15 @@ class FollowMe:
         rot_gain = 0.05
 
         base_cmd_vel = Twist()
-        # base_cmd_vel.linear.x = trans_gain * self._base_force_msg.x
-        # base_cmd_vel.linear.y = trans_gain * self._base_force_msg.y
+        # base_cmd_vel.linear.x = numpy.clip(trans_gain * self._base_force_msg.x, -self._base_rotation_speed_max, self._base_translation_speed_max)
+        # base_cmd_vel.linear.y = numpy.clip(trans_gain * self._base_force_msg.y, -self._base_rotation_speed_max, self._base_translation_speed_max)
         base_cmd_vel.linear.x = 0.0
         base_cmd_vel.linear.y = 0.0
         base_cmd_vel.linear.z = 0.0
         base_cmd_vel.angular.x = 0.0
         base_cmd_vel.angular.y = 0.0
-        base_cmd_vel.angular.z = rot_gain* self._base_force_msg.theta_z
-
+        # base_cmd_vel.angular.z = 0.0
+        base_cmd_vel.angular.z = numpy.clip(rot_gain * self._base_force_msg.theta_z, -self._base_rotation_speed_max, self._base_rotation_speed_max)
         return base_cmd_vel
 
 
