@@ -116,7 +116,8 @@ class FollowMe:
         # for develop and debug purpose
         self._base_force_pub = rospy.Publisher("/movo/base/cartesianforce", JacoCartesianVelocityCmd, queue_size = 1)
 
-        self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 1)
+        # self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 1)
+        self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel2", Twist, queue_size = 1)
 
         self._base_cfg_pub = rospy.Publisher("/movo/gp_command", ConfigCmd, queue_size = 10)
         self._base_cfg_msg = ConfigCmd()
@@ -138,16 +139,16 @@ class FollowMe:
         rot_gain = 0.05
 
         base_cmd_vel = Twist()
-        # base_cmd_vel.linear.x = numpy.clip(trans_gain * self._base_force_msg.x, -self._base_rotation_speed_max, self._base_translation_speed_max)
-        # base_cmd_vel.linear.y = numpy.clip(trans_gain * self._base_force_msg.y, -self._base_rotation_speed_max, self._base_translation_speed_max)
-        base_cmd_vel.linear.x = 0.0
-        base_cmd_vel.linear.y = 0.0
+        base_cmd_vel.linear.x = numpy.clip(trans_gain * self._base_force_msg.x, -self._base_translation_speed_max, self._base_translation_speed_max)
+        base_cmd_vel.linear.y = numpy.clip(trans_gain * self._base_force_msg.y, -self._base_translation_speed_max, self._base_translation_speed_max)
+        # base_cmd_vel.linear.x = 0.0
+        # base_cmd_vel.linear.y = 0.0
         base_cmd_vel.linear.z = 0.0
         base_cmd_vel.angular.x = 0.0
         base_cmd_vel.angular.y = 0.0
         # base_cmd_vel.angular.z = 0.0
-        # base_cmd_vel.angular.z = numpy.clip(rot_gain * self._base_force_msg.theta_z, -self._base_rotation_speed_max, self._base_rotation_speed_max)
-        base_cmd_vel.angular.z = numpy.clip(rot_gain * self._eef_torque_x, -self._base_rotation_speed_max, self._base_rotation_speed_max)
+        base_cmd_vel.angular.z = numpy.clip(rot_gain * self._base_force_msg.theta_z, -self._base_rotation_speed_max, self._base_rotation_speed_max)
+        # base_cmd_vel.angular.z = numpy.clip(rot_gain * self._eef_torque_x, -self._base_rotation_speed_max, self._base_rotation_speed_max)
         return base_cmd_vel
 
 
@@ -199,15 +200,15 @@ class FollowMe:
         with self._teleop_control_mode_mutex:
             if self._teleop_control_mode in ["home_arms", "estop", "arm_ctl_right"]:
                 rospy.logdebug("follow me will not be activated if corresponding arm control is enabled")
-                return None
+                # return None
 
         with self._angular_force_gravity_free_mutex:
             if all( [x<y for x,y in zip(self._angular_force_gravity_free, self.angular_force_gravity_free_deadzone)] ):
                 rospy.logdebug("In each joint, the gravity-free torque is below noise threshold, consider as no force applied")
-                return None
+                # return None
             elif all( [x<y for x,y in zip(self._angular_force_gravity_free[self._dof-3:], self.angular_force_gravity_free_deadzone[self._dof-3:])] ):
                 rospy.logdebug("The applied force is before the wrist, it will cause unexpected motion")
-                return None
+                # return None
             else:
                 # rospy.logdebug("The applied force detected after robot wrist, follow me in process")
                 pass
@@ -230,7 +231,7 @@ class FollowMe:
         torque_eef_frame_y = -1.0 * torque_temp_frame_x
         torque_eef_frame_z = -1.0 * torque_temp_frame_y
         self._eef_torque_x = torque_eef_frame_x
-        rospy.logdebug("torque in eef_frame is " + ", ".join("%3.3f" % x for x in [torque_eef_frame_x, torque_eef_frame_y, torque_eef_frame_z]))
+        # rospy.logdebug("torque in eef_frame is " + ", ".join("%3.3f" % x for x in [torque_eef_frame_x, torque_eef_frame_y, torque_eef_frame_z]))
 
         with self._tf_mutex:
             # movo_base_torque_z = Rotation_matrix_of_eef_frame_w.r.t._movo_base * Torque_eef_frame
@@ -238,7 +239,7 @@ class FollowMe:
             self._base_force_msg.theta_x = base_force_wrench[0]
             self._base_force_msg.theta_y = base_force_wrench[1]
             self._base_force_msg.theta_z = base_force_wrench[2]
-            rospy.logdebug("base_force_wrench is " + ", ".join("%3.3f"%x for x in base_force_wrench))
+            # rospy.logdebug("base_force_wrench is " + ", ".join("%3.3f"%x for x in base_force_wrench))
 
         # debug info
         self._base_force_pub.publish(self._base_force_msg)
