@@ -102,16 +102,18 @@ class FollowMe:
         self._angular_force_gravity_free_mutex = threading.Lock()
         self._angular_force_gravity_free = [0.0] * self._dof
 
-        # transformation between frames
-        self._armbase_to_movobase_trans = numpy.zeros((3,1))
-        self._armbase_to_movobase_rot = numpy.eye(3)
-        self._armeef_to_movobase_trans = numpy.zeros((3,1))
-        self._armeef_to_movobase_rot = numpy.eye(3)
-        self._tf_listener = tf.TransformListener()
-        self._tf_mutex = threading.Lock()
-        # self._tf_listener_timer = rospy.Timer(0.01, self._tf_listener_timer_cb)
-        self._tf_thread = threading.Thread(target=self._tf_update)
-        self._tf_thread.start()
+        """
+        # # the transformation from _tf_update adds evident delay (1~10 seconds) to the computation of wrench in movo_base frame. thus abandoned
+        # self._armbase_to_movobase_trans = numpy.zeros((3,1))
+        # self._armbase_to_movobase_rot = numpy.eye(3)
+        # self._armeef_to_movobase_trans = numpy.zeros((3,1))
+        # self._armeef_to_movobase_rot = numpy.eye(3)
+        # self._tf_listener = tf.TransformListener()
+        # self._tf_mutex = threading.Lock()
+        # # self._tf_listener_timer = rospy.Timer(0.01, self._tf_listener_timer_cb)
+        # self._tf_thread = threading.Thread(target=self._tf_update)
+        # self._tf_thread.start()
+        """
 
         # for develop and debug purpose
         self._base_force_pub = rospy.Publisher("/movo/base/cartesianforce", JacoCartesianVelocityCmd, queue_size = 1)
@@ -162,9 +164,10 @@ class FollowMe:
             if msg.type == "angularforce_gravityfree":
                 self._angular_force_gravity_free = msg.joint
 
-
+    """
+    # the transformation from _tf_update adds evident delay (1~10 seconds) to the computation of wrench in movo_base frame. thus abandoned
     def _tf_update(self):
-        rate = rospy.Rate(10.0)
+        # rate = rospy.Rate(10.0)
         while not rospy.is_shutdown():
             try:
                 if self._tf_listener.frameExists("base_link") and self._tf_listener.frameExists("right_base_link"):
@@ -189,7 +192,8 @@ class FollowMe:
                 rospy.logerr("Failed to get the transform in follow me demo")
                 continue
 
-            rate.sleep()
+            # rate.sleep()
+    """
 
 
     def _right_cartesian_force_cb(self, msg):
@@ -233,13 +237,16 @@ class FollowMe:
         self._eef_torque_x = torque_eef_frame_x
         # rospy.logdebug("torque in eef_frame is " + ", ".join("%3.3f" % x for x in [torque_eef_frame_x, torque_eef_frame_y, torque_eef_frame_z]))
 
-        with self._tf_mutex:
+        """
+        # the transformation from _tf_update adds evident delay (1~10 seconds) to the computation of wrench in movo_base frame. thus abandonted
+        # with self._tf_mutex:
             # movo_base_torque_z = Rotation_matrix_of_eef_frame_w.r.t._movo_base * Torque_eef_frame
-            base_force_wrench = self._armeef_to_movobase_rot.dot(numpy.array([torque_eef_frame_x, torque_eef_frame_y, torque_eef_frame_z]).reshape(3,1))
-            self._base_force_msg.theta_x = base_force_wrench[0]
-            self._base_force_msg.theta_y = base_force_wrench[1]
-            self._base_force_msg.theta_z = base_force_wrench[2]
+            # base_force_wrench = self._armeef_to_movobase_rot.dot(numpy.array([torque_eef_frame_x, torque_eef_frame_y, torque_eef_frame_z]).reshape(3,1))
+            # self._base_force_msg.theta_x = base_force_wrench[0]
+            # self._base_force_msg.theta_y = base_force_wrench[1]
+            # self._base_force_msg.theta_z = base_force_wrench[2]
             # rospy.logdebug("base_force_wrench is " + ", ".join("%3.3f"%x for x in base_force_wrench))
+        """
 
         # debug info
         self._base_force_pub.publish(self._base_force_msg)
