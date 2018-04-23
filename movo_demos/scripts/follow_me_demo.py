@@ -80,6 +80,7 @@ class FollowMe:
         self.cartesian_torque_deadzone = 4.0
         self._base_translation_speed_max = 0.1
         self._base_rotation_speed_max = 0.15
+        self._base_rotation_torque_threshold = 5.0
         # "translation" or "rotation"
         self._base_motion_mode = ''
 
@@ -119,8 +120,8 @@ class FollowMe:
         # for develop and debug purpose
         self._base_force_pub = rospy.Publisher("/movo/base/cartesianforce", JacoCartesianVelocityCmd, queue_size = 1)
 
-        # self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 1)
-        self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel2", Twist, queue_size = 1)
+        self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 1)
+        # self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel2", Twist, queue_size = 1)
 
         self._base_cfg_pub = rospy.Publisher("/movo/gp_command", ConfigCmd, queue_size = 10)
         self._base_cfg_msg = ConfigCmd()
@@ -138,8 +139,8 @@ class FollowMe:
         with self._angular_force_gravity_free_mutex:
             if msg.type == "angularforce_gravityfree":
                 self._angular_force_gravity_free = msg.joint
-                # if the torque on last joint is larger than all the others, consider want to switch to rotation mode
-                if all(abs(self._angular_force_gravity_free[-1]) > abs(x) for x in self._angular_force_gravity_free[0:-1]):
+                # if the torque on last joint is larger than all the others, or it is abnormally large consider want to switch to rotation mode
+                if all(abs(self._angular_force_gravity_free[-1]) > abs(x) for x in self._angular_force_gravity_free[0:-1]) or abs(self._angular_force_gravity_free[-1]) > self._base_rotation_torque_threshold:
                     self._base_motion_mode = "rotation"
                 else:
                     self._base_motion_mode = "translation"
