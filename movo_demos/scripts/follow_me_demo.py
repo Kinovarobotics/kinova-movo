@@ -76,10 +76,10 @@ class FollowMe:
             raise ValueError("Please check ros parameter /init_robot/jaco_dof, it should be either '6dof' or '7dof' ")
 
         # below which cartesian force considered as zero, independent in each axis or each arm
-        self.cartesian_force_deadzone = 10.0
-        self.cartesian_torque_deadzone = 4.0
-        self._base_translation_speed_max = 0.1
-        self._base_rotation_speed_max = 0.15
+        self._base_cartesian_force_range = [-20.0, -10.0, 10.0, 20.0]
+        self._base_translation_speed_range = [-0.2, 0.0, 0.0, 0.2]
+        self._base_cartesian_torque_range = [-6.0, -4.0, 4.0, 6.0]
+        self._base_rotation_speed_range = [-0.2, 0.0, 0.0, 0.2]
         self._base_rotation_torque_threshold = 5.0
         # "translation" or "rotation"
         self._base_motion_mode = ''
@@ -178,6 +178,25 @@ class FollowMe:
 
 
     def _right_cartesian_force_cb(self, msg):
+
+        # enable movo base motion
+        if self._first_run:
+            # mimic press joystick button 4 continuously for 0.1sec. Publish just one time with first run not working
+            while rospy.get_rostime() - self._timer_time < rospy.Duration(0.1):
+                # make sure robot can move the base
+                self._base_cfg_msg.gp_cmd = "GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE"
+                self._base_cfg_msg.gp_param = TRACTOR_REQUEST
+                self._base_cfg_msg.header.stamp = rospy.get_rostime()
+                self._base_cfg_pub.publish(self._base_cfg_msg)
+                # self._base_cfg_pub.unregister()
+
+            self._base_cfg_msg.gp_cmd = 'GENERAL_PURPOSE_CMD_NONE'
+            self._base_cfg_msg.gp_param = 0
+            self._base_cfg_msg.header.stamp = rospy.get_rostime()
+            self._base_cfg_pub.publish(self._base_cfg_msg)
+            self._first_run = False
+
+
         """
         Transform force vector w.r.t. jaco arm frame to force vector w.r.t. movo_base frame.
         Use transformation matrix by tf could make it very general for more complex cases, eg: both frames are changing
@@ -234,36 +253,6 @@ class FollowMe:
         # debug info
         self._base_force_pub.publish(self._base_force_msg)
 
-        # regulate base_force with dead zone
-        if abs(self._base_force_msg.x) < self.cartesian_force_deadzone:
-            self._base_force_msg.x = 0.0
-        if abs(self._base_force_msg.y) < self.cartesian_force_deadzone:
-            self._base_force_msg.y = 0.0
-        if abs(self._base_force_msg.z) < self.cartesian_force_deadzone:
-            self._base_force_msg.z = 0.0
-        if abs(self._base_force_msg.theta_x) < self.cartesian_torque_deadzone:
-            self._base_force_msg.theta_x = 0.0
-        if abs(self._base_force_msg.theta_y) < self.cartesian_torque_deadzone:
-            self._base_force_msg.theta_y = 0.0
-        if abs(self._base_force_msg.theta_z) < self.cartesian_torque_deadzone:
-            self._base_force_msg.theta_z = 0.0
-
-        if self._first_run:
-            # mimic press joystick button 4 continuously for 0.1sec. Publish just one time with first run not working
-            while rospy.get_rostime() - self._timer_time < rospy.Duration(0.1):
-                # make sure robot can move the base
-                self._base_cfg_msg.gp_cmd = "GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE"
-                self._base_cfg_msg.gp_param = TRACTOR_REQUEST
-                self._base_cfg_msg.header.stamp = rospy.get_rostime()
-                self._base_cfg_pub.publish(self._base_cfg_msg)
-                # self._base_cfg_pub.unregister()
-
-            self._base_cfg_msg.gp_cmd = 'GENERAL_PURPOSE_CMD_NONE'
-            self._base_cfg_msg.gp_param = 0
-            self._base_cfg_msg.header.stamp = rospy.get_rostime()
-            self._base_cfg_pub.publish(self._base_cfg_msg)
-            self._first_run = False
-
         # publish base velocity command
         self._base_cmd_pub.publish(self._base_admittance_model())
 
@@ -272,24 +261,21 @@ class FollowMe:
     Transform force command to motion command.
     """
     def _base_admittance_model(self):
-        """
-        TODO: more comprehensive algorithm could be developed here. Including virtual damping, virtual mass for the motion smoothness
-        :return:
-        """
-        # 1N corresponding to 0.001m per second
-        trans_gain = 0.005
-        rot_gain = 0.01
+        # TODO: more comprehensive algorithm could be developed here. Including virtual damping, virtual mass for the motion smoothness
 
         base_cmd_vel = Twist()
         with self._angular_force_gravity_free_mutex:
             if self._base_motion_mode == 'translation':
-                base_cmd_vel.linear.x = numpy.clip(trans_gain * self._base_force_msg.x, -self._base_translation_speed_max, self._base_translation_speed_max)
-                base_cmd_vel.linear.y = numpy.clip(trans_gain * self._base_force_msg.y, -self._base_translation_speed_max, self._base_translation_speed_max)
+                # base_cmd_vel.linear.x = numpy.clip(trans_gain * self._base_force_msg.x, -self._base_translation_speed_max, self._base_translation_speed_max)
+                # base_cmd_vel.linear.y = numpy.clip(trans_gain * self._base_force_msg.y, -self._base_translation_speed_max, self._base_translation_speed_max)
+                base_cmd_vel.linear.x = numpy.interp(self._base_force_msg.x, self._base_cartesian_force_range, self._base_translation_speed_range)
+                base_cmd_vel.linear.y = numpy.interp(self._base_force_msg.y, self._base_cartesian_force_range, self._base_translation_speed_range)
                 base_cmd_vel.angular.z = 0.0
             elif self._base_motion_mode == 'rotation':
                 base_cmd_vel.linear.x = 0.0
                 base_cmd_vel.linear.y = 0.0
-                base_cmd_vel.angular.z = numpy.clip(rot_gain * self._base_force_msg.theta_z, -self._base_rotation_speed_max, self._base_rotation_speed_max)
+                # base_cmd_vel.angular.z = numpy.clip(rot_gain * self._base_force_msg.theta_z, -self._base_rotation_speed_max, self._base_rotation_speed_max)
+                base_cmd_vel.angular.z = numpy.interp(self._base_force_msg.theta_z, self._base_cartesian_torque_range, self._base_rotation_speed_range)
             else:
                 pass
 
