@@ -75,12 +75,12 @@ class FollowMe:
         else:
             raise ValueError("Please check ros parameter /init_robot/jaco_dof, it should be either '6dof' or '7dof' ")
 
-        # below which cartesian force considered as zero, independent in each axis or each arm
-        self._base_cartesian_force_range = [-20.0, -10.0, 10.0, 20.0]
-        self._base_translation_speed_range = [-0.2, 0.0, 0.0, 0.2]
-        self._base_cartesian_torque_range = [-6.0, -4.0, 4.0, 6.0]
-        self._base_rotation_speed_range = [-0.2, 0.0, 0.0, 0.2]
-        self._base_rotation_torque_threshold = 5.0
+        # define the interpolation shape between force and speed of movo base
+        self._base_cartesian_force_range = [-20.0, -13.0,  -10.0, 10.0, 13.0, 20.0]
+        self._base_translation_speed_range = [-0.25, -0.15, 0.0, 0.0, 0.15, 0.25]
+        self._base_cartesian_torque_range = [-5.0, -3.5, -3.0, 3.0, 3.5, 5.0]
+        self._base_rotation_speed_range = [-0.3, -0.2, 0.0, 0.0, 0.2, 0.3]
+        self._base_rotation_torque_threshold = min(map(abs, self._base_cartesian_torque_range))
         # "translation" or "rotation"
         self._base_motion_mode = ''
 
@@ -204,15 +204,15 @@ class FollowMe:
         with self._teleop_control_mode_mutex:
             if self._teleop_control_mode in ["home_arms", "estop", "arm_ctl_right"]:
                 rospy.logdebug("follow me will not be activated if corresponding arm control is enabled")
-                # return None
+                return None
 
         with self._angular_force_gravity_free_mutex:
-            if all( [x<y for x,y in zip(self._angular_force_gravity_free, self.angular_force_gravity_free_deadzone)] ):
+            if all( [abs(x)<y for x,y in zip(self._angular_force_gravity_free, self.angular_force_gravity_free_deadzone)] ):
                 rospy.logdebug("In each joint, the gravity-free torque is below noise threshold, consider as no force applied")
-                # return None
-            elif all( [x<y for x,y in zip(self._angular_force_gravity_free[self._dof-3:], self.angular_force_gravity_free_deadzone[self._dof-3:])] ):
+                return None
+            elif all( [abs(x)<y for x,y in zip(self._angular_force_gravity_free[self._dof-3:], self.angular_force_gravity_free_deadzone[self._dof-3:])] ):
                 rospy.logdebug("The applied force is before the wrist, it will cause unexpected motion")
-                # return None
+                return None
             else:
                 # rospy.logdebug("The applied force detected after robot wrist, follow me in process")
                 pass
