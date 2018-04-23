@@ -45,6 +45,7 @@ from movo.system_defines import TRACTOR_REQUEST
 from movo_msgs.msg import ConfigCmd
 from movo_msgs.msg import JacoStatus
 
+
 class FollowMe:
     def __init__(self):
         dof = rospy.get_param('/init_robot/jaco_dof', '6dof')
@@ -74,14 +75,14 @@ class FollowMe:
         else:
             raise ValueError("Please check ros parameter /init_robot/jaco_dof, it should be either '6dof' or '7dof' ")
 
-        # torque along hand axis could be more accurate for base rotation control
-        self._eef_torque_x = 0.0
-
         # below which cartesian force considered as zero, independent in each axis or each arm
         self.cartesian_force_deadzone = 10.0
-        self.cartesian_torque_deadzone = 1.0
+        self.cartesian_torque_deadzone = 4.0
         self._base_translation_speed_max = 0.1
         self._base_rotation_speed_max = 0.15
+        # "translation" or "rotation"
+        self._base_motion_mode = ''
+
 
         self._first_run = True
         self._timer_time = rospy.get_rostime()
@@ -128,32 +129,6 @@ class FollowMe:
         rospy.spin()
 
 
-    """
-    Transform force command to motion command.
-    """
-    def _base_admittance_model(self):
-        """
-        TODO: more comprehensive algorithm could be developed here. Including virtual damping, virtual mass for the motion smoothness
-        :return:
-        """
-        # 1N corresponding to 0.001m per second
-        trans_gain = 0.01
-        rot_gain = 0.05
-
-        base_cmd_vel = Twist()
-        base_cmd_vel.linear.x = numpy.clip(trans_gain * self._base_force_msg.x, -self._base_translation_speed_max, self._base_translation_speed_max)
-        base_cmd_vel.linear.y = numpy.clip(trans_gain * self._base_force_msg.y, -self._base_translation_speed_max, self._base_translation_speed_max)
-        # base_cmd_vel.linear.x = 0.0
-        # base_cmd_vel.linear.y = 0.0
-        base_cmd_vel.linear.z = 0.0
-        base_cmd_vel.angular.x = 0.0
-        base_cmd_vel.angular.y = 0.0
-        # base_cmd_vel.angular.z = 0.0
-        base_cmd_vel.angular.z = numpy.clip(rot_gain * self._base_force_msg.theta_z, -self._base_rotation_speed_max, self._base_rotation_speed_max)
-        # base_cmd_vel.angular.z = numpy.clip(rot_gain * self._eef_torque_x, -self._base_rotation_speed_max, self._base_rotation_speed_max)
-        return base_cmd_vel
-
-
     def _teleop_control_mode_cb(self, msg):
         with self._teleop_control_mode_mutex:
             self._teleop_control_mode = msg.data
@@ -163,6 +138,11 @@ class FollowMe:
         with self._angular_force_gravity_free_mutex:
             if msg.type == "angularforce_gravityfree":
                 self._angular_force_gravity_free = msg.joint
+                # if the torque on last joint is larger than all the others, consider want to switch to rotation mode
+                if all(abs(self._angular_force_gravity_free[-1]) > abs(x) for x in self._angular_force_gravity_free[0:-1]):
+                    self._base_motion_mode = "rotation"
+                else:
+                    self._base_motion_mode = "translation"
 
     """
     # the transformation from _tf_update adds evident delay (1~10 seconds) to the computation of wrench in movo_base frame. thus abandoned
@@ -234,8 +214,6 @@ class FollowMe:
         torque_eef_frame_x = 1.0 * torque_temp_frame_z
         torque_eef_frame_y = -1.0 * torque_temp_frame_x
         torque_eef_frame_z = -1.0 * torque_temp_frame_y
-        self._eef_torque_x = torque_eef_frame_x
-        # rospy.logdebug("torque in eef_frame is " + ", ".join("%3.3f" % x for x in [torque_eef_frame_x, torque_eef_frame_y, torque_eef_frame_z]))
 
         """
         # the transformation from _tf_update adds evident delay (1~10 seconds) to the computation of wrench in movo_base frame. thus abandonted
@@ -247,6 +225,10 @@ class FollowMe:
             # self._base_force_msg.theta_z = base_force_wrench[2]
             # rospy.logdebug("base_force_wrench is " + ", ".join("%3.3f"%x for x in base_force_wrench))
         """
+
+        # use torque along gripper to control robot rotation
+        self._base_force_msg.theta_z = torque_eef_frame_x
+        # rospy.logdebug("torque in eef_frame is " + ", ".join("%3.3f" % x for x in [torque_eef_frame_x, torque_eef_frame_y, torque_eef_frame_z]))
 
         # debug info
         self._base_force_pub.publish(self._base_force_msg)
@@ -283,6 +265,38 @@ class FollowMe:
 
         # publish base velocity command
         self._base_cmd_pub.publish(self._base_admittance_model())
+
+
+    """
+    Transform force command to motion command.
+    """
+    def _base_admittance_model(self):
+        """
+        TODO: more comprehensive algorithm could be developed here. Including virtual damping, virtual mass for the motion smoothness
+        :return:
+        """
+        # 1N corresponding to 0.001m per second
+        trans_gain = 0.005
+        rot_gain = 0.01
+
+        base_cmd_vel = Twist()
+        with self._angular_force_gravity_free_mutex:
+            if self._base_motion_mode == 'translation':
+                base_cmd_vel.linear.x = numpy.clip(trans_gain * self._base_force_msg.x, -self._base_translation_speed_max, self._base_translation_speed_max)
+                base_cmd_vel.linear.y = numpy.clip(trans_gain * self._base_force_msg.y, -self._base_translation_speed_max, self._base_translation_speed_max)
+                base_cmd_vel.angular.z = 0.0
+            elif self._base_motion_mode == 'rotation':
+                base_cmd_vel.linear.x = 0.0
+                base_cmd_vel.linear.y = 0.0
+                base_cmd_vel.angular.z = numpy.clip(rot_gain * self._base_force_msg.theta_z, -self._base_rotation_speed_max, self._base_rotation_speed_max)
+            else:
+                pass
+
+        base_cmd_vel.linear.z = 0.0
+        base_cmd_vel.angular.x = 0.0
+        base_cmd_vel.angular.y = 0.0
+
+        return base_cmd_vel
 
 
 if __name__ == "__main__":
