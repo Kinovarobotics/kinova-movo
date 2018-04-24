@@ -114,9 +114,9 @@ class FollowMe:
 
         self._Tsampling = 0.01
         self._sampling_time = rospy.get_rostime()
-        self._base_x_speed_filter = LowPassFilter(k=1.0, Tconst=0.3, Tsampling=0.01)
-        self._base_y_speed_filter = LowPassFilter(k=1.0, Tconst=0.3, Tsampling=0.01)
-        self._base_theta_z_speed_filter = LowPassFilter(k=1.0, Tconst=0.2, Tsampling=0.01)
+        self._base_x_speed_filter = LowPassFilter(k=1.0, Tconst=0.1, Tsampling=0.01)
+        self._base_y_speed_filter = LowPassFilter(k=1.0, Tconst=0.1, Tsampling=0.01)
+        self._base_theta_z_speed_filter = LowPassFilter(k=1.0, Tconst=0.1, Tsampling=0.01)
 
 
         self._is_first_run = True
