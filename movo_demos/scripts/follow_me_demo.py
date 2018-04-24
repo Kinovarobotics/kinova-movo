@@ -103,9 +103,9 @@ class FollowMe:
 
         # define the interpolation shape between force and speed of movo base
         self._base_cartesian_force_range = [-20.0, -13.0,  -10.0, 10.0, 13.0, 20.0]
-        self._base_translation_speed_range = [-0.25, -0.15, 0.0, 0.0, 0.15, 0.25]
+        self._base_translation_speed_range = [-0.5, -0.3, 0.0, 0.0, 0.3, 0.5]
         self._base_cartesian_torque_range = [-5.0, -3.5, -3.0, 3.0, 3.5, 5.0]
-        self._base_rotation_speed_range = [-0.3, -0.2, 0.0, 0.0, 0.2, 0.3]
+        self._base_rotation_speed_range = [-0.6, -0.4, 0.0, 0.0, 0.4, 0.6]
         self._base_rotation_torque_threshold = min(map(abs, self._base_cartesian_torque_range))
         # "translation" or "rotation"
         self._base_motion_mode = ''
@@ -313,8 +313,9 @@ class FollowMe:
             elif self._base_motion_mode == 'rotation':
                 base_cmd_vel.linear.x = 0.0
                 base_cmd_vel.linear.y = 0.0
+                # -1.0 to invert the rotation direction, based on test for user convenience in pre-defined arm pose
                 # base_cmd_vel.angular.z = numpy.clip(rot_gain * self._base_force_msg.theta_z, -self._base_rotation_speed_max, self._base_rotation_speed_max)
-                base_cmd_vel.angular.z = round(numpy.interp(self._base_force_msg.theta_z, self._base_cartesian_torque_range, self._base_rotation_speed_range), 3)
+                base_cmd_vel.angular.z = -1.0*round(numpy.interp(self._base_force_msg.theta_z, self._base_cartesian_torque_range, self._base_rotation_speed_range), 3)
             else:
                 pass
 
