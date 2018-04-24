@@ -130,18 +130,20 @@ def main():
 
     p1 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
-    # good for x and rot_z, not good for y
+    # good for -x, +y
     p2 = [np.radians(x) for x in [-75.0, -15.0, -60.0, 210.0, 30.0, 30.0]]
 
     # good for y and rot z, not good for x
     p3 = [np.radians(x) for x in [-122.0, -13.0, -84.0, -120, 30.0, 30.0]]
 
-    # good for x, y, and rot z. gain for y need to increase
+    # good for -x, +x -y.
     p4 = [np.radians(x) for x in [-122.0, -13.0, -84.0, 0.0, 240.0, 30.0]]
 
+    # good for -x, +x, -y, +y
+    p5 = [np.radians(x) for x in [-75.0, -15.0, -84.0, 0.0, 240.0, 30.0]]
 
     time = 10.0
-    traj.add_point(p4, time)
+    traj.add_point(p5, time)
     # p2 = list(current_angles)
     # traj.add_point(p2,20.0)
     traj.start()

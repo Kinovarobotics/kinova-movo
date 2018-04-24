@@ -102,11 +102,13 @@ class FollowMe:
             raise ValueError("Please check ros parameter /init_robot/jaco_dof, it should be either '6dof' or '7dof' ")
 
         # define the interpolation shape between force and speed of movo base
-        self._base_cartesian_force_range = [-20.0, -13.0,  -10.0, 10.0, 13.0, 20.0]
-        self._base_translation_speed_range = [-0.5, -0.3, 0.0, 0.0, 0.3, 0.5]
-        self._base_cartesian_torque_range = [-5.0, -3.5, -3.0, 3.0, 3.5, 5.0]
-        self._base_rotation_speed_range = [-0.6, -0.4, 0.0, 0.0, 0.4, 0.6]
-        self._base_rotation_torque_threshold = min(map(abs, self._base_cartesian_torque_range))
+        self._base_cartesian_force_x_range = [x - 3.0 for x in [-20.0, -13.0,  -10.0, 10.0, 13.0, 20.0] ]
+        self._base_translation_speed_x_range = [-0.5, -0.3, 0.0, 0.0, 0.3, 0.5]
+        self._base_cartesian_force_y_range = [x - 5.0 for x in [-20.0, -13.0,  -10.0, 10.0, 13.0, 20.0] ] # add offset without applied force
+        self._base_translation_speed_y_range = [-0.4, -0.3, 0.0, 0.0, 0.3, 0.4]
+        self._base_cartesian_torque_z_range = [x + 0.2 for x in [-5.0, -3.5, -3.0, 3.0, 3.5, 5.0] ]
+        self._base_rotation_speed_z_range = [-0.8, -0.6, 0.0, 0.0, 0.6, 0.8]
+        self._base_rotation_torque_threshold = min(map(abs, self._base_cartesian_torque_z_range))
         # "translation" or "rotation"
         self._base_motion_mode = ''
 
@@ -153,8 +155,8 @@ class FollowMe:
         # for develop and debug purpose
         self._base_force_pub = rospy.Publisher("/movo/base/cartesianforce", JacoCartesianVelocityCmd, queue_size = 1)
 
-        # self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 1)
-        self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel2", Twist, queue_size = 1)
+        self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 1)
+        # self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel2", Twist, queue_size = 1)
 
         self._base_cfg_pub = rospy.Publisher("/movo/gp_command", ConfigCmd, queue_size = 10)
         self._base_cfg_msg = ConfigCmd()
@@ -318,15 +320,15 @@ class FollowMe:
             if self._base_motion_mode == 'translation':
                 # base_cmd_vel.linear.x = numpy.clip(trans_gain * self._base_force_msg.x, -self._base_translation_speed_max, self._base_translation_speed_max)
                 # base_cmd_vel.linear.y = numpy.clip(trans_gain * self._base_force_msg.y, -self._base_translation_speed_max, self._base_translation_speed_max)
-                base_cmd_vel.linear.x = round(numpy.interp(self._base_force_msg.x, self._base_cartesian_force_range, self._base_translation_speed_range), 3)
-                base_cmd_vel.linear.y = round(numpy.interp(self._base_force_msg.y, self._base_cartesian_force_range, self._base_translation_speed_range), 3)
+                base_cmd_vel.linear.x = round(numpy.interp(self._base_force_msg.x, self._base_cartesian_force_x_range, self._base_translation_speed_x_range), 3)
+                base_cmd_vel.linear.y = round(numpy.interp(self._base_force_msg.y, self._base_cartesian_force_y_range, self._base_translation_speed_y_range), 3)
                 base_cmd_vel.angular.z = 0.0
             elif self._base_motion_mode == 'rotation':
                 base_cmd_vel.linear.x = 0.0
                 base_cmd_vel.linear.y = 0.0
                 # -1.0 to invert the rotation direction, based on test for user convenience in pre-defined arm pose
                 # base_cmd_vel.angular.z = numpy.clip(rot_gain * self._base_force_msg.theta_z, -self._base_rotation_speed_max, self._base_rotation_speed_max)
-                base_cmd_vel.angular.z = -1.0*round(numpy.interp(self._base_force_msg.theta_z, self._base_cartesian_torque_range, self._base_rotation_speed_range), 3)
+                base_cmd_vel.angular.z = -1.0*round(numpy.interp(self._base_force_msg.theta_z, self._base_cartesian_torque_z_range, self._base_rotation_speed_z_range), 3)
             else:
                 pass
 
