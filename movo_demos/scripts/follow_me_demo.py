@@ -112,12 +112,14 @@ class FollowMe:
 
         self._Tsampling = 0.01
         self._sampling_time = rospy.get_rostime()
-        self._base_x_speed_filter = LowPassFilter(k=1.0, Tconst=0.1, Tsampling=0.01)
-        self._base_y_speed_filter = LowPassFilter(k=1.0, Tconst=0.1, Tsampling=0.01)
+        self._base_x_speed_filter = LowPassFilter(k=1.0, Tconst=0.3, Tsampling=0.01)
+        self._base_y_speed_filter = LowPassFilter(k=1.0, Tconst=0.3, Tsampling=0.01)
+        self._base_theta_z_speed_filter = LowPassFilter(k=1.0, Tconst=0.2, Tsampling=0.01)
 
 
-        self._first_run = True
+        self._is_first_run = True
         self._start_time = rospy.get_rostime()
+        self._is_applied_force_valid = False
 
         self._right_cartesian_force_sub = rospy.Subscriber("/movo/right_arm/cartesianforce", JacoCartesianVelocityCmd, self._right_cartesian_force_cb)
         # self._right_cartesian_force_sub = rospy.Subscriber("/movo/right_arm/cartesianforce")
@@ -151,8 +153,8 @@ class FollowMe:
         # for develop and debug purpose
         self._base_force_pub = rospy.Publisher("/movo/base/cartesianforce", JacoCartesianVelocityCmd, queue_size = 1)
 
-        # self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 1)
-        self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel2", Twist, queue_size = 1)
+        self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 1)
+        # self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel2", Twist, queue_size = 1)
 
         self._base_cfg_pub = rospy.Publisher("/movo/gp_command", ConfigCmd, queue_size = 10)
         self._base_cfg_msg = ConfigCmd()
@@ -211,7 +213,7 @@ class FollowMe:
     def _right_cartesian_force_cb(self, msg):
 
         # enable movo base motion
-        if self._first_run:
+        if self._is_first_run:
             # mimic press joystick button 4 continuously for 0.1sec. Publish just one time with first run not working
             while rospy.get_rostime() - self._start_time < rospy.Duration(0.1):
                 # make sure robot can move the base
@@ -225,29 +227,31 @@ class FollowMe:
             self._base_cfg_msg.gp_param = 0
             self._base_cfg_msg.header.stamp = rospy.get_rostime()
             self._base_cfg_pub.publish(self._base_cfg_msg)
-            self._first_run = False
+            self._is_first_run = False
 
+        # check validation of applied external force
+        self._is_applied_force_valid = True
+        with self._teleop_control_mode_mutex:
+            if self._teleop_control_mode in ["home_arms", "estop", "arm_ctl_right"]:
+                rospy.logdebug("follow me will not be activated if corresponding arm control is enabled")
+                self._is_applied_force_valid = False
+
+        with self._angular_force_gravity_free_mutex:
+            if all( [abs(x)<y for x,y in zip(self._angular_force_gravity_free, self.angular_force_gravity_free_deadzone)] ):
+                rospy.logdebug("In each joint, the gravity-free torque is below noise threshold, consider as no force applied")
+                self._is_applied_force_valid = False
+            elif all( [abs(x)<y for x,y in zip(self._angular_force_gravity_free[self._dof-3:], self.angular_force_gravity_free_deadzone[self._dof-3:])] ):
+                rospy.logdebug("The applied force is before the wrist, it will cause unexpected motion")
+                self._is_applied_force_valid = False
+            else:
+                # rospy.logdebug("The applied force detected after robot wrist, follow me in process")
+                pass
 
         """
         Transform force vector w.r.t. jaco arm frame to force vector w.r.t. movo_base frame.
         Use transformation matrix by tf could make it very general for more complex cases, eg: both frames are changing
         """
-        with self._teleop_control_mode_mutex:
-            if self._teleop_control_mode in ["home_arms", "estop", "arm_ctl_right"]:
-                rospy.logdebug("follow me will not be activated if corresponding arm control is enabled")
-                # return None
-
-        with self._angular_force_gravity_free_mutex:
-            if all( [abs(x)<y for x,y in zip(self._angular_force_gravity_free, self.angular_force_gravity_free_deadzone)] ):
-                rospy.logdebug("In each joint, the gravity-free torque is below noise threshold, consider as no force applied")
-                # return None
-            elif all( [abs(x)<y for x,y in zip(self._angular_force_gravity_free[self._dof-3:], self.angular_force_gravity_free_deadzone[self._dof-3:])] ):
-                rospy.logdebug("The applied force is before the wrist, it will cause unexpected motion")
-                # return None
-            else:
-                # rospy.logdebug("The applied force detected after robot wrist, follow me in process")
-                pass
-
+        # transform force applied on arm to force applied on Movo Base
         self._base_force_msg.header.stamp = rospy.get_rostime()
         self._base_force_msg.header.seq += 1
 
@@ -284,8 +288,12 @@ class FollowMe:
         # debug info
         self._base_force_pub.publish(self._base_force_msg)
 
+        # transform Movo base force to movo base motion
+        base_cmd_vel = self._base_admittance_model()
+
         # publish base velocity command
-        self._base_cmd_pub.publish(self._base_admittance_model())
+        if self._is_applied_force_valid:
+            self._base_cmd_pub.publish(base_cmd_vel)
 
 
     """
@@ -317,6 +325,7 @@ class FollowMe:
         # apply low pass filter
         base_cmd_vel.linear.x = round(self._base_x_speed_filter.get_output(base_cmd_vel.linear.x, (rospy.get_rostime() - self._sampling_time).to_sec()), 3)
         base_cmd_vel.linear.y = round(self._base_y_speed_filter.get_output(base_cmd_vel.linear.y, (rospy.get_rostime() - self._sampling_time).to_sec()), 3)
+        base_cmd_vel.angular.z = round(self._base_theta_z_speed_filter.get_output(base_cmd_vel.angular.z, (rospy.get_rostime() - self._sampling_time).to_sec()), 3)
         self._sampling_time = rospy.get_rostime()
 
         return base_cmd_vel
