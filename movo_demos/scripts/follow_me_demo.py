@@ -253,14 +253,14 @@ class FollowMe:
 
         # preceeding -1.0, expressively indicating the converting arm-counter-force to user-applied-force
         # IMPORTANT: the reference frame of force is the arm base, then transformed to movo base.
-        self._base_force_msg.x = -1.0 * msg.z
-        self._base_force_msg.y = -1.0 * -msg.x
-        self._base_force_msg.z = -1.0 * -msg.y
+        self._base_force_msg.x = -1.0 * round(msg.z, 3)
+        self._base_force_msg.y = -1.0 * round(-msg.x, 3)
+        self._base_force_msg.z = -1.0 * round(-msg.y, 3)
         # IMPORTANT: Based on tests, the reference frame of torque is another frame which is constant w.r.t. the end-effector frame.
         # TODO: the torque on arm end-effector could also be used for more comprehensive solution
-        torque_temp_frame_x = -1.0 * msg.theta_x
-        torque_temp_frame_y = -1.0 * msg.theta_y
-        torque_temp_frame_z = -1.0 * msg.theta_z
+        torque_temp_frame_x = -1.0 * round(msg.theta_x, 3)
+        torque_temp_frame_y = -1.0 * round(msg.theta_y, 3)
+        torque_temp_frame_z = -1.0 * round(msg.theta_z, 3)
         # transfer temp_torque_frame to end-effector frame
         torque_eef_frame_x = 1.0 * torque_temp_frame_z
         torque_eef_frame_y = -1.0 * torque_temp_frame_x
@@ -299,14 +299,14 @@ class FollowMe:
             if self._base_motion_mode == 'translation':
                 # base_cmd_vel.linear.x = numpy.clip(trans_gain * self._base_force_msg.x, -self._base_translation_speed_max, self._base_translation_speed_max)
                 # base_cmd_vel.linear.y = numpy.clip(trans_gain * self._base_force_msg.y, -self._base_translation_speed_max, self._base_translation_speed_max)
-                base_cmd_vel.linear.x = numpy.interp(self._base_force_msg.x, self._base_cartesian_force_range, self._base_translation_speed_range)
-                base_cmd_vel.linear.y = numpy.interp(self._base_force_msg.y, self._base_cartesian_force_range, self._base_translation_speed_range)
+                base_cmd_vel.linear.x = round(numpy.interp(self._base_force_msg.x, self._base_cartesian_force_range, self._base_translation_speed_range), 3)
+                base_cmd_vel.linear.y = round(numpy.interp(self._base_force_msg.y, self._base_cartesian_force_range, self._base_translation_speed_range), 3)
                 base_cmd_vel.angular.z = 0.0
             elif self._base_motion_mode == 'rotation':
                 base_cmd_vel.linear.x = 0.0
                 base_cmd_vel.linear.y = 0.0
                 # base_cmd_vel.angular.z = numpy.clip(rot_gain * self._base_force_msg.theta_z, -self._base_rotation_speed_max, self._base_rotation_speed_max)
-                base_cmd_vel.angular.z = numpy.interp(self._base_force_msg.theta_z, self._base_cartesian_torque_range, self._base_rotation_speed_range)
+                base_cmd_vel.angular.z = round(numpy.interp(self._base_force_msg.theta_z, self._base_cartesian_torque_range, self._base_rotation_speed_range), 3)
             else:
                 pass
 
@@ -315,8 +315,8 @@ class FollowMe:
         base_cmd_vel.angular.y = 0.0
 
         # apply low pass filter
-        base_cmd_vel.linear.x = self._base_x_speed_filter.get_output(base_cmd_vel.linear.x, (rospy.get_rostime() - self._sampling_time).to_sec())
-        base_cmd_vel.linear.y = self._base_y_speed_filter.get_output(base_cmd_vel.linear.y, (rospy.get_rostime() - self._sampling_time).to_sec())
+        base_cmd_vel.linear.x = round(self._base_x_speed_filter.get_output(base_cmd_vel.linear.x, (rospy.get_rostime() - self._sampling_time).to_sec()), 3)
+        base_cmd_vel.linear.y = round(self._base_y_speed_filter.get_output(base_cmd_vel.linear.y, (rospy.get_rostime() - self._sampling_time).to_sec()), 3)
         self._sampling_time = rospy.get_rostime()
 
         return base_cmd_vel
