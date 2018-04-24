@@ -153,8 +153,8 @@ class FollowMe:
         # for develop and debug purpose
         self._base_force_pub = rospy.Publisher("/movo/base/cartesianforce", JacoCartesianVelocityCmd, queue_size = 1)
 
-        self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 1)
-        # self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel2", Twist, queue_size = 1)
+        # self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 1)
+        self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel2", Twist, queue_size = 1)
 
         self._base_cfg_pub = rospy.Publisher("/movo/gp_command", ConfigCmd, queue_size = 10)
         self._base_cfg_msg = ConfigCmd()
@@ -260,6 +260,10 @@ class FollowMe:
         self._base_force_msg.x = -1.0 * round(msg.z, 3)
         self._base_force_msg.y = -1.0 * round(-msg.x, 3)
         self._base_force_msg.z = -1.0 * round(-msg.y, 3)
+
+        if abs(self._base_force_msg.z) >= abs(self._base_force_msg.x) and abs(self._base_force_msg.z) >= abs(self._base_force_msg.y):
+            self._is_applied_force_valid = False
+
         # IMPORTANT: Based on tests, the reference frame of torque is another frame which is constant w.r.t. the end-effector frame.
         # TODO: the torque on arm end-effector could also be used for more comprehensive solution
         torque_temp_frame_x = -1.0 * round(msg.theta_x, 3)
@@ -291,9 +295,16 @@ class FollowMe:
         # transform Movo base force to movo base motion
         base_cmd_vel = self._base_admittance_model()
 
-        # publish base velocity command
+        # publish base velocity command or reset base force for filter in next cycle
         if self._is_applied_force_valid:
             self._base_cmd_pub.publish(base_cmd_vel)
+        else:
+            self._base_force_msg.x = 0.0
+            self._base_force_msg.y = 0.0
+            self._base_force_msg.z = 0.0
+            self._base_force_msg.theta_x = 0.0
+            self._base_force_msg.theta_y = 0.0
+            self._base_force_msg.theta_z = 0.0
 
 
     """
