@@ -35,7 +35,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
 import sys
-import numpy as np
 
 from copy import copy
 
@@ -117,35 +116,24 @@ class JacoJTASTest(object):
 
 def main():
     rospy.init_node('jaco_jtas_test')
-    dof = '6dof'
+    dof = rospy.get_param('~jaco_dof')
     
     tmp = rospy.wait_for_message("/movo/right_arm/joint_states", JointState)
     current_angles= tmp.position
     traj = JacoJTASTest('right')
     traj.add_point(current_angles, 0.0)
 
+    if '6dof' == dof:
+        p1 = [0.0] * 6
+    if '7dof' == dof:
+        p1 = [0.0] * 7
 
-    # home = [-2.135, -0.227, -1.478, -2.083, 1.445, 1.321]
-    home = [np.radians(x) for x in [-84.68316212, -13.00614195, -122.32648926, -119.34710873, 82.7924014 ,   75.68772474] ]
-    tucked = [np.radians(x) for x in [-84.79775368,  -84.79775368, -160.42818264, 0.0, 0.0, 90.01166962]]
-
-    p1 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-
-    # good for x and rot_z, not good for y
-    p2 = [np.radians(x) for x in [-75.0, -15.0, -60.0, 210.0, 30.0, 30.0] ]
-
-
-    p3 = [np.radians(x) for x in [-122.0, -13.0, -84.0, -120, 30.0, 30.0]]
-
-
-
-    time = 10.0
-    traj.add_point(tucked, time)
-    # p2 = list(current_angles)
-    # traj.add_point(p2,20.0)
+    traj.add_point(p1,10.0)
+    p2 = list(current_angles)
+    traj.add_point(p2,20.0)
     traj.start()
 
-    traj.wait(time)
+    traj.wait(20.0)
     print("Exiting - Joint Trajectory Action Test Complete")
 
 if __name__ == "__main__":
