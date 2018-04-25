@@ -104,9 +104,9 @@ class FollowMe:
         # define the interpolation shape between force and speed of movo base
         self._base_cartesian_force_x_range = [x - 3.0 for x in [-20.0, -13.0,  -10.0, 10.0, 13.0, 20.0] ]
         self._base_translation_speed_x_range = [-0.5, -0.3, 0.0, 0.0, 0.3, 0.5]
-        self._base_cartesian_force_y_range = [x - 5.0 for x in [-20.0, -13.0,  -10.0, 10.0, 13.0, 20.0] ] # add offset without applied force
+        self._base_cartesian_force_y_range = [x - 8.0 for x in [-20.0, -13.0,  -10.0, 10.0, 13.0, 20.0] ] # add offset without applied force
         self._base_translation_speed_y_range = [-0.4, -0.3, 0.0, 0.0, 0.3, 0.4]
-        self._base_cartesian_torque_z_range = [x + 0.2 for x in [-5.0, -3.5, -3.0, 3.0, 3.5, 5.0] ]
+        self._base_cartesian_torque_z_range = [x + 0.02 for x in [-5.0, -3.5, -3.0, 3.0, 3.5, 5.0] ]
         self._base_rotation_speed_z_range = [-0.8, -0.6, 0.0, 0.0, 0.6, 0.8]
         self._base_rotation_torque_threshold = min(map(abs, self._base_cartesian_torque_z_range))
         # "translation" or "rotation"
