@@ -102,19 +102,21 @@ class FollowMe:
             raise ValueError("Please check ros parameter /init_robot/jaco_dof, it should be either '6dof' or '7dof' ")
 
         # define the interpolation shape between force and speed of movo base
-        self._base_cartesian_force_range = [-20.0, -13.0,  -10.0, 10.0, 13.0, 20.0]
-        self._base_translation_speed_range = [-0.25, -0.15, 0.0, 0.0, 0.15, 0.25]
-        self._base_cartesian_torque_range = [-5.0, -3.5, -3.0, 3.0, 3.5, 5.0]
-        self._base_rotation_speed_range = [-0.3, -0.2, 0.0, 0.0, 0.2, 0.3]
-        self._base_rotation_torque_threshold = min(map(abs, self._base_cartesian_torque_range))
+        self._base_cartesian_force_x_range = [x - 3.0 for x in [-20.0, -13.0,  -10.0, 10.0, 13.0, 20.0] ]
+        self._base_translation_speed_x_range = [-0.5, -0.3, 0.0, 0.0, 0.3, 0.5]
+        self._base_cartesian_force_y_range = [x - 8.0 for x in [-20.0, -13.0,  -10.0, 10.0, 13.0, 20.0] ] # add offset without applied force
+        self._base_translation_speed_y_range = [-0.4, -0.3, 0.0, 0.0, 0.3, 0.4]
+        self._base_cartesian_torque_z_range = [x + 0.02 for x in [-5.0, -3.5, -3.0, 3.0, 3.5, 5.0] ]
+        self._base_rotation_speed_z_range = [-0.8, -0.6, 0.0, 0.0, 0.6, 0.8]
+        self._base_rotation_torque_threshold = min(map(abs, self._base_cartesian_torque_z_range))
         # "translation" or "rotation"
         self._base_motion_mode = ''
 
         self._Tsampling = 0.01
         self._sampling_time = rospy.get_rostime()
-        self._base_x_speed_filter = LowPassFilter(k=1.0, Tconst=0.3, Tsampling=0.01)
-        self._base_y_speed_filter = LowPassFilter(k=1.0, Tconst=0.3, Tsampling=0.01)
-        self._base_theta_z_speed_filter = LowPassFilter(k=1.0, Tconst=0.2, Tsampling=0.01)
+        self._base_x_speed_filter = LowPassFilter(k=1.0, Tconst=0.1, Tsampling=0.01)
+        self._base_y_speed_filter = LowPassFilter(k=1.0, Tconst=0.1, Tsampling=0.01)
+        self._base_theta_z_speed_filter = LowPassFilter(k=1.0, Tconst=0.1, Tsampling=0.01)
 
 
         self._is_first_run = True
@@ -260,6 +262,10 @@ class FollowMe:
         self._base_force_msg.x = -1.0 * round(msg.z, 3)
         self._base_force_msg.y = -1.0 * round(-msg.x, 3)
         self._base_force_msg.z = -1.0 * round(-msg.y, 3)
+
+        if abs(self._base_force_msg.z) >= abs(self._base_force_msg.x) and abs(self._base_force_msg.z) >= abs(self._base_force_msg.y):
+            self._is_applied_force_valid = False
+
         # IMPORTANT: Based on tests, the reference frame of torque is another frame which is constant w.r.t. the end-effector frame.
         # TODO: the torque on arm end-effector could also be used for more comprehensive solution
         torque_temp_frame_x = -1.0 * round(msg.theta_x, 3)
@@ -291,9 +297,16 @@ class FollowMe:
         # transform Movo base force to movo base motion
         base_cmd_vel = self._base_admittance_model()
 
-        # publish base velocity command
+        # publish base velocity command or reset base force for filter in next cycle
         if self._is_applied_force_valid:
             self._base_cmd_pub.publish(base_cmd_vel)
+        else:
+            self._base_force_msg.x = 0.0
+            self._base_force_msg.y = 0.0
+            self._base_force_msg.z = 0.0
+            self._base_force_msg.theta_x = 0.0
+            self._base_force_msg.theta_y = 0.0
+            self._base_force_msg.theta_z = 0.0
 
 
     """
@@ -307,14 +320,15 @@ class FollowMe:
             if self._base_motion_mode == 'translation':
                 # base_cmd_vel.linear.x = numpy.clip(trans_gain * self._base_force_msg.x, -self._base_translation_speed_max, self._base_translation_speed_max)
                 # base_cmd_vel.linear.y = numpy.clip(trans_gain * self._base_force_msg.y, -self._base_translation_speed_max, self._base_translation_speed_max)
-                base_cmd_vel.linear.x = round(numpy.interp(self._base_force_msg.x, self._base_cartesian_force_range, self._base_translation_speed_range), 3)
-                base_cmd_vel.linear.y = round(numpy.interp(self._base_force_msg.y, self._base_cartesian_force_range, self._base_translation_speed_range), 3)
+                base_cmd_vel.linear.x = round(numpy.interp(self._base_force_msg.x, self._base_cartesian_force_x_range, self._base_translation_speed_x_range), 3)
+                base_cmd_vel.linear.y = round(numpy.interp(self._base_force_msg.y, self._base_cartesian_force_y_range, self._base_translation_speed_y_range), 3)
                 base_cmd_vel.angular.z = 0.0
             elif self._base_motion_mode == 'rotation':
                 base_cmd_vel.linear.x = 0.0
                 base_cmd_vel.linear.y = 0.0
+                # -1.0 to invert the rotation direction, based on test for user convenience in pre-defined arm pose
                 # base_cmd_vel.angular.z = numpy.clip(rot_gain * self._base_force_msg.theta_z, -self._base_rotation_speed_max, self._base_rotation_speed_max)
-                base_cmd_vel.angular.z = round(numpy.interp(self._base_force_msg.theta_z, self._base_cartesian_torque_range, self._base_rotation_speed_range), 3)
+                base_cmd_vel.angular.z = -1.0*round(numpy.interp(self._base_force_msg.theta_z, self._base_cartesian_torque_z_range, self._base_rotation_speed_z_range), 3)
             else:
                 pass
 
