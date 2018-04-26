@@ -134,8 +134,8 @@ if __name__ == "__main__":
     movo_rfinger.command(0.165)
     movo_lfinger.wait(3)
     movo_rfinger.wait(3)
-    movo_larm.clear('left')
-    movo_rarm.clear('right')
+    movo_larm.clear()
+    movo_rarm.clear()
     tmp_left = rospy.wait_for_message("/movo/left_arm/joint_states", JointState)
     current_larm_pos = list(tmp_left.position)
     tmp_right = rospy.wait_for_message("/movo/right_arm/joint_states", JointState)
@@ -213,8 +213,8 @@ if __name__ == "__main__":
                        "It is very helpful for all sorts of tasks. And I run on open source, open architecture. I am ROS enabled. "
                        "Please join my BETA program and help me to be the best I-can be. ")
 
-    movo_larm.clear('left')
-    movo_rarm.clear('right')
+    movo_larm.clear()
+    movo_rarm.clear()
     tmp_left = rospy.wait_for_message("/movo/left_arm/joint_states", JointState)
     tmp_right = rospy.wait_for_message("/movo/right_arm/joint_states", JointState)
     current_larm_pos = list(tmp_left.position)
@@ -298,8 +298,8 @@ if __name__ == "__main__":
                    "or visit KinovaMOVO.com for more details. "
                    "Remember my name MOVO. You will be hearing a lot about me in the future. I love you guys. ")
 
-    movo_larm.clear('left')
-    movo_rarm.clear('right')
+    movo_larm.clear()
+    movo_rarm.clear()
     tmp_left = rospy.wait_for_message("/movo/left_arm/joint_states", JointState)
     current_larm_pos = list(tmp_left.position)
     tmp_right = rospy.wait_for_message("/movo/right_arm/joint_states", JointState)
@@ -343,8 +343,8 @@ if __name__ == "__main__":
     movo_lfinger.wait(3)
     movo_rfinger.wait(3)
 
-    movo_larm.clear('left')
-    movo_rarm.clear('right')
+    movo_larm.clear()
+    movo_rarm.clear()
     tmp_left = rospy.wait_for_message("/movo/left_arm/joint_states", JointState)
     current_larm_pos = list(tmp_left.position)
     tmp_right = rospy.wait_for_message("/movo/right_arm/joint_states", JointState)
