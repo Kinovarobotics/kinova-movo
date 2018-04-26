@@ -44,7 +44,7 @@ from system_defines import *
 from movo_msgs.msg import *
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
-from std_msgs.msg import Bool,Float64,Float32
+from std_msgs.msg import Bool,Float64,Float32, String
 from trajectory_msgs.msg import JointTrajectoryPoint  
 from control_msgs.msg import JointTrajectoryAction, JointTrajectoryGoal, FollowJointTrajectoryAction, FollowJointTrajectoryGoal, JointTrajectoryControllerState
 from movo_msgs.msg import JacoCartesianVelocityCmd,PanTiltCmd
@@ -176,6 +176,9 @@ class MovoTeleopFullSystem(object):
         self.head_cmd_source = ['teleop', 'face_tracking']
         self.head_cmd_current_source_index = -1
 
+        self.teleop_control_mode_pub = rospy.Publisher("/movo/teleop/control_mode", String, queue_size = 10)
+        self.teleop_control_mode_msg = String()
+
         rospy.Subscriber('/joy', Joy, self._movo_teleop)
  
     def _update_configuration_limits(self,config):
@@ -247,21 +250,25 @@ class MovoTeleopFullSystem(object):
         self.last_joy = rospy.get_time()
         
         if self.button_state['base_ctl']:
+            self.teleop_control_mode_msg.data = "base_ctl"
             self.run_arm_ctl_right = False
             self.run_arm_ctl_left = False
             self.run_pan_tilt_ctl = False
             self._init_pan_tilt = False
         elif self.button_state['arm_ctl_right']:
+            self.teleop_control_mode_msg.data = "arm_ctl_right"
             self.run_arm_ctl_right = True
             self.run_arm_ctl_left = False
             self.run_pan_tilt_ctl = False
             self._init_pan_tilt = False
         elif self.button_state['arm_ctl_left']:
+            self.teleop_control_mode_msg.data = "arm_ctl_left"
             self.run_arm_ctl_right = False
             self.run_arm_ctl_left = True
             self.run_pan_tilt_ctl = False
             self._init_pan_tilt = False
         elif self.button_state['pan_tilt_ctl']:
+            self.teleop_control_mode_msg.data = "pan_tilt_ctl"
             # only mux topic when run_pan_tilt_ctl is changed from False to true
             if self.run_pan_tilt_ctl == False:
                 self.head_cmd_current_source_index = (self.head_cmd_current_source_index + 1) % len(self.head_cmd_source)
@@ -269,16 +276,15 @@ class MovoTeleopFullSystem(object):
                 switch_request = MuxSelectRequest()
                 switch_request.topic = '/movo/head/' + self.head_cmd_source[self.head_cmd_current_source_index] + '/cmd'
                 self.head_cmd_srv.call(switch_request)
-                
+
             self.run_arm_ctl = False
             self.run_arm_ctl_right = False
             self.run_arm_ctl_left = False
             self.run_pan_tilt_ctl = True
             self._init_pan_tilt = True
 
-
-            
         if self.button_state['estop']:
+            self.teleop_control_mode_msg.data = "estop"
             self.run_arm_ctl = False
             self.run_pan_tilt_ctl = False
             self._init_pan_tilt = False
@@ -289,6 +295,7 @@ class MovoTeleopFullSystem(object):
             self.arm_pub[1].publish(arm_cmd)
 
         if self.button_state['home_arms']:
+            self.teleop_control_mode_msg.data = "home_arms"
             if not (self.homing_sent):
                 tmp = Bool()
                 tmp.data = True
@@ -306,7 +313,14 @@ class MovoTeleopFullSystem(object):
             self.cfg_cmd.header.stamp = rospy.get_rostime()
             self.cfg_pub.publish(self.cfg_cmd)
             self.cfg_cmd.header.seq 
-        
+
+
+        """
+        publish current control mode to inform other nodes
+        """
+        self.teleop_control_mode_pub.publish(self.teleop_control_mode_msg)
+
+
         if self.run_arm_ctl_right or self.run_arm_ctl_left:
 
             arm_cmd = JacoCartesianVelocityCmd()

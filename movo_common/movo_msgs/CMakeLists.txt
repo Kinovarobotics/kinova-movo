@@ -18,6 +18,7 @@ add_message_files(DIRECTORY msg FILES
                                 GripperStat.msg
                                 LinearActuatorCmd.msg
                                 JacoCartesianVelocityCmd.msg
+                                JacoStatus.msg
                                 MotionTestCmd.msg
                                 KinovaActuatorFdbk.msg
                                 PanTiltActuatorFdbk.msg
