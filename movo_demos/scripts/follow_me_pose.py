@@ -34,123 +34,76 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
-import sys
 import numpy as np
-
-from copy import copy
-
 import rospy
-import math
-import actionlib
-from control_msgs.msg import (
-    FollowJointTrajectoryAction,
-    FollowJointTrajectoryGoal,
-)
-from trajectory_msgs.msg import (
-    JointTrajectoryPoint,
-)
-from sensor_msgs.msg import JointState
-from control_msgs.msg import JointTrajectoryControllerState
-
-
-class JacoJTASTest(object):
-    def __init__(self, arm='right', dof='6dof'):
-        self._client = actionlib.SimpleActionClient(
-            'movo/%s_arm_controller/follow_joint_trajectory' % arm,
-            FollowJointTrajectoryAction,
-        )
-        self._goal = FollowJointTrajectoryGoal()
-        self._goal_time_tolerance = rospy.Time(0.1)
-        self._goal.goal_time_tolerance = self._goal_time_tolerance
-        self.dof = dof
-        server_up = self._client.wait_for_server(timeout=rospy.Duration(10.0))
-        if not server_up:
-            rospy.logerr("Timed out waiting for Joint Trajectory"
-                         " Action Server to connect. Start the action server"
-                         " before running example.")
-            rospy.signal_shutdown("Timed out waiting for Action Server")
-            sys.exit(1)
-        self.clear(arm)
-
-    def add_point(self, positions, time):
-        point = JointTrajectoryPoint()
-        point.positions = copy(positions)
-        point.velocities = [0.0] * len(self._goal.trajectory.joint_names)
-        point.time_from_start = rospy.Duration(time)
-        self._goal.trajectory.points.append(point)
-
-    def add_point_deg(self, joints_degree, time):
-        self.add_point(map(math.radians, joints_degree), time)
-
-    def start(self):
-        self._goal.trajectory.header.stamp = rospy.Time(0.0)
-        self._client.send_goal(self._goal)
-
-    def stop(self):
-        self._client.cancel_goal()
-
-    def wait(self, timeout=15.0):
-        self._client.wait_for_result(timeout=rospy.Duration(timeout))
-
-    def result(self):
-        return self._client.get_result()
-
-    def clear(self, arm='right'):
-        self._goal = FollowJointTrajectoryGoal()
-        self._goal.goal_time_tolerance = self._goal_time_tolerance
-        if '6dof' == self.dof:
-            self._goal.trajectory.joint_names = ['%s_shoulder_pan_joint' % arm,
-                                                 '%s_shoulder_lift_joint' % arm,
-                                                 '%s_elbow_joint' % arm,
-                                                 '%s_wrist_1_joint' % arm,
-                                                 '%s_wrist_2_joint' % arm,
-                                                 '%s_wrist_3_joint' % arm]
-        if '7dof' == self.dof:
-            self._goal.trajectory.joint_names = ['%s_shoulder_pan_joint' % arm,
-                                                 '%s_shoulder_lift_joint' % arm,
-                                                 '%s_arm_half_joint' % arm,
-                                                 '%s_elbow_joint' % arm,
-                                                 '%s_wrist_spherical_1_joint' % arm,
-                                                 '%s_wrist_spherical_2_joint' % arm,
-                                                 '%s_wrist_3_joint' % arm]
-
-
-def main():
-    rospy.init_node('jaco_jtas_test')
-    dof = '6dof'
-
-    tmp = rospy.wait_for_message("/movo/right_arm/joint_states", JointState)
-    current_angles = tmp.position
-    traj = JacoJTASTest('right')
-    traj.add_point(current_angles, 0.0)
-
-    # home = [-2.135, -0.227, -1.478, -2.083, 1.445, 1.321]
-    home = [np.radians(x) for x in [-84.68316212, -13.00614195, -122.32648926, -119.34710873, 82.7924014, 75.68772474]]
-    tucked = [np.radians(x) for x in [-84.79775368, -84.79775368, -160.42818264, 0.0, 0.0, 90.01166962]]
-
-    p1 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-
-    # good for -x, +y
-    p2 = [np.radians(x) for x in [-75.0, -15.0, -60.0, 210.0, 30.0, 30.0]]
-
-    # good for y and rot z, not good for x
-    p3 = [np.radians(x) for x in [-122.0, -13.0, -84.0, -120, 30.0, 30.0]]
-
-    # good for -x, +x -y.
-    p4 = [np.radians(x) for x in [-122.0, -13.0, -84.0, 0.0, 240.0, 30.0]]
-
-    # good for -x, +x, -y, +y
-    p5 = [np.radians(x) for x in [-75.0, -15.0, -84.0, 0.0, 240.0, 30.0]]
-
-    time = 10.0
-    traj.add_point(p5, time)
-    # p2 = list(current_angles)
-    # traj.add_point(p2,20.0)
-    traj.start()
-
-    traj.wait(time)
-    print("Exiting - Joint Trajectory Action Test Complete")
-
+import rospkg
+from moveit_python import MoveGroupInterface
+from moveit_msgs.msg import MoveItErrorCodes
+from movo_action_clients.gripper_action_client import GripperActionClient
 
 if __name__ == "__main__":
-    main()
+    rospy.init_node('follow_me_pose')
+
+    move_group = MoveGroupInterface("upper_body", "base_link")
+    move_group.setPlannerId("RRTConnectkConfigDefault")
+    lgripper = GripperActionClient('left')
+    rgripper = GripperActionClient('right')
+
+    dof = rospy.get_param('~jaco_dof')
+
+    if "6dof" == dof:
+        upper_body_joints = ["right_shoulder_pan_joint",
+                             "right_shoulder_lift_joint",
+                             "right_elbow_joint",
+                             "right_wrist_1_joint",
+                             "right_wrist_2_joint",
+                             "right_wrist_3_joint",
+                             "left_shoulder_pan_joint",
+                             "left_shoulder_lift_joint",
+                             "left_elbow_joint",
+                             "left_wrist_1_joint",
+                             "left_wrist_2_joint",
+                             "left_wrist_3_joint",
+                             "linear_joint",
+                             "pan_joint",
+                             "tilt_joint"]
+        right_arm = [np.radians(x) for x in [-75.0, -15.0, -84.0, 0.0, -120.0, 30.0]]
+        left_arm = [np.radians(x) for x in [84.8, 84.8, 160.4, 0.0, 0.0, -90.0]]
+        followme_pose = right_arm + left_arm + [0.15, 0.0, 0.0]
+
+    if "7dof" == dof:
+        upper_body_joints = ["right_shoulder_pan_joint",
+                             "right_shoulder_lift_joint",
+                             "right_arm_half_joint",
+                             "right_elbow_joint",
+                             "right_wrist_spherical_1_joint",
+                             "right_wrist_spherical_2_joint",
+                             "right_wrist_3_joint",
+                             "left_shoulder_pan_joint",
+                             "left_shoulder_lift_joint",
+                             "left_arm_half_joint",
+                             "left_elbow_joint",
+                             "left_wrist_spherical_1_joint",
+                             "left_wrist_spherical_2_joint",
+                             "left_wrist_3_joint",
+                             "linear_joint",
+                             "pan_joint",
+                             "tilt_joint"]
+
+        followme_pose = [-1.5, -1.6, 0.4, -2.7, 0.0, 0.5, -1.7, 1.5, 1.6, -0.4, 2.7, 0.0, -0.5, 1.7, 0.04, 0, 0]
+        rospy.logwarn("follow_me pose for 7dof is not defined yet.")
+
+
+    # This is not simulation so need to adjust gripper parameters
+    gripper_closed = 0.01
+    gripper_open = 0.165
+
+    success = False
+    while not rospy.is_shutdown() and not success:
+        result = move_group.moveToJointPosition(upper_body_joints, followme_pose, 0.05)
+        if result.error_code.val == MoveItErrorCodes.SUCCESS:
+            success = True
+    lgripper.command(gripper_closed)
+    rgripper.command(gripper_closed)
+
+    rospy.spin()
