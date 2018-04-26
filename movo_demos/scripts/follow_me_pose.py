@@ -36,13 +36,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------"""
 import numpy as np
 import rospy
-import rospkg
+from std_msgs.msg import String
 from moveit_python import MoveGroupInterface
 from moveit_msgs.msg import MoveItErrorCodes
 from movo_action_clients.gripper_action_client import GripperActionClient
 
 if __name__ == "__main__":
     rospy.init_node('follow_me_pose')
+
+    voice_pub = rospy.Publisher("/movo/voice/text", String, queue_size=1, latch=True)
+    voice_cmd = String()
+    voice_cmd.data = "Do you want to dance with me?"
+    voice_pub.publish(voice_cmd)
 
     move_group = MoveGroupInterface("upper_body", "base_link")
     move_group.setPlannerId("RRTConnectkConfigDefault")
