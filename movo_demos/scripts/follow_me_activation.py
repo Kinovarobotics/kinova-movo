@@ -132,7 +132,7 @@ class FollowMe:
 
         self._teleop_control_mode_sub = rospy.Subscriber("movo/teleop/control_mode", String, self._teleop_control_mode_cb)
         # base_ctl, arm_ctl_right, arm_ctl_left, pan_tilt_ctl, estop, home_arms
-        self._teleop_control_mode = ''
+        self._teleop_control_mode = 'base_ctl'
         self._teleop_control_mode_mutex = threading.RLock()
 
         self._angular_force_gravity_free_sub = rospy.Subscriber("/movo/right_arm/angularforce_gravityfree", JacoStatus, self._angular_force_gravity_free_cb)
@@ -223,13 +223,13 @@ class FollowMe:
                 self._base_cfg_msg.gp_param = TRACTOR_REQUEST
                 self._base_cfg_msg.header.stamp = rospy.get_rostime()
                 self._base_cfg_pub.publish(self._base_cfg_msg)
-                # self._base_cfg_pub.unregister()
 
             self._base_cfg_msg.gp_cmd = 'GENERAL_PURPOSE_CMD_NONE'
             self._base_cfg_msg.gp_param = 0
             self._base_cfg_msg.header.stamp = rospy.get_rostime()
             self._base_cfg_pub.publish(self._base_cfg_msg)
             self._is_first_run = False
+            # self._base_cfg_pub.unregister()
 
         # check validation of applied external force
         self._is_applied_force_valid = True
