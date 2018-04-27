@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------"""
 import numpy as np
 import rospy
+import sys
 from std_msgs.msg import String
 from moveit_python import MoveGroupInterface
 from moveit_msgs.msg import MoveItErrorCodes
@@ -47,57 +48,55 @@ if __name__ == "__main__":
     voice_pub = rospy.Publisher("/movo/voice/text", String, queue_size=1, latch=True)
     voice_cmd = String()
     voice_cmd.data = "Do you want to dance with me?"
+    # voice_cmd.data = "Long fei, stop wasting time on me. It will not work, unless you say I like movo."
     voice_pub.publish(voice_cmd)
-
-    move_group = MoveGroupInterface("upper_body", "base_link")
-    move_group.setPlannerId("RRTConnectkConfigDefault")
-    lgripper = GripperActionClient('left')
-    rgripper = GripperActionClient('right')
 
     dof = rospy.get_param('~jaco_dof')
 
+    rmove_group = MoveGroupInterface("right_arm", "base_link")
+    lmove_group = MoveGroupInterface("left_arm", "base_link")
+    lmove_group.setPlannerId("RRTConnectkConfigDefault")
+    rmove_group.setPlannerId("RRTConnectkConfigDefault")
+    lgripper = GripperActionClient('left')
+    rgripper = GripperActionClient('right')
+
     if "6dof" == dof:
-        upper_body_joints = ["right_shoulder_pan_joint",
-                             "right_shoulder_lift_joint",
-                             "right_elbow_joint",
-                             "right_wrist_1_joint",
-                             "right_wrist_2_joint",
-                             "right_wrist_3_joint",
-                             "left_shoulder_pan_joint",
+        right_arm_joints = ["right_shoulder_pan_joint",
+                              "right_shoulder_lift_joint",
+                              "right_elbow_joint",
+                              "right_wrist_1_joint",
+                              "right_wrist_2_joint",
+                              "right_wrist_3_joint"]
+        left_arm_joints = ["left_shoulder_pan_joint",
                              "left_shoulder_lift_joint",
                              "left_elbow_joint",
                              "left_wrist_1_joint",
                              "left_wrist_2_joint",
-                             "left_wrist_3_joint",
-                             "linear_joint",
-                             "pan_joint",
-                             "tilt_joint"]
-        right_arm = [np.radians(x) for x in [-75.0, -15.0, -84.0, 0.0, -120.0, 30.0]]
-        left_arm = [np.radians(x) for x in [84.8, 84.8, 160.4, 0.0, 0.0, -90.0]]
-        followme_pose = right_arm + left_arm + [0.15, 0.0, 0.0]
+                             "left_wrist_3_joint"]
+        rarm_pick = [np.radians(x) for x in [-75.0, -15.0, -84.0, 0.0, -120.0, 30.0]]
+        larm_pick = [np.radians(x) for x in [84.8, 84.8, 160.4, 0.0, 0.0, -90.0]]
 
-    if "7dof" == dof:
-        upper_body_joints = ["right_shoulder_pan_joint",
-                             "right_shoulder_lift_joint",
-                             "right_arm_half_joint",
-                             "right_elbow_joint",
-                             "right_wrist_spherical_1_joint",
-                             "right_wrist_spherical_2_joint",
-                             "right_wrist_3_joint",
-                             "left_shoulder_pan_joint",
-                             "left_shoulder_lift_joint",
-                             "left_arm_half_joint",
-                             "left_elbow_joint",
-                             "left_wrist_spherical_1_joint",
-                             "left_wrist_spherical_2_joint",
-                             "left_wrist_3_joint",
-                             "linear_joint",
-                             "pan_joint",
-                             "tilt_joint"]
-
-        followme_pose = [-1.5, -1.6, 0.4, -2.7, 0.0, 0.5, -1.7, 1.5, 1.6, -0.4, 2.7, 0.0, -0.5, 1.7, 0.04, 0, 0]
+    elif "7dof" == dof:
+        right_arm_joints = ["right_shoulder_pan_joint",
+                                  "right_shoulder_lift_joint",
+                                  "right_arm_half_joint",
+                                  "right_elbow_joint",
+                                  "right_wrist_spherical_1_joint",
+                                  "right_wrist_spherical_2_joint",
+                                  "right_wrist_3_joint"]
+        left_arm_joints = ["left_shoulder_pan_joint",
+                                 "left_shoulder_lift_joint",
+                                 "left_arm_half_joint",
+                                 "left_elbow_joint",
+                                 "left_wrist_spherical_1_joint",
+                                 "left_wrist_spherical_2_joint",
+                                 "left_wrist_3_joint"]
+        larm_pick = [2.6, -2.0, 0.0, -2.0, 0.0, 0.0, 1.0]
+        rarm_pick = [-2.6, 2.0, 0.0, 2.0, 0.0, 0.0, -1.0]
         rospy.logwarn("follow_me pose for 7dof is not defined yet.")
-
+    else:
+        rospy.logerr("DoF needs to be set 6 or 7, aborting demo")
+        sys.exit()
 
     # This is not simulation so need to adjust gripper parameters
     gripper_closed = 0.01
@@ -105,8 +104,9 @@ if __name__ == "__main__":
 
     success = False
     while not rospy.is_shutdown() and not success:
-        result = move_group.moveToJointPosition(upper_body_joints, followme_pose, 0.05)
-        if result.error_code.val == MoveItErrorCodes.SUCCESS:
+        l_result = lmove_group.moveToJointPosition(left_arm_joints, larm_pick, 0.05, planning_time=120.0)
+        r_result = rmove_group.moveToJointPosition(right_arm_joints, rarm_pick, 0.05, planning_time=120.0)
+        if (r_result.error_code.val == MoveItErrorCodes.SUCCESS) and (l_result.error_code.val == MoveItErrorCodes.SUCCESS):
             success = True
     lgripper.command(gripper_closed)
     rgripper.command(gripper_closed)
