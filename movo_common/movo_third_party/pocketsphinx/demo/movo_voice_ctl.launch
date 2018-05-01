@@ -1,0 +1,9 @@
+<launch>
+	<node name="recognizer" pkg="pocketsphinx" type="recognizer.py" output="screen">
+		<!--<param name="mic_name" value="alsa_input.usb-Logitech_Logitech_Wireless_Headset-00-Headset.analog-mono"/>-->
+		<!-- find Kinect with command: $pacmd list-sources -->
+		<param name="mic_name" value="alsa_input.usb-Microsoft_Xbox_NUI_Sensor_008609564447-02-Sensor.analog-4-channel-input"/>
+		<param name="lm" value="$(find pocketsphinx)/demo/movo_voice_ctl.lm"/>
+		<param name="dict" value="$(find pocketsphinx)/demo/movo_voice_ctl.dic"/>
+	</node>
+</launch>

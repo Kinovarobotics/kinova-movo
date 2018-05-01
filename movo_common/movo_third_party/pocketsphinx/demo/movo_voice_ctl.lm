@@ -1,0 +1,198 @@
+Language model created by QuickLM on Tue May  1 14:23:57 EDT 2018
+Carnegie Mellon University (c) 1996
+
+This model based on a corpus of 55 sentences and 125 words
+The (fixed) discount mass is 0.5
+
+\data\
+ngram 1=86
+ngram 2=66
+ngram 3=28
+
+\1-grams:
+-2.3979 <s>I -0.2975
+-2.3979 <s>Movo</s> -0.3010
+-2.0969 <s>are -0.2958
+-2.3979 <s>back -0.2975
+-2.3979 <s>bad -0.2975
+-2.3979 <s>centimeter</s> -0.3010
+-2.3979 <s>come -0.2975
+-2.3979 <s>continue</s> -0.3010
+-2.3979 <s>degree</s> -0.3010
+-2.0969 <s>do -0.2923
+-2.3979 <s>full -0.2993
+-2.3979 <s>go -0.2958
+-1.7959 <s>good -0.2923
+-2.3979 <s>hey -0.2975
+-2.3979 <s>hi -0.2975
+-2.3979 <s>kinova</s> -0.3010
+-2.3979 <s>longfei -0.2993
+-2.3979 <s>longfei</s> -0.3010
+-2.3979 <s>meter</s> -0.3010
+-2.3979 <s>milimeter</s> -0.3010
+-1.7959 <s>move -0.2887
+-2.3979 <s>robot</s> -0.3010
+-2.3979 <s>roboticist</s> -0.3010
+-1.9208 <s>say -0.2958
+-2.3979 <s>slow -0.2975
+-2.3979 <s>smart</s> -0.3010
+-1.7959 <s>speed -0.2905
+-2.3979 <s>stop -0.2993
+-2.3979 <s>stop</s> -0.3010
+-2.3979 <s>stupid</s> -0.3010
+-2.0969 <s>switch -0.2958
+-2.0969 <s>take -0.2975
+-2.0969 <s>turn -0.2940
+-2.0969 <s>what -0.2940
+-2.0969 <s>who -0.2940
+-2.0969 <s>you -0.2958
+-2.0969 a -0.2975
+-2.3979 afternoon</s> -0.3010
+-2.0969 am -0.2975
+-2.3979 angry</s> -0.3010
+-2.0969 are -0.2887
+-2.3979 are</s> -0.3010
+-2.3979 backward</s> -0.3010
+-2.3979 bad</s> -0.3010
+-2.3979 be -0.2993
+-2.3979 best -0.2993
+-2.3979 best</s> -0.3010
+-2.0969 boy</s> -0.3010
+-2.3979 break</s> -0.3010
+-2.3979 develop -0.2975
+-2.3979 doing</s> -0.3010
+-2.0969 down</s> -0.3010
+-2.0969 forward</s> -0.3010
+-2.3979 good</s> -0.3010
+-2.3979 half</s> -0.3010
+-2.3979 happy</s> -0.3010
+-2.3979 i</s> -0.3010
+-2.3979 in -0.2940
+-2.0969 is -0.2923
+-2.3979 job</s> -0.3010
+-2.3979 lazy</s> -0.3010
+-2.0969 left</s> -0.3010
+-2.3979 longfei</s> -0.3010
+-2.3979 max</s> -0.3010
+-2.0969 mode</s> -0.3010
+-2.3979 morning</s> -0.3010
+-2.3979 motion</s> -0.3010
+-2.0969 movo</s> -0.3010
+-2.3979 my -0.2993
+-2.3979 name</s> -0.3010
+-2.3979 night</s> -0.3010
+-2.3979 not -0.2993
+-2.3979 official -0.2975
+-2.3979 person -0.2993
+-2.3979 rest</s> -0.3010
+-2.0969 right</s> -0.3010
+-2.3979 rotation</s> -0.3010
+-2.3979 sleep</s> -0.3010
+-2.0969 something -0.2975
+-1.7959 the -0.2940
+-1.9208 to -0.2958
+-2.0969 up</s> -0.3010
+-2.3979 world</s> -0.3010
+-2.3979 wrong</s> -0.3010
+-1.9208 you -0.2958
+-2.3979 zhao</s> -0.3010
+
+\2-grams:
+-0.3010 <s>I am -0.1761
+-0.3010 <s>are you -0.1249
+-0.3010 <s>back up</s> -0.3010
+-0.3010 <s>bad boy</s> -0.3010
+-0.3010 <s>come forward</s> -0.3010
+-0.6021 <s>do not 0.0000
+-0.6021 <s>do the -0.2430
+-0.3010 <s>full rotation</s> -0.3010
+-0.3010 <s>go to -0.2218
+-0.9031 <s>good afternoon</s> -0.3010
+-0.9031 <s>good boy</s> -0.3010
+-0.9031 <s>good morning</s> -0.3010
+-0.9031 <s>good night</s> -0.3010
+-0.3010 <s>hey movo</s> -0.3010
+-0.3010 <s>hi movo</s> -0.3010
+-0.3010 <s>longfei zhao</s> -0.3010
+-0.9031 <s>move backward</s> -0.3010
+-0.9031 <s>move forward</s> -0.3010
+-0.9031 <s>move left</s> -0.3010
+-0.9031 <s>move right</s> -0.3010
+-0.7782 <s>say my 0.0000
+-0.4771 <s>say something 0.0000
+-0.3010 <s>slow down</s> -0.3010
+-0.9031 <s>speed down</s> -0.3010
+-0.9031 <s>speed half</s> -0.3010
+-0.9031 <s>speed max</s> -0.3010
+-0.9031 <s>speed up</s> -0.3010
+-0.3010 <s>stop motion</s> -0.3010
+-0.3010 <s>switch to -0.1249
+-0.3010 <s>take a 0.0000
+-0.6021 <s>turn left</s> -0.3010
+-0.6021 <s>turn right</s> -0.3010
+-0.6021 <s>what are -0.1761
+-0.6021 <s>what is -0.1761
+-0.6021 <s>who am -0.1761
+-0.6021 <s>who is -0.1761
+-0.6021 <s>you are -0.1761
+-0.6021 <s>you are</s> -0.3010
+-0.6021 a break</s> -0.3010
+-0.6021 a rest</s> -0.3010
+-0.6021 am i</s> -0.3010
+-0.6021 am longfei</s> -0.3010
+-0.6021 are the -0.2430
+-0.6021 are you -0.2218
+-0.3010 be lazy</s> -0.3010
+-0.3010 best person 0.0000
+-0.3010 develop mode</s> -0.3010
+-0.3010 in the -0.2430
+-0.6021 is the -0.2430
+-0.6021 is wrong</s> -0.3010
+-0.3010 my name</s> -0.3010
+-0.3010 not be 0.0000
+-0.3010 official mode</s> -0.3010
+-0.3010 person in 0.0000
+-0.6021 something bad</s> -0.3010
+-0.6021 something good</s> -0.3010
+-0.9031 the best 0.0000
+-0.9031 the best</s> -0.3010
+-0.9031 the job</s> -0.3010
+-0.9031 the world</s> -0.3010
+-0.7782 to develop 0.0000
+-0.7782 to official 0.0000
+-0.7782 to sleep</s> -0.3010
+-0.7782 you angry</s> -0.3010
+-0.7782 you doing</s> -0.3010
+-0.7782 you happy</s> -0.3010
+
+\3-grams:
+-0.3010 <s>I am longfei</s>
+-0.6021 <s>are you angry</s>
+-0.6021 <s>are you happy</s>
+-0.3010 <s>do not be
+-0.3010 <s>do the job</s>
+-0.3010 <s>go to sleep</s>
+-0.3010 <s>say my name</s>
+-0.6021 <s>say something bad</s>
+-0.6021 <s>say something good</s>
+-0.6021 <s>switch to develop
+-0.6021 <s>switch to official
+-0.6021 <s>take a break</s>
+-0.6021 <s>take a rest</s>
+-0.3010 <s>what are you
+-0.3010 <s>what is wrong</s>
+-0.3010 <s>who am i</s>
+-0.3010 <s>who is the
+-0.3010 <s>you are the
+-0.3010 are the best</s>
+-0.3010 are you doing</s>
+-0.3010 best person in
+-0.3010 in the world</s>
+-0.3010 is the best
+-0.3010 not be lazy</s>
+-0.3010 person in the
+-0.3010 the best person
+-0.3010 to develop mode</s>
+-0.3010 to official mode</s>
+
+\end\
