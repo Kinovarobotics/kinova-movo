@@ -1,61 +1,107 @@
 #!/usr/bin/env python
+"""--------------------------------------------------------------------
+Copyright (c) 2017, Kinova Robotics inc.
 
-"""
-voice_cmd_vel.py is a simple demo of speech recognition.
-  You can control a mobile base using commands found
-  in the corpus file.
-"""
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+    * Neither the name of the copyright holder nor the names of its contributors
+      may be used to endorse or promote products derived from this software
+      without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ \file   voice_control
+
+ \Author Longfei Zhao
+
+ \Platform: Linux/ROS Indigo
+--------------------------------------------------------------------"""
+import threading
+import numpy
 
 import roslib;
-
 roslib.load_manifest('pocketsphinx')
 import rospy
-import math
 
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String
 
 
-class voice_cmd_vel:
+class voice_control:
 
     def __init__(self):
-        rospy.on_shutdown(self.cleanup)
-        self.speed = 0.2
-        self.msg = Twist()
+        rospy.on_shutdown(self._shutdown)
+        self._movo_base_cmd_vel = Twist()
+        self._movo_base_Vx = 0.01
+        self._movo_base_Vy = 0.01
+        self._movo_base_Rz = numpy.radians(30.0)
 
-        # publish to cmd_vel, subscribe to speech output
-        self.pub_ = rospy.Publisher('cmd_vel', Twist)
-        rospy.Subscriber('recognizer/output', String, self.speechCb)
+        # subscriber
+        self._speech_sub = rospy.Subscriber('recognizer/output', String, self._speechCb)
 
-        r = rospy.Rate(10.0)
-        while not rospy.is_shutdown():
-            self.pub_.publish(self.msg)
-            r.sleep()
+        # publisher
+        self._movo_base_cmd_pub = rospy.Publisher('/movo/base/voice_control/cmd_vel2', Twist, queue_size = 10)
 
-    def speechCb(self, msg):
+        # publisher thread
+        # self._movo_base_cmd_pub_rate = 100
+        # self._movo_base_cmd_mutex = threading.Lock()
+        # self._movo_base_cmd_thread = threading.Thread(target=self._thread_run)
+        # self._movo_base_cmd_thread.start()
+        rospy.spin()
+
+    def _speechCb(self, msg):
         rospy.loginfo(msg.data)
 
         if msg.data.find("forward") > -1:
-            rospy.loginfo("I heard forward")
+            self._movo_base_cmd_vel.linear.x = self._movo_base_Vx
+            self._movo_base_cmd_vel.linear.y = 0.0
+        elif msg.data.find("backward") > -1:
+            self._movo_base_cmd_vel.linear.x = -self._movo_base_Vx
+            self._movo_base_cmd_vel.linear.y = 0.0
         elif msg.data.find("left") > -1:
-            rospy.loginfo("I heard left")
+            self._movo_base_cmd_vel.linear.x = 0.0
+            self._movo_base_cmd_vel.linear.y = self._movo_base_Vy
         elif msg.data.find("right") > -1:
-            rospy.loginfo("I heard right")
+            self._movo_base_cmd_vel.linear.x = 0.0
+            self._movo_base_cmd_vel.linear.y = -self._movo_base_Vy
         elif msg.data.find("stop") > -1 or msg.data.find("halt") > -1:
-            self.msg = Twist()
+            self._movo_base_cmd_vel.linear.x = 0.0
+            self._movo_base_cmd_vel.linear.y = 0.0
+        else:
+            pass
 
-        self.pub_.publish(self.msg)
+        self._movo_base_cmd_pub.publish(self._movo_base_cmd_vel)
 
-    def cleanup(self):
+    def _shutdown(self):
         # stop the robot!
-        twist = Twist()
-        self.pub_.publish(twist)
+        self._movo_base_cmd_vel.linear.x = 0.0
+        self._movo_base_cmd_vel.linear.y = 0.0
+        self._movo_base_cmd_pub.publish(self._movo_base_cmd_vel)
 
 
 if __name__ == "__main__":
-    rospy.init_node('voice_cmd_vel')
+    rospy.init_node('voice_control')
     try:
-        voice_cmd_vel()
+        voice_control()
+        rospy.loginfo('voice control initialized')
     except:
         pass
 
