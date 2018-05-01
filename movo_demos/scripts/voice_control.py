@@ -53,55 +53,71 @@ class voice_control:
         self._movo_base_Vx = 0.01
         self._movo_base_Vy = 0.01
         self._movo_base_Rz = numpy.radians(30.0)
+        self._movo_base_cmd_duration = 2.0
+
 
         # subscriber
         self._speech_sub = rospy.Subscriber('recognizer/output', String, self._speechCb)
+        self._latest_command_time = rospy.get_rostime()
 
         # publisher
         self._movo_base_cmd_pub = rospy.Publisher('/movo/base/voice_control/cmd_vel2', Twist, queue_size = 10)
 
         # publisher thread
-        # self._movo_base_cmd_pub_rate = 100
-        # self._movo_base_cmd_mutex = threading.Lock()
-        # self._movo_base_cmd_thread = threading.Thread(target=self._thread_run)
-        # self._movo_base_cmd_thread.start()
+        self._movo_base_cmd_mutex = threading.Lock()
+        self._movo_base_cmd_thread = threading.Thread(target=self._thread_run)
+        self._movo_base_cmd_thread.start()
+
+        rospy.loginfo('Voice control initialized')
         rospy.spin()
 
     def _speechCb(self, msg):
         rospy.loginfo(msg.data)
 
-        if msg.data.find("forward") > -1:
-            self._movo_base_cmd_vel.linear.x = self._movo_base_Vx
-            self._movo_base_cmd_vel.linear.y = 0.0
-        elif msg.data.find("backward") > -1:
-            self._movo_base_cmd_vel.linear.x = -self._movo_base_Vx
-            self._movo_base_cmd_vel.linear.y = 0.0
-        elif msg.data.find("left") > -1:
-            self._movo_base_cmd_vel.linear.x = 0.0
-            self._movo_base_cmd_vel.linear.y = self._movo_base_Vy
-        elif msg.data.find("right") > -1:
-            self._movo_base_cmd_vel.linear.x = 0.0
-            self._movo_base_cmd_vel.linear.y = -self._movo_base_Vy
-        elif msg.data.find("stop") > -1 or msg.data.find("halt") > -1:
-            self._movo_base_cmd_vel.linear.x = 0.0
-            self._movo_base_cmd_vel.linear.y = 0.0
-        else:
-            pass
+        with self._movo_base_cmd_mutex:
+            self._latest_command_time = rospy.get_rostime()
+            if msg.data.find("forward") > -1:
+                self._movo_base_cmd_vel.linear.x = self._movo_base_Vx
+                self._movo_base_cmd_vel.linear.y = 0.0
+            elif msg.data.find("backward") > -1:
+                self._movo_base_cmd_vel.linear.x = -self._movo_base_Vx
+                self._movo_base_cmd_vel.linear.y = 0.0
+            elif msg.data.find("left") > -1:
+                self._movo_base_cmd_vel.linear.x = 0.0
+                self._movo_base_cmd_vel.linear.y = self._movo_base_Vy
+            elif msg.data.find("right") > -1:
+                self._movo_base_cmd_vel.linear.x = 0.0
+                self._movo_base_cmd_vel.linear.y = -self._movo_base_Vy
+            elif msg.data.find("stop") > -1 or msg.data.find("halt") > -1:
+                self._movo_base_cmd_vel.linear.x = 0.0
+                self._movo_base_cmd_vel.linear.y = 0.0
+            else:
+                self._movo_base_cmd_vel.linear.x = 0.0
+                self._movo_base_cmd_vel.linear.y = 0.0
 
-        self._movo_base_cmd_pub.publish(self._movo_base_cmd_vel)
+
+    def _thread_run(self):
+        rospy.loginfo('voice control movo base command publisher thread is running')
+        while not rospy.is_shutdown():
+            with self._movo_base_cmd_mutex:
+                if (rospy.get_rostime() - self._latest_command_time).to_sec() <= self._movo_base_cmd_duration:
+                    self._movo_base_cmd_pub.publish(self._movo_base_cmd_vel)
+
 
     def _shutdown(self):
         # stop the robot!
         self._movo_base_cmd_vel.linear.x = 0.0
         self._movo_base_cmd_vel.linear.y = 0.0
         self._movo_base_cmd_pub.publish(self._movo_base_cmd_vel)
+        pass
 
 
 if __name__ == "__main__":
     rospy.init_node('voice_control')
     try:
+        rospy.loginfo('Initializing voice control')
         voice_control()
-        rospy.loginfo('voice control initialized')
     except:
+        rospy.logerr("voice control initialized failed")
         pass
 
