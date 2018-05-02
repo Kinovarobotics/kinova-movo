@@ -38,6 +38,7 @@ import threading
 import numpy
 
 import roslib;
+
 roslib.load_manifest('pocketsphinx')
 import rospy
 
@@ -50,16 +51,24 @@ class voice_control:
     def __init__(self):
         rospy.on_shutdown(self._shutdown)
         self._movo_base_cmd_vel = Twist()
-        self._movo_base_Vx = 0.1
-        self._movo_base_Vy = 0.1
-        self._movo_base_Rz = numpy.radians(30.0)
+        # motion speed
+        self._movo_base_maxVx = 0.2
+        self._movo_base_maxVy = 0.2
+        self._movo_base_maxRz = numpy.radians(30.0)
+        self._movo_base_Vx = self._movo_base_maxVx
+        self._movo_base_Vy = self._movo_base_maxVy
+        self._movo_base_Rz = self._movo_base_maxRz
+        # motion direction: linear translation along x, y; rotation along z.
+        self._movo_base_ux = 0.0
+        self._movo_base_uy = 0.0
+        self._movo_base_uz = 0.0
 
 
         # subscriber
         self._speech_sub = rospy.Subscriber('recognizer/output', String, self._speechCb)
 
         # publisher
-        self._movo_base_cmd_pub = rospy.Publisher('/movo/base/voice_control/cmd_vel', Twist, queue_size = 1)
+        self._movo_base_cmd_pub = rospy.Publisher('/movo/base/voice_control/cmd_vel', Twist, queue_size=1)
 
         # publisher thread
         self._movo_base_cmd_mutex = threading.Lock()
@@ -72,25 +81,47 @@ class voice_control:
     def _speechCb(self, msg):
         rospy.loginfo(msg.data)
 
-        with self._movo_base_cmd_mutex:
-            if msg.data.find("forward") > -1:
-                self._movo_base_cmd_vel.linear.x = self._movo_base_Vx
-                self._movo_base_cmd_vel.linear.y = 0.0
-            elif msg.data.find("backward") > -1:
-                self._movo_base_cmd_vel.linear.x = -self._movo_base_Vx
-                self._movo_base_cmd_vel.linear.y = 0.0
-            elif msg.data.find("left") > -1:
-                self._movo_base_cmd_vel.linear.x = 0.0
-                self._movo_base_cmd_vel.linear.y = self._movo_base_Vy
-            elif msg.data.find("right") > -1:
-                self._movo_base_cmd_vel.linear.x = 0.0
-                self._movo_base_cmd_vel.linear.y = -self._movo_base_Vy
-            elif msg.data.find("stop") > -1 or msg.data.find("halt") > -1:
-                self._movo_base_cmd_vel.linear.x = 0.0
-                self._movo_base_cmd_vel.linear.y = 0.0
-            else:
-                self._movo_base_cmd_vel.linear.x = 0.0
-                self._movo_base_cmd_vel.linear.y = 0.0
+        # set speed of movo base motion
+        if msg.data.find("full speed") > -1:
+            rospy.loginfo(" I hear full speed ")
+            with self._movo_base_cmd_mutex:
+                self._movo_base_Vx = self._movo_base_maxVx
+                self._movo_base_Vy = self._movo_base_maxVy
+                self._movo_base_Rz = self._movo_base_maxRz
+                rospy.loginfo(" self._movo_base_Vy   is %3.3f", self._movo_base_Vy )
+        elif msg.data.find("half speed") > -1:
+            rospy.loginfo(" I hear half speed ")
+            with self._movo_base_cmd_mutex:
+                self._movo_base_Vx = self._movo_base_maxVx / 2.0
+                self._movo_base_Vy = self._movo_base_maxVy / 2.0
+                self._movo_base_Rz = self._movo_base_maxRz / 2.0
+                rospy.loginfo(" self._movo_base_Vy   is %3.3f", self._movo_base_Vy)
+
+        # set direction of movo base motion
+        if msg.data.find("move forward") > -1:
+            with self._movo_base_cmd_mutex:
+                self._movo_base_ux = 1.0
+                self._movo_base_uy = 0.0
+        elif msg.data.find("move backward") > -1:
+            with self._movo_base_cmd_mutex:
+                self._movo_base_ux = -1.0
+                self._movo_base_uy = 0.0
+        elif msg.data.find("move left") > -1:
+            with self._movo_base_cmd_mutex:
+                self._movo_base_ux = 0.0
+                self._movo_base_uy = 1.0
+        elif msg.data.find("move right") > -1:
+            with self._movo_base_cmd_mutex:
+                self._movo_base_ux = 0.0
+                self._movo_base_uy = -1.0
+        elif msg.data.find("stop") > -1 or msg.data.find("halt") > -1:
+            with self._movo_base_cmd_mutex:
+                self._movo_base_ux = 0.0
+                self._movo_base_uy = 0.0
+        else:
+            pass
+
+        rospy.loginfo(" self._movo_base_cmd_vel.linear.y  is %3.3f", self._movo_base_cmd_vel.linear.y )
 
 
     def _thread_run(self):
@@ -98,9 +129,10 @@ class voice_control:
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():
             with self._movo_base_cmd_mutex:
+                self._movo_base_cmd_vel.linear.x = self._movo_base_ux * self._movo_base_Vx
+                self._movo_base_cmd_vel.linear.y = self._movo_base_uy * self._movo_base_Vy
                 self._movo_base_cmd_pub.publish(self._movo_base_cmd_vel)
                 rate.sleep()
-
 
     def _shutdown(self):
         # stop the robot!
@@ -118,4 +150,3 @@ if __name__ == "__main__":
     except:
         rospy.logerr("voice control initialized failed")
         pass
-
