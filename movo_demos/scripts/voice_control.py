@@ -50,6 +50,7 @@ class voice_control:
 
     def __init__(self):
         rospy.on_shutdown(self._shutdown)
+
         self._movo_base_cmd_vel = Twist()
         # motion speed
         self._movo_base_maxVx = 0.2
@@ -62,7 +63,6 @@ class voice_control:
         self._movo_base_ux = 0.0
         self._movo_base_uy = 0.0
         self._movo_base_uz = 0.0
-
 
         # subscriber
         self._speech_sub = rospy.Subscriber('recognizer/output', String, self._speechCb)
@@ -78,50 +78,40 @@ class voice_control:
         rospy.loginfo('Voice control initialized')
         rospy.spin()
 
+
     def _speechCb(self, msg):
         rospy.loginfo(msg.data)
 
-        # set speed of movo base motion
-        if msg.data.find("full speed") > -1:
-            rospy.loginfo(" I hear full speed ")
-            with self._movo_base_cmd_mutex:
+        with self._movo_base_cmd_mutex:
+            # set speed of movo base motion
+            if msg.data.find("full speed") > -1:
                 self._movo_base_Vx = self._movo_base_maxVx
                 self._movo_base_Vy = self._movo_base_maxVy
                 self._movo_base_Rz = self._movo_base_maxRz
-                rospy.loginfo(" self._movo_base_Vy   is %3.3f", self._movo_base_Vy )
-        elif msg.data.find("half speed") > -1:
-            rospy.loginfo(" I hear half speed ")
-            with self._movo_base_cmd_mutex:
+            elif msg.data.find("half speed") > -1:
                 self._movo_base_Vx = self._movo_base_maxVx / 2.0
                 self._movo_base_Vy = self._movo_base_maxVy / 2.0
                 self._movo_base_Rz = self._movo_base_maxRz / 2.0
-                rospy.loginfo(" self._movo_base_Vy   is %3.3f", self._movo_base_Vy)
 
-        # set direction of movo base motion
-        if msg.data.find("move forward") > -1:
-            with self._movo_base_cmd_mutex:
+            # set direction of movo base motion
+            if msg.data.find("move forward") > -1:
                 self._movo_base_ux = 1.0
                 self._movo_base_uy = 0.0
-        elif msg.data.find("move backward") > -1:
-            with self._movo_base_cmd_mutex:
+            elif msg.data.find("move backward") > -1:
                 self._movo_base_ux = -1.0
                 self._movo_base_uy = 0.0
-        elif msg.data.find("move left") > -1:
-            with self._movo_base_cmd_mutex:
+            elif msg.data.find("move left") > -1:
                 self._movo_base_ux = 0.0
                 self._movo_base_uy = 1.0
-        elif msg.data.find("move right") > -1:
-            with self._movo_base_cmd_mutex:
+            elif msg.data.find("move right") > -1:
                 self._movo_base_ux = 0.0
                 self._movo_base_uy = -1.0
-        elif msg.data.find("stop") > -1 or msg.data.find("halt") > -1:
-            with self._movo_base_cmd_mutex:
+            elif msg.data.find("stop") > -1 or msg.data.find("halt") > -1:
                 self._movo_base_ux = 0.0
                 self._movo_base_uy = 0.0
-        else:
-            pass
+            else:
+                pass
 
-        rospy.loginfo(" self._movo_base_cmd_vel.linear.y  is %3.3f", self._movo_base_cmd_vel.linear.y )
 
 
     def _thread_run(self):
