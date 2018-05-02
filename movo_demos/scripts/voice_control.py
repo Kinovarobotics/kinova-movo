@@ -92,9 +92,8 @@ class voice_control:
                 self._movo_base_Vx = self._movo_base_maxVx / 2.0
                 self._movo_base_Vy = self._movo_base_maxVy / 2.0
                 self._movo_base_Rz = self._movo_base_maxRz / 2.0
-
             # set direction of movo base motion
-            if msg.data.find("move forward") > -1:
+            elif msg.data.find("move forward") > -1:
                 self._movo_base_ux = 1.0
                 self._movo_base_uy = 0.0
                 self._movo_base_uz = 0.0
@@ -118,13 +117,15 @@ class voice_control:
                 self._movo_base_ux = 0.0
                 self._movo_base_uy = 0.0
                 self._movo_base_uz = -1.0
-            elif msg.data.find("stop") > -1 or msg.data.find("halt") > -1:
+            elif msg.data.find("move stop") > -1 or msg.data.find("halt") > -1 or msg.data.find("stop") > -1:
                 self._movo_base_ux = 0.0
                 self._movo_base_uy = 0.0
                 self._movo_base_uz = 0.0
             else:
+                self._movo_base_ux = 0.0
+                self._movo_base_uy = 0.0
+                self._movo_base_uz = 0.0
                 pass
-
 
 
     def _thread_run(self):
