@@ -53,15 +53,13 @@ class voice_control:
         self._movo_base_Vx = 0.2
         self._movo_base_Vy = 0.2
         self._movo_base_Rz = numpy.radians(30.0)
-        self._movo_base_cmd_duration = 5.0
 
 
         # subscriber
         self._speech_sub = rospy.Subscriber('recognizer/output', String, self._speechCb)
-        self._latest_command_time = rospy.get_rostime()
 
         # publisher
-        self._movo_base_cmd_pub = rospy.Publisher('/movo/base/voice_control/cmd_vel', Twist, queue_size = 10)
+        self._movo_base_cmd_pub = rospy.Publisher('/movo/base/voice_control/cmd_vel', Twist, queue_size = 1)
 
         # publisher thread
         self._movo_base_cmd_mutex = threading.Lock()
@@ -75,7 +73,6 @@ class voice_control:
         rospy.loginfo(msg.data)
 
         with self._movo_base_cmd_mutex:
-            self._latest_command_time = rospy.get_rostime()
             if msg.data.find("forward") > -1:
                 self._movo_base_cmd_vel.linear.x = self._movo_base_Vx
                 self._movo_base_cmd_vel.linear.y = 0.0
@@ -98,10 +95,11 @@ class voice_control:
 
     def _thread_run(self):
         rospy.loginfo('voice control movo base command publisher thread is running')
+        rate = rospy.Rate(1000)
         while not rospy.is_shutdown():
             with self._movo_base_cmd_mutex:
-                if (rospy.get_rostime() - self._latest_command_time).to_sec() <= self._movo_base_cmd_duration:
-                    self._movo_base_cmd_pub.publish(self._movo_base_cmd_vel)
+                self._movo_base_cmd_pub.publish(self._movo_base_cmd_vel)
+                rate.sleep()
 
 
     def _shutdown(self):
