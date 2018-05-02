@@ -50,8 +50,8 @@ class voice_control:
     def __init__(self):
         rospy.on_shutdown(self._shutdown)
         self._movo_base_cmd_vel = Twist()
-        self._movo_base_Vx = 0.2
-        self._movo_base_Vy = 0.2
+        self._movo_base_Vx = 0.1
+        self._movo_base_Vy = 0.1
         self._movo_base_Rz = numpy.radians(30.0)
 
 
@@ -95,7 +95,7 @@ class voice_control:
 
     def _thread_run(self):
         rospy.loginfo('voice control movo base command publisher thread is running')
-        rate = rospy.Rate(1000)
+        rate = rospy.Rate(10)
         while not rospy.is_shutdown():
             with self._movo_base_cmd_mutex:
                 self._movo_base_cmd_pub.publish(self._movo_base_cmd_vel)
