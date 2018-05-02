@@ -97,18 +97,31 @@ class voice_control:
             if msg.data.find("move forward") > -1:
                 self._movo_base_ux = 1.0
                 self._movo_base_uy = 0.0
+                self._movo_base_uz = 0.0
             elif msg.data.find("move backward") > -1:
                 self._movo_base_ux = -1.0
                 self._movo_base_uy = 0.0
+                self._movo_base_uz = 0.0
             elif msg.data.find("move left") > -1:
                 self._movo_base_ux = 0.0
                 self._movo_base_uy = 1.0
+                self._movo_base_uz = 0.0
             elif msg.data.find("move right") > -1:
                 self._movo_base_ux = 0.0
                 self._movo_base_uy = -1.0
+                self._movo_base_uz = 0.0
+            elif msg.data.find("back left") > -1:
+                self._movo_base_ux = 0.0
+                self._movo_base_uy = 0.0
+                self._movo_base_uz = 1.0
+            elif msg.data.find("back right") > -1:
+                self._movo_base_ux = 0.0
+                self._movo_base_uy = 0.0
+                self._movo_base_uz = -1.0
             elif msg.data.find("stop") > -1 or msg.data.find("halt") > -1:
                 self._movo_base_ux = 0.0
                 self._movo_base_uy = 0.0
+                self._movo_base_uz = 0.0
             else:
                 pass
 
@@ -121,6 +134,7 @@ class voice_control:
             with self._movo_base_cmd_mutex:
                 self._movo_base_cmd_vel.linear.x = self._movo_base_ux * self._movo_base_Vx
                 self._movo_base_cmd_vel.linear.y = self._movo_base_uy * self._movo_base_Vy
+                self._movo_base_cmd_vel.angular.z = self._movo_base_uz * self._movo_base_Rz
                 self._movo_base_cmd_pub.publish(self._movo_base_cmd_vel)
                 rate.sleep()
 
@@ -128,6 +142,7 @@ class voice_control:
         # stop the robot!
         self._movo_base_cmd_vel.linear.x = 0.0
         self._movo_base_cmd_vel.linear.y = 0.0
+        self._movo_base_cmd_vel.angular.z = 0.0
         self._movo_base_cmd_pub.publish(self._movo_base_cmd_vel)
         pass
 
