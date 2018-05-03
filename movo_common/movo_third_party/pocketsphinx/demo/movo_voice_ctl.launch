@@ -6,6 +6,4 @@
 		<param name="lm" value="$(find pocketsphinx)/demo/movo_voice_ctl.lm"/>
 		<param name="dict" value="$(find pocketsphinx)/demo/movo_voice_ctl.dic"/>
 	</node>
-
-    <node name="voice_control" pkg="movo_demos" type="voice_control.py" output="screen"/>
 </launch>

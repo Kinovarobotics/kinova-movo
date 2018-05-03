@@ -84,7 +84,13 @@ class voice_control:
 
         with self._movo_base_cmd_mutex:
             # set speed of movo base motion
-            if msg.data.find("full speed") > -1:
+            if msg.data.find("Hello Movo") > -1:
+                pass
+            elif msg.data.find("Kinova Robotics") > -1:
+                pass
+            elif msg.data.find("Longfei Zhao") > -1:
+                pass
+            elif msg.data.find("full speed") > -1:
                 self._movo_base_Vx = self._movo_base_maxVx
                 self._movo_base_Vy = self._movo_base_maxVy
                 self._movo_base_Rz = self._movo_base_maxRz
@@ -109,15 +115,15 @@ class voice_control:
                 self._movo_base_ux = 0.0
                 self._movo_base_uy = -1.0
                 self._movo_base_uz = 0.0
-            elif msg.data.find("back left") > -1:
+            elif msg.data.find("turn left") > -1:
                 self._movo_base_ux = 0.0
                 self._movo_base_uy = 0.0
                 self._movo_base_uz = 1.0
-            elif msg.data.find("back right") > -1:
+            elif msg.data.find("turn right") > -1:
                 self._movo_base_ux = 0.0
                 self._movo_base_uy = 0.0
                 self._movo_base_uz = -1.0
-            elif msg.data.find("move stop") > -1 or msg.data.find("halt") > -1 or msg.data.find("stop") > -1:
+            elif msg.data.find("stop") > -1:
                 self._movo_base_ux = 0.0
                 self._movo_base_uy = 0.0
                 self._movo_base_uz = 0.0
