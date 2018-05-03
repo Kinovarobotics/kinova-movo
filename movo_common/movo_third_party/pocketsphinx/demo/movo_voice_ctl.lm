@@ -7,12 +7,12 @@ The code that was used to produce this language model is available in Open Sourc
 Please visit http://www.speech.cs.cmu.edu/tools/ for more information
 
 The (fixed) discount mass is 0.5. The backoffs are computed using the ratio method.
-This model based on a corpus of 11 sentences and 17 words
+This model based on a corpus of 12 sentences and 18 words
 
 \data\
-ngram 1=17
-ngram 2=26
-ngram 3=22
+ngram 1=18
+ngram 2=28
+ngram 3=23
 
 \1-grams:
 -0.9031 </s> -0.3010
@@ -32,6 +32,7 @@ ngram 3=22
 -1.6435 SPEED -0.2430
 -1.6435 TURN -0.2808
 -1.9445 ZHAO -0.2430
+-1.9912 STOP -0.2341
 
 \2-grams:
 -1.3424 <s> FULL 0.0000
@@ -41,6 +42,7 @@ ngram 3=22
 -1.3424 <s> LONGFEI 0.0000
 -0.7404 <s> MOVE 0.0000
 -1.0414 <s> TURN 0.0000
+-1.3424 <s> STOP 0.0000
 -0.3010 BACKWARD </s> -0.3010
 -0.3010 FORWARD </s> -0.3010
 -0.3010 FULL SPEED 0.0000
@@ -60,6 +62,7 @@ ngram 3=22
 -0.6021 TURN LEFT 0.0000
 -0.6021 TURN RIGHT 0.0000
 -0.3010 ZHAO </s> -0.3010
+-0.3010 STOP </s> -0.3010
 
 \3-grams:
 -0.3010 <s> FULL SPEED
@@ -73,6 +76,7 @@ ngram 3=22
 -0.9031 <s> MOVE RIGHT
 -0.6021 <s> TURN LEFT
 -0.6021 <s> TURN RIGHT
+-0.3010 <s> STOP </s>
 -0.3010 FULL SPEED </s>
 -0.3010 HALF SPEED </s>
 -0.3010 HELLO MOVO </s>

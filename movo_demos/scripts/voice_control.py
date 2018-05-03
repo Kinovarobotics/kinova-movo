@@ -109,11 +109,11 @@ class voice_control:
                 self._movo_base_ux = 0.0
                 self._movo_base_uy = -1.0
                 self._movo_base_uz = 0.0
-            elif msg.data.find("back left") > -1:
+            elif msg.data.find("turn left") > -1:
                 self._movo_base_ux = 0.0
                 self._movo_base_uy = 0.0
                 self._movo_base_uz = 1.0
-            elif msg.data.find("back right") > -1:
+            elif msg.data.find("turn right") > -1:
                 self._movo_base_ux = 0.0
                 self._movo_base_uy = 0.0
                 self._movo_base_uz = -1.0
