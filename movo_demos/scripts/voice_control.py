@@ -40,7 +40,9 @@ import numpy
 import roslib;
 
 roslib.load_manifest('pocketsphinx')
+roslib.load_manifest('sound_play')
 import rospy
+from sound_play.libsoundplay import SoundClient
 
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String
@@ -75,6 +77,13 @@ class voice_control:
         self._movo_base_cmd_thread = threading.Thread(target=self._thread_run)
         self._movo_base_cmd_thread.start()
 
+        # speech publisher
+        self._speech_pub = rospy.Publisher("/movo/voice/text", String, queue_size=1, latch=True)
+        self._speech_text = String()
+
+        # play music
+        self._play_music_client = SoundClient()
+
         rospy.loginfo('Voice control initialized')
         rospy.spin()
 
@@ -84,12 +93,18 @@ class voice_control:
 
         with self._movo_base_cmd_mutex:
             # set speed of movo base motion
-            if msg.data.find("Hello Movo") > -1:
-                pass
-            elif msg.data.find("Kinova Robotics") > -1:
-                pass
-            elif msg.data.find("Longfei Zhao") > -1:
-                pass
+            if msg.data.find("hello movo") > -1:
+                self._speech_text.data = "Hello, how are you today"
+                self._speech_pub.publish(self._speech_text)
+            elif (msg.data.find("kinova robotics") > -1) or (msg.data.find("kinova") > -1):
+                self._speech_text.data = "Kinova Robotics is the best robotic company in the world. That is why I am so good."
+                self._speech_pub.publish(self._speech_text)
+            elif (msg.data.find("longfei zhao") > -1) or (msg.data.find("longfei") > -1):
+                self._speech_text.data = "Yes, I know Long fei. He is the bad guy who makes me work all the day."
+                self._speech_pub.publish(self._speech_text)
+            elif (msg.data.find("sing a song") > -1):
+                self._play_music_client.playWave(
+                    '/home/movo/movo_ws/src/movo_demos/launch/voice_control/we_are_robots.wav')
             elif msg.data.find("full speed") > -1:
                 self._movo_base_Vx = self._movo_base_maxVx
                 self._movo_base_Vy = self._movo_base_maxVy
