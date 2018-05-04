@@ -1,0 +1,102 @@
+Language model created by QuickLM on Thu May  3 14:46:56 EDT 2018
+Copyright (c) 1996-2010 Carnegie Mellon University and Alexander I. Rudnicky
+
+The model is in standard ARPA format, designed by Doug Paul while he was at MITRE.
+
+The code that was used to produce this language model is available in Open Source.
+Please visit http://www.speech.cs.cmu.edu/tools/ for more information
+
+The (fixed) discount mass is 0.5. The backoffs are computed using the ratio method.
+This model based on a corpus of 13 sentences and 21 words
+
+\data\
+ngram 1=21
+ngram 2=32
+ngram 3=26
+
+\1-grams:
+-0.9031 </s> -0.3010
+-0.9031 <s> -0.2430
+-2.0170 A -0.2968
+-2.0170 BACKWARD -0.2430
+-2.0170 FORWARD -0.2430
+-2.0170 FULL -0.2926
+-2.0170 HALF -0.2926
+-2.0170 HELLO -0.2968
+-2.0170 KINOVA -0.2968
+-1.7160 LEFT -0.2430
+-2.0170 LONGFEI -0.2968
+-1.4150 MOVE -0.2752
+-2.0170 MOVO -0.2430
+-1.7160 RIGHT -0.2430
+-2.0170 ROBOTICS -0.2430
+-2.0170 SING -0.2968
+-2.0170 SONG -0.2430
+-1.7160 SPEED -0.2430
+-2.0170 STOP -0.2430
+-1.7160 TURN -0.2840
+-2.0170 ZHAO -0.2430
+
+\2-grams:
+-1.4150 <s> FULL 0.0000
+-1.4150 <s> HALF 0.0000
+-1.4150 <s> HELLO 0.0000
+-1.4150 <s> KINOVA 0.0000
+-1.4150 <s> LONGFEI 0.0000
+-0.8129 <s> MOVE 0.0000
+-1.4150 <s> SING 0.0000
+-1.4150 <s> STOP 0.0000
+-1.1139 <s> TURN 0.0000
+-0.3010 A SONG 0.0000
+-0.3010 BACKWARD </s> -0.3010
+-0.3010 FORWARD </s> -0.3010
+-0.3010 FULL SPEED 0.0000
+-0.3010 HALF SPEED 0.0000
+-0.3010 HELLO MOVO 0.0000
+-0.3010 KINOVA ROBOTICS 0.0000
+-0.3010 LEFT </s> -0.3010
+-0.3010 LONGFEI ZHAO 0.0000
+-0.9031 MOVE BACKWARD 0.0000
+-0.9031 MOVE FORWARD 0.0000
+-0.9031 MOVE LEFT 0.0000
+-0.9031 MOVE RIGHT 0.0000
+-0.3010 MOVO </s> -0.3010
+-0.3010 RIGHT </s> -0.3010
+-0.3010 ROBOTICS </s> -0.3010
+-0.3010 SING A 0.0000
+-0.3010 SONG </s> -0.3010
+-0.3010 SPEED </s> -0.3010
+-0.3010 STOP </s> -0.3010
+-0.6021 TURN LEFT 0.0000
+-0.6021 TURN RIGHT 0.0000
+-0.3010 ZHAO </s> -0.3010
+
+\3-grams:
+-0.3010 <s> FULL SPEED
+-0.3010 <s> HALF SPEED
+-0.3010 <s> HELLO MOVO
+-0.3010 <s> KINOVA ROBOTICS
+-0.3010 <s> LONGFEI ZHAO
+-0.9031 <s> MOVE BACKWARD
+-0.9031 <s> MOVE FORWARD
+-0.9031 <s> MOVE LEFT
+-0.9031 <s> MOVE RIGHT
+-0.3010 <s> SING A
+-0.3010 <s> STOP </s>
+-0.6021 <s> TURN LEFT
+-0.6021 <s> TURN RIGHT
+-0.3010 A SONG </s>
+-0.3010 FULL SPEED </s>
+-0.3010 HALF SPEED </s>
+-0.3010 HELLO MOVO </s>
+-0.3010 KINOVA ROBOTICS </s>
+-0.3010 LONGFEI ZHAO </s>
+-0.3010 MOVE BACKWARD </s>
+-0.3010 MOVE FORWARD </s>
+-0.3010 MOVE LEFT </s>
+-0.3010 MOVE RIGHT </s>
+-0.3010 SING A SONG
+-0.3010 TURN LEFT </s>
+-0.3010 TURN RIGHT </s>
+
+\end\
