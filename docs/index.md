@@ -1,9 +1,32 @@
-This area is being used to experiment with [Github Pages](https://pages.github.com/) documentation as a place to hold development documentation information as an alternative to the repository Wiki pages (as is done currently)
+# MOVO User Guide
 
-Documentation material in progress here will be viewable [here](https://Kinovarobotics.github.io/kinova-movo)
+-   [Welcome to MOVO Beta](Concepts/c_welcome_to_movo_beta.md)
+    -   [Revision History](Concepts/c_movo_user_guide_revision_history.md)
+    -   [What's in the box?](Concepts/c_whats_in_box.md)
+    -   [Unboxing MOVO](Tasks/t_unboxing_movo.md)
+    -   [Battery breaker switch](Concepts/c_main_breaker.md)
+    -   [Charging MOVO's battery](Tasks/t_charging_movo_battery.md)
+    -   [Support / help](Concepts/c_support_help.md)
+-   [Personal safety and security of MOVO](Concepts/c_movo_safety.md)
+    -   [Intended use](Concepts/c_intended_use.md)
+    -   [Environmental and operating conditions](Concepts/c_environmental_operating_conditions.md)
+    -   [E-Stop](Concepts/c_estop.md)
+    -   [Avoiding damage to MOVO](Concepts/c_avoiding_damage_equipment.md)
+    -   [Avoiding personal injury](Concepts/c_avoiding_personal_injury.md)
+-   [MOVO hardware overview](Concepts/c_movo_hardware_overview.md)
+    -   [MOVO Human-Machine Interface \(HMI\) panel](Concepts/c_hmi_panel.md)
+    -   [MOVO charging port](Concepts/c_charging_port.md)
+    -   [LED panel](Concepts/c_led_panel.md)
+    -   [Joystick control](Concepts/c_teleop_control.md)
+-   [Powering up MOVO](Tasks/t_powering_up_movo.md)
+    -   [MOVO boot-up process](Concepts/c_movo_bootup_process.md)
+    -   [Upstart process](Concepts/c_movo_upstart_process.md)
+-   [Powering down MOVO](Tasks/t_powering_down_movo.md)
+    -   [MOVO shutdown process](Concepts/c_movo_shutdown_process.md)
+-   [Working with JACO arms and MOVO](Concepts/c_working_jaco_arms_movo.md)
+    -   [Disconnect JACO arm from standard controller base](Tasks/t_disconnect_jaco_standard_base.md)
+    -   [Installing Kinova arms on MOVO](Tasks/t_kinova_arms_install.md)
+    -   [Removing Kinova arms from MOVO](Tasks/t_kinova_arms_uninstall.md)
+    -   [Mounting JACO arm on standard controller base](Tasks/t_mount_jaco_externally_base.md)
+-   [Packing up MOVO for transport](Tasks/t_packing_movo_transport.md)
 
-This area should be considered experimental. For the most up-to-date documentation on MOVO, see the Wiki pages at:
-- [https://github.com/Kinovarobotics/kinova-movo/wiki](https://github.com/Kinovarobotics/kinova-movo/wiki) (Computer and software setup and instructions on interfacing with the robot through code interfaces) and 
-- the HTML user guide [https://github.com/Kinovarobotics/kinova-movo/blob/master/MOVO_user_guide.zip](https://github.com/Kinovarobotics/kinova-movo/blob/master/MOVO_user_guide.zip) (A zip package containing the HTML package of the user guide. Primarily hardware related information and hardware setup / configuration)
-
-Depending on the results of this experiment, some or all the MOVO documentation resources may be migrated here. Check out this space for any updates.
