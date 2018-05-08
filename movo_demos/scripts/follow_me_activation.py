@@ -79,13 +79,10 @@ class FollowMe:
             self._dof = 6
 
             # below which considered as a level noise could reach, no external force applied to corresponding joint except gravity force.
-            # values are based on test data when robot in different configuration, does not guarantee no external is applied for sure.
+            # values are based on test data when robot in DIFFERENT configurations, does not guarantee no external is applied for sure.
             # can be used as a "soft" "loose" "lower" boundary to detect external joint force
-            self.angular_force_gravity_free_deadzone = [5.7, 2.0, 0.5, 2.0, 1.5, 0.5]
+            self.angular_force_gravity_free_deadzone = [1.5, 1.5, 1.5, 0.5, 2.0, 0.5]
 
-            # above which considered surely external force applied to corresponding joints. However, below these values, it is also possible that external forces are applied
-            # can be used as a "hard" "strict" "higher" boundary to detect external joint force
-            self.angular_force_gravity_free_certainty = [6.0, 3.0, 3.0, 3.0, 2.0, 1.0]
         elif dof == '7dof':
             self._dof = 7
 
@@ -95,18 +92,16 @@ class FollowMe:
             # can be used as a "soft" "loose" "lower" boundary to detect external joint force
             self.angular_force_gravity_free_deadzone = [10.0] * self._dof
 
-            # above which considered surely external force applied to corresponding joints. However, below these values, it is also possible that external forces are applied
-            # can be used as a "hard" "strict" "higher" boundary to detect external joint force
-            self.angular_force_gravity_free_certainty = [10.0] * self._dof
         else:
             raise ValueError("Please check ros parameter /init_robot/jaco_dof, it should be either '6dof' or '7dof' ")
 
         # define the interpolation shape between force and speed of movo base
-        self._base_cartesian_force_x_range = [x - 3.0 for x in [-20.0, -13.0,  -10.0, 10.0, 13.0, 20.0] ]
+        # IMPORTANT: cartesian force range and offset are defined in the PRE-DEFINED follow-me-hand-pick-pose. They are not general, and could vary in large range for other arm configurations. If you define another follow-me-hand-pick-pose, make sure tune these values accordingly. eg: in the predefined pose, force_x is around +2.5, max applied force is 20, then range can be defined as [x+2.5 for x in [-20, 20].
+        self._base_cartesian_force_x_range = [x + 2.5 for x in [-20.0, -13.0,  -7.0, 7.0, 13.0, 20.0] ]
         self._base_translation_speed_x_range = [-0.5, -0.3, 0.0, 0.0, 0.3, 0.5]
-        self._base_cartesian_force_y_range = [x - 8.0 for x in [-20.0, -13.0,  -10.0, 10.0, 13.0, 20.0] ] # add offset without applied force
+        self._base_cartesian_force_y_range = [x - 0.5 for x in [-20.0, -13.0,  -10.0, 10.0, 13.0, 20.0] ] # add offset without applied force
         self._base_translation_speed_y_range = [-0.4, -0.3, 0.0, 0.0, 0.3, 0.4]
-        self._base_cartesian_torque_z_range = [x + 0.02 for x in [-5.0, -3.5, -3.0, 3.0, 3.5, 5.0] ]
+        self._base_cartesian_torque_z_range = [x + 0.05 for x in [-5.0, -3.5, -3.0, 3.0, 3.5, 5.0] ]
         self._base_rotation_speed_z_range = [-0.8, -0.6, 0.0, 0.0, 0.6, 0.8]
         self._base_rotation_torque_threshold = min(map(abs, self._base_cartesian_torque_z_range))
         # "translation" or "rotation"
@@ -114,8 +109,8 @@ class FollowMe:
 
         self._Tsampling = 0.01
         self._sampling_time = rospy.get_rostime()
-        self._base_x_speed_filter = LowPassFilter(k=1.0, Tconst=0.1, Tsampling=0.01)
-        self._base_y_speed_filter = LowPassFilter(k=1.0, Tconst=0.1, Tsampling=0.01)
+        self._base_x_speed_filter = LowPassFilter(k=1.0, Tconst=0.2, Tsampling=0.01)
+        self._base_y_speed_filter = LowPassFilter(k=1.0, Tconst=0.2, Tsampling=0.01)
         self._base_theta_z_speed_filter = LowPassFilter(k=1.0, Tconst=0.1, Tsampling=0.01)
 
 
