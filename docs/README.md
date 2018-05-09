@@ -1,4 +1,4 @@
-This area is being used to experiment with [Github Pages](https://pages.github.com/) documentation as a place to hold development documentation information as an alternative to the repository Wiki pages (as is done currently)
+This site is being used to experiment with [Github Pages](https://pages.github.com/) documentation as a place to hold development documentation information as an alternative to the repository Wiki pages (as is done currently)
 
 This area should be considered experimental. For the most up-to-date documentation on MOVO, see the Wiki pages at:
 - [https://github.com/Kinovarobotics/kinova-movo/wiki](https://github.com/Kinovarobotics/kinova-movo/wiki) (Computer and software setup and instructions on interfacing with the robot through code interfaces) and 
