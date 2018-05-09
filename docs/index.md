@@ -1,5 +1,7 @@
 # MOVO User Guide
 
+## About this page - [Please read](README.md)
+
 -   [Welcome to MOVO Beta](Concepts/c_welcome_to_movo_beta.md)
     -   [Revision History](Concepts/c_movo_user_guide_revision_history.md)
     -   [What's in the box?](Concepts/c_whats_in_box.md)
