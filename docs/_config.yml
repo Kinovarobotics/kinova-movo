@@ -1,1 +1,5 @@
+title: KINOVA MOVO User Guide
+email: support@kinovarobotics.com
+description: This site hosts user documentation for the KINOVA MOVO mobile platform.
+baseurl: "kinova-movo"
 theme: jekyll-theme-cayman
