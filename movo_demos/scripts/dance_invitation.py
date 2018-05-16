@@ -34,17 +34,55 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
-
-
 import rospy
+import smach
+import smach_ros
 
+
+class search_face(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['succeeded'])
+
+    def execute(self, userdata):
+        rospy.loginfo('Executing state SEARCH_FACE')
+        rospy.sleep(5)
+        return 'succeeded'
+
+
+class move_closer(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['succeeded'])
+
+    def execute(self, userdata):
+        rospy.loginfo('Executing state MOVE_CLOSER')
+        rospy.sleep(5)
+        return 'succeeded'
+
+
+def construct_sm():
+    rospy.loginfo('Constructing state machine')
+    sm = smach.StateMachine(outcomes = ['succeeded'])
+
+    with sm:
+        smach.StateMachine.add('SEARCH_FACE', search_face(), transitions={'succeeded':'MOVE_CLOSER'})
+        smach.StateMachine.add('MOVE_CLOSER', move_closer(), transitions={'succeeded': 'succeeded'})
+
+    return sm
 
 
 if __name__ == "__main__":
+    rospy.loginfo('initializing dance invitation')
     rospy.init_node('dance_invitation')
-    try:
-        rospy.loginfo('initializing dance invitation')
-        # dance_inivation()
-    except:
-        rospy.logerr('dance invitation initialization failed')
-        pass
+
+    sm = construct_sm()
+    rospy.loginfo('State machine Constructed')
+
+
+    # Run state machine introspection server for smach viewer
+    intro_spect = smach_ros.IntrospectionServer('dance_invitation', sm, '/DANCE_INVITATION')
+    intro_spect.start()
+    outcome = sm.execute()
+
+    rospy.spin()
+    intro_spect.stop()
+
