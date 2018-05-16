@@ -1,3 +1,7 @@
+---
+layout:page
+---
+
 # MOVO charging port
 
 This section describes the charging port used to connect MOVO to its power supply and the indicators that display the charging state.
