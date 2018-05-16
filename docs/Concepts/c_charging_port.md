@@ -1,6 +1,3 @@
----
-layout:page
----
 
 # MOVO charging port
 
