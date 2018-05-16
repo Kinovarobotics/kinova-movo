@@ -39,7 +39,7 @@ import smach
 import smach_ros
 
 
-class search_face(smach.State):
+class SearchFace(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes=['succeeded'])
 
@@ -49,7 +49,7 @@ class search_face(smach.State):
         return 'succeeded'
 
 
-class move_closer(smach.State):
+class MoveCloser(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes=['succeeded'])
 
@@ -58,31 +58,43 @@ class move_closer(smach.State):
         rospy.sleep(5)
         return 'succeeded'
 
+class DanceInvitation():
+    def __init__(self):
+        rospy.on_shutdown(self._shutdown)
 
-def construct_sm():
-    rospy.loginfo('Constructing state machine')
-    sm = smach.StateMachine(outcomes = ['succeeded'])
+        self._sm = self._construct_sm()
+        rospy.loginfo('State machine Constructed')
 
-    with sm:
-        smach.StateMachine.add('SEARCH_FACE', search_face(), transitions={'succeeded':'MOVE_CLOSER'})
-        smach.StateMachine.add('MOVE_CLOSER', move_closer(), transitions={'succeeded': 'succeeded'})
+        # Run state machine introspection server for smach viewer
+        self._intro_spect = smach_ros.IntrospectionServer('dance_invitation', self._sm, '/DANCE_INVITATION')
+        self._intro_spect.start()
+        outcome = self._sm.execute()
 
-    return sm
+        rospy.spin()
+        self._intro_spect.stop()
+
+
+    def _shutdown(self):
+        # self._intro_spect.stop()
+        pass
+
+    def _construct_sm(self):
+        rospy.loginfo('Constructing state machine')
+        self._sm = smach.StateMachine(outcomes = ['succeeded'])
+
+        with self._sm:
+            smach.StateMachine.add('SEARCH_FACE', SearchFace(), transitions={'succeeded': 'MOVE_CLOSER'})
+            smach.StateMachine.add('MOVE_CLOSER', MoveCloser(), transitions={'succeeded': 'succeeded'})
+
+        return self._sm
 
 
 if __name__ == "__main__":
-    rospy.loginfo('initializing dance invitation')
-    rospy.init_node('dance_invitation')
+    rospy.loginfo('start dance invitation')
+    rospy.init_node('dance_invitation', log_level=rospy.INFO)
+    # rospy.init_node('dance_invitation', log_level=rospy.DEBUG)
 
-    sm = construct_sm()
-    rospy.loginfo('State machine Constructed')
+    DanceInvitation()
 
 
-    # Run state machine introspection server for smach viewer
-    intro_spect = smach_ros.IntrospectionServer('dance_invitation', sm, '/DANCE_INVITATION')
-    intro_spect.start()
-    outcome = sm.execute()
-
-    rospy.spin()
-    intro_spect.stop()
 
