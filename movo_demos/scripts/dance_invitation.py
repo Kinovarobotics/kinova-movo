@@ -35,17 +35,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
 import rospy
+import roslaunch
+import rospkg
 import smach
 import smach_ros
 
 
 class SearchFace(smach.State):
     def __init__(self):
-        smach.State.__init__(self, outcomes=['succeeded'])
+        smach.State.__init__(self, outcomes=['succeeded'], input_keys=['uuid', 'launch_face_tracking_path'])
 
     def execute(self, userdata):
         rospy.loginfo('Executing state SEARCH_FACE')
-        rospy.sleep(5)
+
+        # create launch file handles
+        launch_face_tracking = roslaunch.parent.ROSLaunchParent(userdata.uuid, [userdata.launch_face_tracking_path])
+
+        launch_face_tracking.start()
+        rospy.sleep(30)
+        launch_face_tracking.shutdown()
+        rospy.sleep(2)
+
         return 'succeeded'
 
 
@@ -55,13 +65,18 @@ class MoveCloser(smach.State):
 
     def execute(self, userdata):
         rospy.loginfo('Executing state MOVE_CLOSER')
-        rospy.sleep(5)
+        rospy.sleep(2)
         return 'succeeded'
 
 class DanceInvitation():
     def __init__(self):
         rospy.on_shutdown(self._shutdown)
 
+        # # create roslaunch handles
+        self._uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
+        roslaunch.configure_logging(self._uuid)
+
+        # construct state machine
         self._sm = self._construct_sm()
         rospy.loginfo('State machine Constructed')
 
@@ -80,13 +95,17 @@ class DanceInvitation():
 
     def _construct_sm(self):
         rospy.loginfo('Constructing state machine')
-        self._sm = smach.StateMachine(outcomes = ['succeeded'])
+        sm = smach.StateMachine(outcomes = ['succeeded'])
 
-        with self._sm:
-            smach.StateMachine.add('SEARCH_FACE', SearchFace(), transitions={'succeeded': 'MOVE_CLOSER'})
+        # create launch file handles
+        sm.userdata.launch_face_tracking_path = rospkg.RosPack().get_path('movo_demos') + '/launch/face_tracking/face_tracking.launch'
+        sm.userdata.uuid = self._uuid
+
+        with sm:
+            smach.StateMachine.add('SEARCH_FACE', SearchFace(), transitions={'succeeded': 'MOVE_CLOSER'}, remapping = {'launch_face_tracking_path':'launch_face_tracking_path'})
             smach.StateMachine.add('MOVE_CLOSER', MoveCloser(), transitions={'succeeded': 'succeeded'})
 
-        return self._sm
+        return sm
 
 
 if __name__ == "__main__":
