@@ -1,11 +1,11 @@
 <nav>
   <ul>
     {% for section in site.data.navigation.docs %}
-    <li><a href="{{section.url}}">{{section.title}}</a>
+    <li><a href="{{base.url}}{{section.url}}">{{section.title}}</a>
         {% if section.sublinks[0] %}
           <ul>
             <% for topic in section.sublinks %>
-              <li><a href="{{topic.url}}">{{topic.title}}</a></li>
+              <li><a href="{{base.url}}{{topic.url}}">{{topic.title}}</a></li>
             <% endfor %>
           </ul>
         {% endif %} 
