@@ -90,10 +90,11 @@ class FaceTracking:
         self.pantilt_pose_deadzone = np.radians(5.0)
 
         # head searching face motion
-        self.pan_searching_wait_time = 5.0
+        self.head_searching_wait_time = 5.0
         self.pan_searching_increment = np.radians(3.0)
-        self.pan_searching_thread = threading.Thread(target=self.pan_searching_cb)
-        self.pan_searching_thread.start()
+        self.tilt_searching_increment = np.radians(15.0)
+        self.head_searching_thread = threading.Thread(target=self.head_searching_cb)
+        self.head_searching_thread.start()
 
         # rate.sleep()
         rospy.loginfo("FaceTracking initialization")
@@ -167,31 +168,47 @@ class FaceTracking:
                 self.head_motion_pub.publish(self.head_cmd)
 
 
-    def pan_searching_cb(self):
+    def head_searching_cb(self):
         rate = rospy.Rate(10)
 
         while not rospy.is_shutdown() :
 
-            if (rospy.get_time() - self.last_tracking_time) <= self.pan_searching_wait_time:
-                rospy.logdebug("No face detected for %3.1f second. Will start to pan head to search faces after %3.ff second", (rospy.get_time() - self.last_tracking_time), self.pan_searching_wait_time)
+            if (rospy.get_time() - self.last_tracking_time) <= self.head_searching_wait_time:
+                rospy.logdebug("No face detected for %3.1f second. Will start to pan head to search faces after %3.ff second", (rospy.get_time() - self.last_tracking_time), self.head_searching_wait_time)
             else:
                 with self.sync_head_pose_mutex:
-                    # searching from -70.0 to 70.0 degrees
+                    # pan from -60.0 to 60.0 degrees with error of step size, and pan position changes in each step
                     if(self.head_cmd.pan_cmd.pos_rad >= np.radians(60.0)) and (self.pan_searching_increment >=0.0 ):
                         self.pan_searching_increment *= -1.0
 
-                    if (self.head_cmd.pan_cmd.pos_rad <= np.radians(-60.0)) and (self.pan_searching_increment <= 0.0):
+                    if(self.head_cmd.pan_cmd.pos_rad <= np.radians(-60.0)) and (self.pan_searching_increment <= 0.0):
                         self.pan_searching_increment *= -1.0
 
+                        # tilt from -45.0 to 45.0 degrees with error of step size, and tilt position only changes when reach limit
+                        if(self.head_cmd.tilt_cmd.pos_rad >= np.radians(30.0)) and (self.tilt_searching_increment >=0.0 ):
+                            self.tilt_searching_increment *= -1.0
+                            rospy.logwarn('positive: self.tilt_searching_increment is %3.3f', self.tilt_searching_increment)
+
+                        if(self.head_cmd.tilt_cmd.pos_rad <= np.radians(-30.0)) and (self.tilt_searching_increment <= 0.0):
+                            self.tilt_searching_increment *= -1.0
+                            rospy.logwarn('negative: self.tilt_searching_increment is %3.3f', self.tilt_searching_increment)
+
+                        print "self.head_cmd.tilt_cmd.pos_rad is ", self.head_cmd.tilt_cmd.pos_rad, " and np.radians(45.0) is ", np.radians(45.0)
+                        print 'self.tilt_searching_increment is ', self.tilt_searching_increment
+
+                        self.head_cmd.tilt_cmd.pos_rad += self.tilt_searching_increment
+                        print 'before clip: self.head_cmd.tilt_cmd.pos_rad is ', self.head_cmd.tilt_cmd.pos_rad
+                        self.head_cmd.tilt_cmd.pos_rad = np.clip(self.head_cmd.tilt_cmd.pos_rad, np.radians(-60.0), np.radians(60.0))
+                        print 'after clip: self.head_cmd.tilt_cmd.pos_rad is ', self.head_cmd.tilt_cmd.pos_rad
+
+
                     self.head_cmd.pan_cmd.pos_rad += self.pan_searching_increment
-                    self.head_cmd.tilt_cmd.pos_rad = 0.0
                     rospy.logdebug("raw command for [pan tilt] are [%f, %f] degrees \n", np.degrees(self.head_cmd.pan_cmd.pos_rad), np.degrees(self.head_cmd.tilt_cmd.pos_rad))
 
                     self.head_cmd.pan_cmd.pos_rad = np.clip(self.head_cmd.pan_cmd.pos_rad, np.radians(-90.0), np.radians(90.0))
-                    self.head_cmd.tilt_cmd.pos_rad = np.clip(self.head_cmd.tilt_cmd.pos_rad, np.radians(-45.0), np.radians(60.0))
 
                     self.head_cmd.pan_cmd.vel_rps = self.pan_vel_lim
-                    self.head_cmd.tilt_cmd.vel_rps = 0.0
+                    self.head_cmd.tilt_cmd.vel_rps = self.tilt_vel_lim
 
                     self.head_motion_pub.publish(self.head_cmd)
 
