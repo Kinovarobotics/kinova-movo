@@ -42,39 +42,43 @@ import smach_ros
 
 
 class SearchFace(smach.State):
-    def __init__(self):
-        smach.State.__init__(self, outcomes=['succeeded'], input_keys=['uuid', 'launch_face_tracking_path'])
+    def __init__(self, launch_face_tracking):
+        smach.State.__init__(self, outcomes=['succeeded'])
+        self._launch_face_tracking = launch_face_tracking
 
     def execute(self, userdata):
         rospy.loginfo('Executing state SEARCH_FACE')
 
-        # create launch file handles
-        launch_face_tracking = roslaunch.parent.ROSLaunchParent(userdata.uuid, [userdata.launch_face_tracking_path])
-
-        launch_face_tracking.start()
-        rospy.sleep(30)
-        launch_face_tracking.shutdown()
-        rospy.sleep(2)
+        self._launch_face_tracking.start()
+        rospy.sleep(20)
 
         return 'succeeded'
 
 
 class MoveCloser(smach.State):
-    def __init__(self):
+    def __init__(self, launch_face_tracking):
         smach.State.__init__(self, outcomes=['succeeded'])
+        self.launch_face_tracking = launch_face_tracking
 
     def execute(self, userdata):
         rospy.loginfo('Executing state MOVE_CLOSER')
+
+        self.launch_face_tracking.shutdown()
         rospy.sleep(2)
         return 'succeeded'
+
 
 class DanceInvitation():
     def __init__(self):
         rospy.on_shutdown(self._shutdown)
 
-        # # create roslaunch handles
-        self._uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
-        roslaunch.configure_logging(self._uuid)
+        # create roslaunch handles
+        uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
+        roslaunch.configure_logging(uuid)
+        launch_face_tracking = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/face_tracking/face_tracking.launch'])
+
+        self._SearchFace_obj = SearchFace(launch_face_tracking)
+        self._MoveCloser_obj = MoveCloser(launch_face_tracking)
 
         # construct state machine
         self._sm = self._construct_sm()
@@ -93,17 +97,17 @@ class DanceInvitation():
         # self._intro_spect.stop()
         pass
 
+
     def _construct_sm(self):
         rospy.loginfo('Constructing state machine')
         sm = smach.StateMachine(outcomes = ['succeeded'])
 
         # create launch file handles
         sm.userdata.launch_face_tracking_path = rospkg.RosPack().get_path('movo_demos') + '/launch/face_tracking/face_tracking.launch'
-        sm.userdata.uuid = self._uuid
 
         with sm:
-            smach.StateMachine.add('SEARCH_FACE', SearchFace(), transitions={'succeeded': 'MOVE_CLOSER'}, remapping = {'launch_face_tracking_path':'launch_face_tracking_path'})
-            smach.StateMachine.add('MOVE_CLOSER', MoveCloser(), transitions={'succeeded': 'succeeded'})
+            smach.StateMachine.add('SEARCH_FACE', self._SearchFace_obj, transitions={'succeeded': 'MOVE_CLOSER'})
+            smach.StateMachine.add('MOVE_CLOSER', self._MoveCloser_obj, transitions={'succeeded': 'succeeded'})
 
         return sm
 
