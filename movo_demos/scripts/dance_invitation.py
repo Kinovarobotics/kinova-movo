@@ -42,28 +42,28 @@ import smach_ros
 
 
 class SearchFace(smach.State):
-    def __init__(self, launch_face_tracking):
+    def __init__(self, launch_face_detection):
         smach.State.__init__(self, outcomes=['succeeded'])
-        self._launch_face_tracking = launch_face_tracking
+        self._launch_face_detection = launch_face_detection
 
     def execute(self, userdata):
         rospy.loginfo('Executing state SEARCH_FACE')
 
-        self._launch_face_tracking.start()
+        self._launch_face_detection.start()
         rospy.sleep(20)
 
         return 'succeeded'
 
 
 class MoveCloser(smach.State):
-    def __init__(self, launch_face_tracking):
+    def __init__(self, launch_face_detection):
         smach.State.__init__(self, outcomes=['succeeded'])
-        self.launch_face_tracking = launch_face_tracking
+        self._launch_face_detection = launch_face_detection
 
     def execute(self, userdata):
         rospy.loginfo('Executing state MOVE_CLOSER')
 
-        self.launch_face_tracking.shutdown()
+        self._launch_face_detection.shutdown()
         rospy.sleep(2)
         return 'succeeded'
 
@@ -75,10 +75,10 @@ class DanceInvitation():
         # create roslaunch handles
         uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         roslaunch.configure_logging(uuid)
-        launch_face_tracking = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/face_tracking/face_tracking.launch'])
+        launch_face_detection = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/face_tracking/face_detection.launch'])
 
-        self._SearchFace_obj = SearchFace(launch_face_tracking)
-        self._MoveCloser_obj = MoveCloser(launch_face_tracking)
+        self._SearchFace_obj = SearchFace(launch_face_detection)
+        self._MoveCloser_obj = MoveCloser(launch_face_detection)
 
         # construct state machine
         self._sm = self._construct_sm()
@@ -103,8 +103,6 @@ class DanceInvitation():
         sm = smach.StateMachine(outcomes = ['succeeded'])
 
         # create launch file handles
-        sm.userdata.launch_face_tracking_path = rospkg.RosPack().get_path('movo_demos') + '/launch/face_tracking/face_tracking.launch'
-
         with sm:
             smach.StateMachine.add('SEARCH_FACE', self._SearchFace_obj, transitions={'succeeded': 'MOVE_CLOSER'})
             smach.StateMachine.add('MOVE_CLOSER', self._MoveCloser_obj, transitions={'succeeded': 'succeeded'})

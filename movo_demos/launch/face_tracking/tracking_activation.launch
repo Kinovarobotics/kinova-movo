@@ -1,0 +1,17 @@
+<launch>
+
+  <!-- Following args `camera` and `depth_ns` together consist the namespace prefix, and the args `*_topic` make the body of the topic for face_detector node to subscribe. In the example below, you're subscribing to:
+
+        /camera/rgb/image_rect_color
+        /camera/depth_ns/image_rect_raw
+   -->
+
+  <arg name="local" default="true"/>
+  <machine name="movo1" address="movo1" usr="movo"
+             env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+
+  <node name="face_tracking" pkg="movo_demos" type="face_tracking.py" output="screen"/>
+
+  <node pkg="topic_tools" type="mux_select" name="head_cmd_face_tracking" args="head_cmd_mux /movo/head/face_tracking/cmd" output="screen"/>
+
+</launch>
