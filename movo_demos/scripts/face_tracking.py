@@ -32,7 +32,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 \brief  Demo prepared for Movo2
 \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
-
 import numpy as np
 import threading
 import roslib; roslib.load_manifest('people_msgs')
@@ -65,7 +64,7 @@ class Face:
 class FaceTracking:
     def __init__(self):
 
-        self.last_run_time = rospy.get_time()
+        self.last_tracking_time = rospy.get_time()
 
         # camera related parameters
         self.max_pan_view_angle = np.radians(30)
@@ -89,6 +88,12 @@ class FaceTracking:
         self.tilt_vel_lim = self.max_tilt_view_angle
         # pose increment inside deadzone, no need to send cmd
         self.pantilt_pose_deadzone = np.radians(5.0)
+
+        # head searching face motion
+        self.pan_searching_wait_time = 5.0
+        self.pan_searching_increment = np.radians(3.0)
+        self.pan_searching_thread = threading.Thread(target=self.pan_searching_cb)
+        self.pan_searching_thread.start()
 
         # rate.sleep()
         rospy.loginfo("FaceTracking initialization")
@@ -130,10 +135,10 @@ class FaceTracking:
             return True
 
 
-    def _head_motion_pub(self):
+    def _tracking_motion_pub(self):
         rospy.logdebug("======================================")
-        dt = min(rospy.get_time() - self.last_run_time, self.max_dt_lag)
-        self.last_run_time = rospy.get_time()
+        dt = min(rospy.get_time() - self.last_tracking_time, self.max_dt_lag)
+        self.last_tracking_time = rospy.get_time()
 
         pan_cmd = np.arctan2(self.nearest_face.x, self.nearest_face.z)
         tilt_cmd = -1.0 * np.arctan2(self.nearest_face.y, np.linalg.norm(np.array([self.nearest_face.x, self.nearest_face.z])))
@@ -162,11 +167,42 @@ class FaceTracking:
                 self.head_motion_pub.publish(self.head_cmd)
 
 
+    def pan_searching_cb(self):
+        rate = rospy.Rate(10)
+
+        while not rospy.is_shutdown() :
+
+            if (rospy.get_time() - self.last_tracking_time) <= self.pan_searching_wait_time:
+                rospy.logdebug("No face detected for %3.1f second. Will start to pan head to search faces after %3.ff second", (rospy.get_time() - self.last_tracking_time), self.pan_searching_wait_time)
+            else:
+                with self.sync_head_pose_mutex:
+                    # searching from -70.0 to 70.0 degrees
+                    if(self.head_cmd.pan_cmd.pos_rad >= np.radians(60.0)) and (self.pan_searching_increment >=0.0 ):
+                        self.pan_searching_increment *= -1.0
+
+                    if (self.head_cmd.pan_cmd.pos_rad <= np.radians(-60.0)) and (self.pan_searching_increment <= 0.0):
+                        self.pan_searching_increment *= -1.0
+
+                    self.head_cmd.pan_cmd.pos_rad += self.pan_searching_increment
+                    self.head_cmd.tilt_cmd.pos_rad = 0.0
+                    rospy.logdebug("raw command for [pan tilt] are [%f, %f] degrees \n", np.degrees(self.head_cmd.pan_cmd.pos_rad), np.degrees(self.head_cmd.tilt_cmd.pos_rad))
+
+                    self.head_cmd.pan_cmd.pos_rad = np.clip(self.head_cmd.pan_cmd.pos_rad, np.radians(-90.0), np.radians(90.0))
+                    self.head_cmd.tilt_cmd.pos_rad = np.clip(self.head_cmd.tilt_cmd.pos_rad, np.radians(-45.0), np.radians(60.0))
+
+                    self.head_cmd.pan_cmd.vel_rps = self.pan_vel_lim
+                    self.head_cmd.tilt_cmd.vel_rps = 0.0
+
+                    self.head_motion_pub.publish(self.head_cmd)
+
+            rate.sleep()
+
+
     # this call back function is trigged on each time detect a face.
     # Otherwise, subscriber do not hear message from the topic /face_detector/faces_cloud/
     def _face_tracking(self, msg):
         if self._find_nearest_face(msg):
-            self._head_motion_pub()
+            self._tracking_motion_pub()
         else:
             rospy.logwarn("detected face is not clear for face tracking")
 
