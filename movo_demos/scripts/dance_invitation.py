@@ -40,6 +40,16 @@ import rospkg
 import smach
 import smach_ros
 
+'''
+Proposal solution of demo and comments for next step:
+
+ - publish [pan_pose, tilt_pose, face_camera_z] of nearest_face via new topic in face_tracking.py when pan&tilt cmd are in the deadzone (already focused).
+ - subscribe to [pan_pose, tilt_pose, face_camera_z] in MoveCloser, pan_pose for movo_base_rot, tilt_pose and face_camera_z for computing movo-people distance.
+ - during movo_base motion, face_tracking should be on.
+ - Combine SearchFace and MoveCloser as one state (MoveToPeople)
+
+'''
+
 
 class SearchFace(smach.State):
     def __init__(self, launch_face_detection):
@@ -75,7 +85,7 @@ class DanceInvitation():
         # create roslaunch handles
         uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         roslaunch.configure_logging(uuid)
-        launch_face_detection = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/face_tracking/face_detection.launch'])
+        launch_face_detection = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/face_tracking/face_tracking.launch'])
 
         self._SearchFace_obj = SearchFace(launch_face_detection)
         self._MoveCloser_obj = MoveCloser(launch_face_detection)
