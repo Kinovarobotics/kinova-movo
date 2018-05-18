@@ -92,7 +92,9 @@ class FaceTracking:
         # head searching face motion
         self.head_searching_wait_time = 5.0
         self.pan_searching_increment = np.radians(3.0)
-        self.tilt_searching_increment = np.radians(15.0)
+        self.pan_searching_limit = np.radians(60.0)
+        self.tilt_searching_increment = np.radians(10.0)
+        self.tilt_searching_limit = np.radians(30.0)
         self.head_searching_thread = threading.Thread(target=self.head_searching_cb)
         self.head_searching_thread.start()
 
@@ -170,6 +172,10 @@ class FaceTracking:
 
     def head_searching_cb(self):
         rate = rospy.Rate(10)
+        # refresh each time pan motion reach its limit on both sides
+        reach_pan_limit_time = rospy.get_time()
+        # During this period, head has both pan and tilt motion. After then, only pan motion until reach pan limit
+        tilt_at_pan_limit_duration = 1.0
 
         while not rospy.is_shutdown() :
 
@@ -177,35 +183,33 @@ class FaceTracking:
                 rospy.logdebug("No face detected for %3.1f second. Will start to pan head to search faces after %3.ff second", (rospy.get_time() - self.last_tracking_time), self.head_searching_wait_time)
             else:
                 with self.sync_head_pose_mutex:
-                    # pan from -60.0 to 60.0 degrees with error of step size, and pan position changes in each step
-                    if(self.head_cmd.pan_cmd.pos_rad >= np.radians(60.0)) and (self.pan_searching_increment >=0.0 ):
+                    # pan from -pan_searching_limit to pan_searching_limit degrees with error of step size, and pan position changes in each step
+                    if(self.head_cmd.pan_cmd.pos_rad >= self.pan_searching_limit) and (self.pan_searching_increment >=0.0 ):
                         self.pan_searching_increment *= -1.0
+                        reach_pan_limit_time = rospy.get_time()
 
-                    if(self.head_cmd.pan_cmd.pos_rad <= np.radians(-60.0)) and (self.pan_searching_increment <= 0.0):
+                    if(self.head_cmd.pan_cmd.pos_rad <= -self.pan_searching_limit) and (self.pan_searching_increment <= 0.0):
                         self.pan_searching_increment *= -1.0
+                        reach_pan_limit_time = rospy.get_time()
 
-                        # tilt from -45.0 to 45.0 degrees with error of step size, and tilt position only changes when reach limit
-                        if(self.head_cmd.tilt_cmd.pos_rad >= np.radians(30.0)) and (self.tilt_searching_increment >=0.0 ):
-                            self.tilt_searching_increment *= -1.0
-                            rospy.logwarn('positive: self.tilt_searching_increment is %3.3f', self.tilt_searching_increment)
+                    # tilt from -tilt_searching_limit to tilt_searching_limit degrees with error of step size, and tilt position only changes when reach limit
+                    if(self.head_cmd.tilt_cmd.pos_rad >= self.tilt_searching_limit) and (self.tilt_searching_increment >=0.0 ):
+                        self.tilt_searching_increment *= -1.0
+                        rospy.logwarn('positive: self.tilt_searching_increment is %3.3f', self.tilt_searching_increment)
 
-                        if(self.head_cmd.tilt_cmd.pos_rad <= np.radians(-30.0)) and (self.tilt_searching_increment <= 0.0):
-                            self.tilt_searching_increment *= -1.0
-                            rospy.logwarn('negative: self.tilt_searching_increment is %3.3f', self.tilt_searching_increment)
+                    if(self.head_cmd.tilt_cmd.pos_rad <= -self.tilt_searching_limit) and (self.tilt_searching_increment <= 0.0):
+                        self.tilt_searching_increment *= -1.0
+                        rospy.logwarn('negative: self.tilt_searching_increment is %3.3f', self.tilt_searching_increment)
 
-                        print "self.head_cmd.tilt_cmd.pos_rad is ", self.head_cmd.tilt_cmd.pos_rad, " and np.radians(45.0) is ", np.radians(45.0)
-                        print 'self.tilt_searching_increment is ', self.tilt_searching_increment
 
+                    if rospy.get_time() - reach_pan_limit_time < tilt_at_pan_limit_duration:
                         self.head_cmd.tilt_cmd.pos_rad += self.tilt_searching_increment
-                        print 'before clip: self.head_cmd.tilt_cmd.pos_rad is ', self.head_cmd.tilt_cmd.pos_rad
-                        self.head_cmd.tilt_cmd.pos_rad = np.clip(self.head_cmd.tilt_cmd.pos_rad, np.radians(-60.0), np.radians(60.0))
-                        print 'after clip: self.head_cmd.tilt_cmd.pos_rad is ', self.head_cmd.tilt_cmd.pos_rad
-
 
                     self.head_cmd.pan_cmd.pos_rad += self.pan_searching_increment
-                    rospy.logdebug("raw command for [pan tilt] are [%f, %f] degrees \n", np.degrees(self.head_cmd.pan_cmd.pos_rad), np.degrees(self.head_cmd.tilt_cmd.pos_rad))
 
+                    # joint limit is set bigger than (searching_limit + increment)
                     self.head_cmd.pan_cmd.pos_rad = np.clip(self.head_cmd.pan_cmd.pos_rad, np.radians(-90.0), np.radians(90.0))
+                    self.head_cmd.tilt_cmd.pos_rad = np.clip(self.head_cmd.tilt_cmd.pos_rad, np.radians(-45.0), np.radians(45.0))
 
                     self.head_cmd.pan_cmd.vel_rps = self.pan_vel_lim
                     self.head_cmd.tilt_cmd.vel_rps = self.tilt_vel_lim
