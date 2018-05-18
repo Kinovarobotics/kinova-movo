@@ -195,11 +195,11 @@ class FaceTracking:
                     # tilt from -tilt_searching_limit to tilt_searching_limit degrees with error of step size, and tilt position only changes when reach limit
                     if(self.head_cmd.tilt_cmd.pos_rad >= self.tilt_searching_limit) and (self.tilt_searching_increment >=0.0 ):
                         self.tilt_searching_increment *= -1.0
-                        rospy.logwarn('positive: self.tilt_searching_increment is %3.3f', self.tilt_searching_increment)
+                        rospy.logdebug('positive: self.tilt_searching_increment is %3.3f', self.tilt_searching_increment)
 
                     if(self.head_cmd.tilt_cmd.pos_rad <= -self.tilt_searching_limit) and (self.tilt_searching_increment <= 0.0):
                         self.tilt_searching_increment *= -1.0
-                        rospy.logwarn('negative: self.tilt_searching_increment is %3.3f', self.tilt_searching_increment)
+                        rospy.logdebug('negative: self.tilt_searching_increment is %3.3f', self.tilt_searching_increment)
 
 
                     if rospy.get_time() - reach_pan_limit_time < tilt_at_pan_limit_duration:
@@ -225,7 +225,7 @@ class FaceTracking:
         if self._find_nearest_face(msg):
             self._tracking_motion_pub()
         else:
-            rospy.logwarn("detected face is not clear for face tracking")
+            rospy.logdebug("detected face is not clear for face tracking")
 
 
 if __name__ == "__main__":
