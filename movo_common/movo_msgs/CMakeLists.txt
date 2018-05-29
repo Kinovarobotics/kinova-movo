@@ -24,7 +24,8 @@ add_message_files(DIRECTORY msg FILES
                                 PanTiltActuatorFdbk.msg
                                 PVA.msg
                                 PanTiltCmd.msg
-                                PanTiltFdbk.msg)
+                                PanTiltFdbk.msg
+                                FaceFound.msg)
 
 generate_messages(DEPENDENCIES std_msgs geometry_msgs)
 catkin_package(CATKIN_DEPENDS message_runtime std_msgs geometry_msgs)

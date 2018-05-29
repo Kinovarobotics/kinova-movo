@@ -87,8 +87,8 @@ class DanceInvitation():
         roslaunch.configure_logging(uuid)
         launch_face_detection = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/face_tracking/face_tracking.launch'])
 
-        self._SearchFace_obj = SearchFace(launch_face_detection)
-        self._MoveCloser_obj = MoveCloser(launch_face_detection)
+        self._search_face_obj = SearchFace(launch_face_detection)
+        self._move_closer_obj = MoveCloser(launch_face_detection)
 
         # construct state machine
         self._sm = self._construct_sm()
@@ -114,8 +114,8 @@ class DanceInvitation():
 
         # create launch file handles
         with sm:
-            smach.StateMachine.add('SEARCH_FACE', self._SearchFace_obj, transitions={'succeeded': 'MOVE_CLOSER'})
-            smach.StateMachine.add('MOVE_CLOSER', self._MoveCloser_obj, transitions={'succeeded': 'succeeded'})
+            smach.StateMachine.add('SEARCH_FACE', self._search_face_obj, transitions={'succeeded': 'MOVE_CLOSER'})
+            smach.StateMachine.add('MOVE_CLOSER', self._move_closer_obj, transitions={'succeeded': 'succeeded'})
 
         return sm
 

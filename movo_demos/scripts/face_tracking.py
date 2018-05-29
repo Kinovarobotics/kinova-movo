@@ -41,7 +41,7 @@ from sensor_msgs.msg import JointState
 
 from movo.utils import *
 from movo_msgs.msg import PanTiltCmd
-
+from movo_msgs.msg import FaceFound
 from people_msgs.msg import PositionMeasurementArray
 
 
@@ -82,6 +82,12 @@ class FaceTracking:
 
         self.head_motion_pub = rospy.Publisher("/movo/head/face_tracking/cmd", PanTiltCmd, queue_size=10)
         self.head_cmd = PanTiltCmd()
+
+        self.face_found_pub = rospy.Publisher("/face_detector/nearest_face", FaceFound, queue_size=10)
+        self.face_found_msg = FaceFound()
+        self.face_found_msg.header.seq = 0
+        self.face_found_msg.header.stamp = rospy.get_rostime()
+        self.face_found_msg.header.frame_id = "kinect2_rgb_optical_frame"
 
         # self.pantilt_vel_lim = rospy.get_param('~sim_teleop_pan_tilt_vel_limit', 0.524)
         self.pan_vel_lim = self.max_pan_view_angle # np.radians(30) = 0.524
@@ -168,6 +174,16 @@ class FaceTracking:
                 self.head_cmd.tilt_cmd.vel_rps = self.tilt_vel_lim
 
                 self.head_motion_pub.publish(self.head_cmd)
+        else:
+            self.face_found_msg.header.seq += 1
+            self.face_found_msg.header.stamp = rospy.get_rostime()
+
+            with self.sync_head_pose_mutex:
+                self.face_found_msg.pan_pose = self.head_cmd.pan_cmd.pos_rad
+                self.face_found_msg.tilt_pose = self.head_cmd.pan_cmd.pos_rad
+                self.face_found_msg.face_dist = self.nearest_face.z
+
+            self.face_found_pub.publish(self.face_found_msg)
 
 
     def head_searching_cb(self):
