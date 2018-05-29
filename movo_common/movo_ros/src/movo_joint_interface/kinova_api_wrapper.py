@@ -154,11 +154,15 @@ JOINT_7DOF_VEL_LIMITS = [LARGE_ACTUATOR_VELOCITY,
 
 FINGER_ANGULAR_VEL_LIMIT = deg_to_rad(4500.0)*FINGER_FACTOR
 
-AUTONOMOUS_CONTROL   = 0
-TELEOP_CONTROL       = 1
-
 
 class KinovaAPI(object):
+
+
+    # Which control mode we use (used with set_control_mode())
+    ANGULAR_CONTROL    = 0
+    CARTESIAN_CONTROL  = 1
+
+
     def __init__(self, prefix, interface='eth0', robotIpAddress="10.66.171.15", subnetMask="255.255.255.0", localCmdport = 24000,localBcastPort = 24024,robotPort = 44000, dof="6dof"):
         
         self.init_success = False
@@ -249,18 +253,16 @@ class KinovaAPI(object):
             
         self.api_online = True
         
-        self._cart_cmd = TrajectoryPoint()
-        self._cart_cmd.Position.Type = CARTESIAN_VELOCITY
         self.init_success = True
     
     def Shutdown(self):
         self.StopControlAPI()
         self.CloseAPI()
     
-    def set_control_mode(self,mode):
-        if (AUTONOMOUS_CONTROL == mode):
+    def set_control_mode(self, mode):
+        if (KinovaAPI.ANGULAR_CONTROL == mode):
             self.SetAngularControl()
-        elif (TELEOP_CONTROL == mode):
+        elif (KinovaAPI.CARTESIAN_CONTROL == mode):
             self.SetCartesianControl()
 
     def handle_comm_err(self, err):
@@ -271,23 +273,12 @@ class KinovaAPI(object):
             self.commErrCnt += 1
             if (self.commErrCnt > 5):
                 self.api_online = False
-    
-    def update_cartesian_vel_cmd(self,cmds):
-        self._cart_cmd.Position.CartesianPosition.X = cmds[0]
-        self._cart_cmd.Position.CartesianPosition.Y = cmds[1]
-        self._cart_cmd.Position.CartesianPosition.Z = cmds[2]
-        self._cart_cmd.Position.CartesianPosition.ThetaX = cmds[3]
-        self._cart_cmd.Position.CartesianPosition.ThetaY = cmds[4]
-        self._cart_cmd.Position.CartesianPosition.ThetaZ = cmds[5]
-        self._cart_cmd.Position.HandMode = 2
-        self._cart_cmd.Position.Fingers.Finger1 = cmds[6]/FINGER_FACTOR
-        self._cart_cmd.Position.Fingers.Finger2 = cmds[6]/FINGER_FACTOR
-        self._cart_cmd.Position.Fingers.Finger3 = cmds[6]/FINGER_FACTOR
         
-    def send_angular_vel_cmds(self,cmds):
-        cmds_len = len(cmds)
+    def send_angular_vel_cmds(self, cmds):
+
         traj = TrajectoryPoint()
         traj.Position.Type = ANGULAR_VELOCITY
+
         if ("6dof" == self.arm_dof):
             traj.Position.Actuators.Actuator1 = cmds[0]
             traj.Position.Actuators.Actuator2 = cmds[1]
@@ -312,12 +303,26 @@ class KinovaAPI(object):
             traj.Position.Fingers.Finger1 = cmds[7]/FINGER_FACTOR
             traj.Position.Fingers.Finger2 = cmds[8]/FINGER_FACTOR
             traj.Position.Fingers.Finger3 = cmds[9]/FINGER_FACTOR
-            #rospy.logerr("send_angular_vel_cmds:[%f] [%f] [%f] [%f] [%f] [%f] [%f]" %(cmds[0], cmds[1], cmds[2], cmds[3], cmds[4], cmds[5], cmds[6]))
-
+        
         self.SendAdvanceTrajectory(traj)
     
-    def send_cartesian_vel_cmd(self):
-        self.SendAdvanceTrajectory(self._cart_cmd)
+    def send_cartesian_vel_cmd(self, cmds):
+
+        traj = TrajectoryPoint()
+        traj.Position.Type = CARTESIAN_VELOCITY
+
+        traj.Position.CartesianPosition.X = cmds[0]
+        traj.Position.CartesianPosition.Y = cmds[1]
+        traj.Position.CartesianPosition.Z = cmds[2]
+        traj.Position.CartesianPosition.ThetaX = cmds[3]
+        traj.Position.CartesianPosition.ThetaY = cmds[4]
+        traj.Position.CartesianPosition.ThetaZ = cmds[5]
+        traj.Position.HandMode = 2
+        traj.Position.Fingers.Finger1 = cmds[6]/FINGER_FACTOR
+        traj.Position.Fingers.Finger2 = cmds[6]/FINGER_FACTOR
+        traj.Position.Fingers.Finger3 = cmds[6]/FINGER_FACTOR
+
+        self.SendAdvanceTrajectory(traj)
     
     def get_angular_position(self):
         pos = AngularPosition()

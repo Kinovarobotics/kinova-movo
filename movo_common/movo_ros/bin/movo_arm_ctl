@@ -35,7 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
-from movo_jtas.movo_jtas import MovoArmJTAS
+from movo_jtas.movo_arm_jtas import MovoArmJTAS
 import rospy
 
 if __name__ == "__main__":

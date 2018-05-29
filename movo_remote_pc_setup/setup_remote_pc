@@ -16,10 +16,6 @@ export MOVO_SETUP_DIR=$PWD
 echo -e "\nNeed sudo persmission to do the configuration and setup\nPlease enter your password if prompted....\n"
 echo "$USER ALL=(ALL) NOPASSWD:ALL" | (sudo su -c 'EDITOR="tee -a" visudo') >> /dev/null
 
-temp=1
-temp1=1
-cnts=0
-
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
 sudo apt-get update
@@ -77,6 +73,8 @@ then
     exit 1
 fi
 
+temp2=1
+cnts=0
 while [ $cnts -lt 10 ]; do
     echo -e "\nPlease connect to the robot via ethernet cable\nand to the internet another interface\n\nPress any key to continue....\n"
     read -n 1 -s
@@ -137,6 +135,64 @@ if [ ! -f ~/.ssh/id_rsa.pub ]; then
     fi
 fi
 
+echo "\nWould you like to initialize and build the local workspace?"
+read -r -p "Build local workspace? [y/N] " response
+if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
+then
+    echo "\n Building local workspace. \n\n"
+    cd ~/movo_ws/src
+    catkin_init_workspace
+    cd ~/movo_ws  
+    catkin_make
+    cd $MOVO_SETUP_DIR
+fi
+
+echo -e "\nScript has finished configuring the remote PC.\n\nWould you like to connect to the physical Movo robot now?"
+
+read -r -p "Connect to the Movo [y/N] " response
+if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
+then
+    echo "Connecting to Movo......"
+    sleep 1
+else
+    source ~/.bashrc
+    echo -e "\nNot connecting to Movo robot.\n\nPress any key to exit....\n"
+    read -n 1 -s
+    exit 1
+fi
+
+temp=1
+temp1=1
+cnts=0
+while [ $cnts -lt 10 ]; do
+    echo -e "\nPlease connect to the robot over Ethernet or WiFi \n\nPress any key to continue....\n"
+    read -n 1 -s
+    ping -q -c 1 -W 1 10.66.171.1 >/dev/null
+    temp=$?
+    ping -q -c 1 -W 1 10.66.171.2 >/dev/null
+    temp1=$?
+    cnts=$[$cnts+1]
+    echo "$temp $temp1"
+    if [ $temp -eq 0 ] && [ $temp1 -eq 0 ]; then
+      cnts=10
+      echo "Success"
+      break
+    fi
+
+    if [ $temp -ne 0 ]; then
+      echo "Unable to ping movo2, no robot connection....trying again."
+    fi
+    if [ $temp1 -ne 0 ]; then
+      echo "Unable to ping movo1, no robot connection....trying again."
+    fi
+done 
+
+if [ $temp -ne 0 ] || [ $temp1 -ne 0 ]; then
+  echo "Robot Connection timed out, try again....exiting"
+  sleep 2
+  exit 1
+fi
+
 echo 'Connecting to movo1 (password is Welcome00)......Press any key to continue'
 read -n 1 -s
 ssh -oHostKeyAlgorithms='ssh-rsa' movo@movo1 "sleep 1; exit"
@@ -158,6 +214,7 @@ then
     catkin_init_workspace
     cd ~/movo_ws  
     catkin_make
+    cd $MOVO_SETUP_DIR
     echo "STOPPING THE ROBOT SERVICE AND UNINSTALLING IT.........."
     sleep 1
     ssh -t movo@movo2 "bash -ic +m 'cd ~; ./env.sh; movostop; rosrun movo_bringup uninstall_movo_core; rm -rf ~/movo_ws; mkdir -p ~/movo_ws/src;'"
@@ -196,8 +253,7 @@ else
     
 fi
 source ~/.bashrc
-echo -e "\nScript has finished configuring the remote PC\n\nPress any key to continue....\n"
+echo -e "\nScript has finished updating the robot.\n\nPress any key to exit....\n"
 read -n 1 -s
 exit 1
-
 
