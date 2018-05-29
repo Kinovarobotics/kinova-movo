@@ -1,0 +1,69 @@
+docs_list_title: MOVO User Documentation
+docs:
+
+- title: Welcome to MOVO Beta 
+  url: Concepts/c_welcome_to_movo_beta.md
+  sublinks:
+    - title: Revision History
+      url: Concepts/c_movo_user_guide_revision_history.md
+    - title: What's in the box? 
+      url: Concepts/c_whats_in_box.md
+    - title: Unboxing MOVO
+      url: Tasks/t_unboxing_movo.md
+    - title: Battery breaker switch
+      url: Concepts/c_main_breaker.md
+    - title: Charging MOVO's battery
+      url: Tasks/t_charging_movo_battery.md
+    - title: Support / help
+      url: Concepts/c_support_help.md
+- title: Personal safety and security of MOVO
+  url: Concepts/c_movo_safety.md
+  sublinks:
+    - title: Intended use
+      url: Concepts/c_intended_use.md
+    - title: Environmental and operating conditions
+      url: Concepts/c_environmental_operating_conditions.md
+    - title: E-Stop
+      url: Concepts/c_estop.md
+    - title: Avoiding damage to MOVO
+      url: Concepts/c_avoiding_damage_equipment.md
+    - title: Avoiding personal injury
+      url: Concepts/c_avoiding_personal_injury.md
+- title: MOVO hardware overview
+  url: Concepts/c_movo_hardware_overview.md
+  sublinks:
+    - title: MOVO Human-Machine Interface \(HMI\) panel
+      url: Concepts/c_hmi_panel.md
+    - title: MOVO charging port
+      url: Concepts/c_charging_port.md
+    - title: LED panel
+      url: Concepts/c_led_panel.md
+    - title: Joystick control
+      url: Concepts/c_teleop_control.md
+- title: Powering up MOVO
+  url: Tasks/t_powering_up_movo.md
+  sublinks:
+    - title: MOVO boot-up process
+      url: Concepts/c_movo_bootup_process.md
+    - title: Upstart process
+      url: Concepts/c_movo_upstart_process.md
+- title: Powering down MOVO
+  url: Tasks/t_powering_down_movo.md
+  sublinks:
+    - title: MOVO shutdown process
+      url: Concepts/c_movo_shutdown_process.md
+- title: Working with JACO arms and MOVO
+  url: Concepts/c_working_jaco_arms_movo.md
+  sublinks:
+    - title: Disconnect JACO arm from standard controller base
+      url: Tasks/t_disconnect_jaco_standard_base.md
+    - title: Installing Kinova arms on MOVO
+      url: Tasks/t_kinova_arms_install.md)
+    - title: Removing Kinova arms from MOVO
+      url: Tasks/t_kinova_arms_uninstall.md
+    - title: Mounting JACO arm on standard controller base
+      url: Tasks/t_mount_jaco_externally_base.md
+- title: Packing up MOVO for transport
+  url: Tasks/t_packing_movo_transport.md
+
+
