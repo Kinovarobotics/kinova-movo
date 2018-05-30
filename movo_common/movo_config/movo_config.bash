@@ -60,8 +60,8 @@ export MOVO_HAS_TWO_KINOVA_ARMS=true
 export KINOVA_RIGHT_ARM_IP_ADDRESS=10.66.171.15
 export KINOVA_LEFT_ARM_IP_ADDRESS=10.66.171.16
 export KINOVA_ARM_IFACE=eth0
-export MOVO_HAS_KINOVA_ARM_7DOF=true
-export MOVO_HAS_KINOVA_ARM_6DOF=false
+export MOVO_HAS_KINOVA_ARM_7DOF=false
+export MOVO_HAS_KINOVA_ARM_6DOF=true
 
 #gripper configurations
 
@@ -75,14 +75,14 @@ export MOVO_HAS_RIGHT_KG2_GRIPPER=false
 export MOVO_HAS_LEFT_KG2_GRIPPER=false
 
 #Kinova KG3
-export USE_KG3_FOR_MOVEIT_CONFIG=true
-export MOVO_HAS_RIGHT_KG3_GRIPPER=true
-export MOVO_HAS_LEFT_KG3_GRIPPER=true
+export USE_KG3_FOR_MOVEIT_CONFIG=false
+export MOVO_HAS_RIGHT_KG3_GRIPPER=false
+export MOVO_HAS_LEFT_KG3_GRIPPER=false
 
 #Robotiq 85 two finger gripper
-export USE_R85_FOR_MOVEIT_CONFIG=false
-export MOVO_HAS_RIGHT_ROBOTIQ_GRIPPER=false
-export MOVO_HAS_LEFT_ROBOTIQ_GRIPPER=false
+export USE_R85_FOR_MOVEIT_CONFIG=true
+export MOVO_HAS_RIGHT_ROBOTIQ_GRIPPER=true
+export MOVO_HAS_LEFT_ROBOTIQ_GRIPPER=true
 
 #export for kinect2 bridge
 export OCL_IGNORE_SELF_TEST=1
