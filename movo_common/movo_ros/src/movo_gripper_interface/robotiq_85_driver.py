@@ -176,10 +176,12 @@ class Robotiq85Driver:
                 success &= self._gripper.process_act_cmd(i)
                 rospy.sleep(0.01)
                 success &= self._gripper.process_stat_cmd(i)
+                rospy.sleep(0.01)
+
                 if not success:
                     self._gripper_err[i]+=1
                     if self._gripper_err[i]>5:
-                        rospy.logwarn("Failed to contact gripper %d"%i)
+                        rospy.logdebug("Failed to contact gripper %d"%i)
                 else:
                     self._gripper_err[i] = 0
                     stat = GripperStat()
@@ -193,8 +195,6 @@ class Robotiq85Driver:
                         self._left_gripper_pub.publish(stat)
                         self._left_gripper_joint_state_pub.publish(js)
                 rospy.sleep(0.01)
-                        
-                            
             r.sleep()
 
         self._gripper.shutdown()
