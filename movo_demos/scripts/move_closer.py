@@ -62,8 +62,9 @@ class MoveCloser:
         # self._is_first_run = True
         # self._start_time = rospy.get_rostime()
 
-        # self._nearest_face_sub = rospy.Subscriber("/face_detector/nearest_face", FaceFound, self._nearest_face_cb)
-        # self._stop_dist = 1.0
+        self._nearest_face_sub = rospy.Subscriber("/face_detector/nearest_face", FaceFound, self._nearest_face_cb)
+        self._nearest_face_mutex = threading.Lock()
+        self._stop_dist = 1.5
 
         # # self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 1)
         # self._base_cmd_pub = rospy.Publisher("/movo/base/movo_closer/cmd_vel", Twist, queue_size = 1)
@@ -74,14 +75,19 @@ class MoveCloser:
         # is_sim = rospy.get_param("~sim", False)
         is_sim = False
         self._movo_base = MoveBaseActionClient(sim=is_sim, frame="odom")
-        self._current_base_pos_x = 0.0
-        self._current_base_pos_y = 0.0
-        self._current_base_rot_z = 0.0
 
-        target = Pose2D(x=0.0, y=0.0, theta=0.0)
-        self._movo_base.goto(target)
+
+        self._base_target = Pose2D(x=0.0, y=0.0, theta=0.0)
+        self._movo_base.goto(self._base_target)
         rospy.sleep(0.1)
 
+
+        self._move_base_thread   = threading.Thread(target = self._move_base_thread_cb)
+        self._move_base_thread.start()
+
+        self._is_accept_new_target = True
+        self._is_base_rot_done = False
+        self._is_base_forward_done = False
 
         rospy.loginfo("Follow Me initialization finished")
         rospy.spin()
@@ -91,8 +97,18 @@ class MoveCloser:
     Move to nearest face.
     """
     def _nearest_face_cb(self, msg):
-
         print "pan_pose is ", msg.pan_pose, ", tilt_pose is ", msg.tilt_pose, ", dist of face is ", msg.face_dist
+        with self._nearest_face_mutex:
+            if ( (not self._is_base_rot_done) and abs(msg.pan_pose) <= numpy.radians(5.0) ):
+                self._base_target.theta -=  msg.pan_pose/2.0
+            else:
+                self._is_base_rot_done = True
+
+            if (self._is_base_rot_done and (not self._is_base_forward_done) and abs(msg.face_dist) >= self._stop_dist):
+                self._base_target.x += 0
+            else:
+                self._is_base_forward_done = True
+
 
 
         # # enable movo base motion
@@ -129,6 +145,13 @@ class MoveCloser:
         # return base_cmd_vel
 
 
+    def _move_base_thread_cb(self):
+        rate = rospy.Rate(10.0)
+        while not rospy.is_shutdown():
+            # self._base_target.theta +=0.01
+            rospy.loginfo("self._base_target.theta is %f"%self._base_target.theta)
+            self._movo_base.goto(self._base_target)
+            rate.sleep()
 
 
 if __name__ == "__main__":
