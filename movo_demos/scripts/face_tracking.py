@@ -180,7 +180,7 @@ class FaceTracking:
 
             with self.sync_head_pose_mutex:
                 self.face_found_msg.pan_pose = self.head_cmd.pan_cmd.pos_rad
-                self.face_found_msg.tilt_pose = self.head_cmd.pan_cmd.pos_rad
+                self.face_found_msg.tilt_pose = self.head_cmd.tilt_cmd.pos_rad
                 self.face_found_msg.face_dist = self.nearest_face.z
 
             self.face_found_pub.publish(self.face_found_msg)
