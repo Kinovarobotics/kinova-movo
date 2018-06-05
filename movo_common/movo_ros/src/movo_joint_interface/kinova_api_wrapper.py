@@ -289,7 +289,7 @@ class KinovaAPI(object):
             traj.Position.HandMode = 2
             traj.Position.Fingers.Finger1 = cmds[6]/FINGER_FACTOR
             traj.Position.Fingers.Finger2 = cmds[7]/FINGER_FACTOR
-            traj.Position.Fingers.Finger3 = cmds[8]/FINGER_FACTOR
+            traj.Position.Fingers.Finger3 = cmds[-1]/FINGER_FACTOR
 
         elif ("7dof" == self.arm_dof):
             traj.Position.Actuators.Actuator1 = cmds[0]
@@ -302,7 +302,7 @@ class KinovaAPI(object):
             traj.Position.HandMode = 2
             traj.Position.Fingers.Finger1 = cmds[7]/FINGER_FACTOR
             traj.Position.Fingers.Finger2 = cmds[8]/FINGER_FACTOR
-            traj.Position.Fingers.Finger3 = cmds[9]/FINGER_FACTOR
+            traj.Position.Fingers.Finger3 = cmds[-1]/FINGER_FACTOR
         
         self.SendAdvanceTrajectory(traj)
     

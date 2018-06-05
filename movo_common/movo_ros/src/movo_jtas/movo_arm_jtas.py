@@ -95,7 +95,7 @@ class MovoArmJTAS(object):
         self._prefix = prefix
         # Action Feedback/Result
         
-        if ("kg2" == gripper):
+        if ("kg2" == gripper) or ("rq85" == gripper):
             self.gripper_stall_force = 20.0
             self.gripper_dead_zone = 0.01
         elif("kg3" == gripper):
