@@ -137,7 +137,7 @@ class SIArmController(object):
         self._joint_fb['velocity'] = vel[:self._num_joints]
         self._joint_fb['force'] = force[:self._num_joints]
         
-        if ("kg2" == gripper):
+        if ("kg2" == gripper) or ("rq85" == gripper):
             self._gripper_joint_names = [self._prefix+'_gripper_finger1_joint',
                                          self._prefix+'_gripper_finger2_joint']
             self.num_fingers = 2
