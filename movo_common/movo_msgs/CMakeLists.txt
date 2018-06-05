@@ -16,6 +16,8 @@ add_message_files(DIRECTORY msg FILES
                                 JacoStatus.msg
                                 GripperCmd.msg
                                 GripperStat.msg
+                                JacoAngularVelocityCmd6DOF.msg
+                                JacoAngularVelocityCmd7DOF.msg
                                 LinearActuatorCmd.msg
                                 JacoCartesianVelocityCmd.msg
                                 JacoStatus.msg
