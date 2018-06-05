@@ -1,0 +1,7 @@
+FILES
+===============================
+KR4923 - MOVO 6 DOF_KG-3.STEP
+-added on 2018-05-18 by Pierre-Yves Lacroix
+-The file contains the simplified mechanical model of MOVO. The exterior is detailed, but the interior has a fewer components than the real MOVO.
+-MOVO configured with 2 6-dof arms with Kinova 3-finger grippers
+-MOVO is positionned at its highest position, with both arms horizontal.
