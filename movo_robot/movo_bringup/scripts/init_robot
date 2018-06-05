@@ -49,8 +49,8 @@ if __name__ == "__main__":
 	lgripper = GripperActionClient('left')
 	rgripper = GripperActionClient('right')
 	dof = rospy.get_param('~jaco_dof')
-	rgripper_type = rospy.get_param('~gripper_right')
-	lgripper_type = rospy.get_param('~gripper_left')
+	rgripper_type = rospy.get_param('~gripper_right', 'kg3')
+	lgripper_type = rospy.get_param('~gripper_left', 'kg3')
 
 	if ("6dof" == dof):
 		upper_body_joints = ["right_elbow_joint",
