@@ -60,7 +60,7 @@ roslaunch movo_demos sim_demo_VM.launch
 
 **Setup for Simulation in VM linux:**
 
-In a VM linux machine, the setup procedure is the same as above. However, you may launch "sim_demo_VM.launch", instead of "sim_demo.launch". The recommended way to install for VM linux is using VM image we created. Please contact ros@kinova.ca for a copy.
+In a VM linux machine, the setup procedure is the same as above. However, you may launch "sim_demo_VM.launch", instead of "sim_demo.launch". The recommended way to install for VM linux is using VM image created by Kinova. Please contact ros@kinova.ca for a copy.
 
 ## With MOVO robot
 ### Installation
