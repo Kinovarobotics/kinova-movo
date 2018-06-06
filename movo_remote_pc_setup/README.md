@@ -233,10 +233,10 @@ Mapping is defined in ~/movo_ws/src/movo_common/movo_ros/src/movo/movo_full_syst
                                              'dpad_lr'   : {'index' :5, 'invert_axis':False},
                                              'dpad_ud'   : {'index' :6, 'invert_axis':False}}})
 ```
-**E-Stop**
+E-Stop:
 Press button 7 to activate the software E-Stop which will cut power to all torque producing components. Pressing it again will re-enable the actuators in the system and resume normal operation.
 
-**Mobile Base**
+Mobile Base:
 Press Button 10 to enable mobile base control. This will allow the user to drive the mobile base around with the joystick but disable control of the arm, linear actuator and pan-tilt 
 1. Button 2 puts platform in Standby Mode(no motion commands allowed)
 2. Button 3 puts platform in Tractor Mode
@@ -245,7 +245,7 @@ Press Button 10 to enable mobile base control. This will allow the user to drive
 5. Left-Right axis maps to Y velocity
 6. Twist axis maps to Z angular velocity (yaw)
 
-**Arms and linear actuator**
+Arms and linear actuator:
 Press Button 8 to home both arms
 Press Button 10 to enable right arm control (mobile base, pan-tilt and left arm control will be disabled)
 Press Button 11 to enable left arm control  (mobile base, pan-tilt and right arm control will be disabled)
@@ -261,7 +261,7 @@ Press Button 11 to enable left arm control  (mobile base, pan-tilt and right arm
 9. Flipper paddle axis opens and closes the gripper
 
 
-**Pan-Tilt control**
+Pan-Tilt control:
 Press Button 9 to enable pan-tilt control (base and arm control will be disabled)
 1. Trigger (Button 0) enables commands 
   a. release to hold current position
