@@ -50,20 +50,18 @@ from geometry_msgs.msg import Pose2D
 class MoveCloser:
     def __init__(self):
 
-        self._stop_dist = 1.5
+        self._stop_dist = 1.0
 
         is_sim = rospy.get_param("~sim", False)
         self._movo_base = MoveBaseActionClient(sim=is_sim, frame="odom")
 
+        self._nearest_face = Pose2D(x=0.0, y=0.0, theta=0.0)
 
         self._base_target = Pose2D(x=0.0, y=0.0, theta=0.0)
         self._movo_base.goto(self._base_target)
-        rospy.sleep(1)
+        rospy.sleep(5)
 
-
-        self._is_base_rot_done = False
-        self._is_base_forward_done = False
-        self._is_accept_new_target = True
+        self._has_pose_target = False
 
         self._nearest_face_mutex = threading.Lock()
 
@@ -80,38 +78,36 @@ class MoveCloser:
     Update base target according to found nearest face.
     """
     def _nearest_face_cb(self, msg):
-        print "pan_pose is ", msg.pan_pose, ", tilt_pose is ", msg.tilt_pose, ", dist of face is ", msg.face_dist
 
         # run only once to update target pose
-        if self._is_accept_new_target:
+        if not self._has_pose_target:
             rospy.sleep(0.001)
 
-
             with self._nearest_face_mutex:
-                self._base_target.x = msg.face_dist * numpy.cos(msg.tilt_pose) * numpy.cos(msg.pan_pose)
-                self._base_target.y = msg.face_dist * numpy.cos(msg.tilt_pose) * numpy.sin(msg.pan_pose)
+                self._nearest_face.x = msg.face_dist * numpy.cos(msg.tilt_pose) * numpy.cos(-msg.pan_pose)
+                self._nearest_face.y = msg.face_dist * numpy.cos(msg.tilt_pose) * numpy.sin(-msg.pan_pose)
+                # self._nearest_face.z = msg.face_dist * numpy.sin(msg.tilt_pose)
+                self._nearest_face.theta = -msg.pan_pose
 
-                self._base_target.x *= 0.5
-                self._base_target.y *= 0.5
-                self._base_target.theta = -msg.pan_pose
-
-                self._is_accept_new_target = False
-                rospy.loginfo(
-                    "[x, y, theta] is [%f, %f, %f] " %(self._base_target.x, self._base_target.y, self._base_target.theta) )
+                self._has_pose_target = True
+                rospy.loginfo("[pan_pose, tilt_pose, dist_of_face] is [%f, %f, %f] " %( msg.pan_pose, msg.tilt_pose, msg.face_dist) )
+                self._nearest_face_sub.unregister()
 
 
     def _move_base_thread_cb(self):
 
         rate = rospy.Rate(10)
-        # with self._nearest_face_mutex:
-            # wait for new target accepted
-        while (self._is_accept_new_target) and (not rospy.is_shutdown()):
-            rospy.loginfo("wait for new target accepted " )
+        while (not self._has_pose_target) and (not rospy.is_shutdown()):
+            rospy.logdebug("wait for new target accepted " )
             rate.sleep()
             pass
 
-        rospy.loginfo("[x, y, theta] is [%f, %f, %f] "%(self._base_target.x, self._base_target.y, self._base_target.theta) )
+        self._base_target = Pose2D(x=self._nearest_face.x - self._stop_dist * numpy.cos(self._nearest_face.theta),
+                                   y=self._nearest_face.y - self._stop_dist * numpy.sin(self._nearest_face.theta),
+                                   theta=self._nearest_face.theta)
+        rospy.loginfo("send movo base to [x, y, theta] is [%f, %f, %f] "%(self._base_target.x, self._base_target.y, self._base_target.theta) )
         self._movo_base.goto(self._base_target)
+        rospy.sleep(10.0)
 
 
 if __name__ == "__main__":
