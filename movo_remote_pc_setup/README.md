@@ -121,7 +121,7 @@ sim_teleop
 ```
 Starts the functions necessary to teleop the robot with the joystick. The joystick is assumed to be the one included with the robot [Logitech Extreme 3D Pro](https://www.logitechg.com/en-us/product/extreme-3d-pro-joystick). In simulation control of the pan-tilt and arms is not enabled, only the mobile base can be controlled via joystick in simulation. Full teleop control of all DOF in the robot is available for real hardware see `robot_teleop` below.
 
-####### Mobile Base control
+Mobile Base control
 Press Button 10 to enable mobile base control. This will allow the user to drive the mobile base around with the joystick but disable control of the arm, linear actuator and pan-tilt 
 1. Button 2 puts platform in Standby Mode(no motion commands allowed)
 2. Button 3 puts platform in Tractor Mode
