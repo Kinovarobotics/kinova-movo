@@ -51,14 +51,15 @@ exit
 3. Run simulation demo
 **Before you begin:** copy sim_demo_VM.launch to the same location of sim_demo.launch. Open a new terminal and launch the demo.
 
+Open a new terminal and launch the demo.
 ```
 cd ~/movo_ws/
 catkin_make
 roslaunch movo_demos sim_demo_VM.launch
 ```
 
-** Setup for Simulation in VM linux **
-In a VM linux machine, the setup procedure is the same as above. However, you may launch "sim_demo_VM.launch", instead of "sim_demo.launch".
+**Setup for Simulation in VM linux**
+In a VM linux machine, the setup procedure is the same as above. However, you may launch "sim_demo_VM.launch", instead of "sim_demo.launch". The recommended way to install for VM linux is using VM image we created. Please contact ros@kinova.ca for a copy.
 
 ## With MOVO robot
 ### Installation
