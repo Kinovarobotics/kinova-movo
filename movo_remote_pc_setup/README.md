@@ -2,7 +2,7 @@
 - [Purpose](#purpose)
 - [Caution](#caution)
 - [Installation and Use](#installation-and-use)
-    - [Without MOVO robot](#wihout-movo-robot)
+    - [Without MOVO robot](#without-movo-robot)
     - [With MOVO robot](#with-movo-robot)
         - [Installation](#installation)
         - [Using installed components](#using-installed-components)
