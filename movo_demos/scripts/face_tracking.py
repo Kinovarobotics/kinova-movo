@@ -93,7 +93,7 @@ class FaceTracking:
         self.pan_vel_lim = self.max_pan_view_angle # np.radians(30) = 0.524
         self.tilt_vel_lim = self.max_tilt_view_angle
         # pose increment inside deadzone, no need to send cmd
-        self.pantilt_pose_deadzone = np.radians(5.0)
+        self.pantilt_pose_deadzone = np.radians(2.0)
 
         # head searching face motion
         self.head_searching_wait_time = 5.0
@@ -180,7 +180,7 @@ class FaceTracking:
 
             with self.sync_head_pose_mutex:
                 self.face_found_msg.pan_pose = self.head_cmd.pan_cmd.pos_rad
-                self.face_found_msg.tilt_pose = self.head_cmd.pan_cmd.pos_rad
+                self.face_found_msg.tilt_pose = self.head_cmd.tilt_cmd.pos_rad
                 self.face_found_msg.face_dist = self.nearest_face.z
 
             self.face_found_pub.publish(self.face_found_msg)

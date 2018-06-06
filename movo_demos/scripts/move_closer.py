@@ -46,103 +46,74 @@ from movo_msgs.msg import FaceFound
 from movo_action_clients.move_base_action_client import MoveBaseActionClient
 from geometry_msgs.msg import Pose2D
 
-class LowPassFilter:
-    def __init__(self, u0 = 0.0, y0 = 0.0, k = 10.0, Tconst = 1.0, Tsampling = 0.01):
-        # initial input
-        self._u = u0
-        # initial output
-        self._y = y0
-        # filter gain
-        self._k = k
-        # setting time
-        self._Tconst = Tconst
-        # sampling time
-        self._Tsampling = Tsampling
-
-    # sampling time may change in ROS for each cycle
-    def get_output(self, u, Tsampling):
-        self._Tsampling = Tsampling
-
-        # using forward Euler method on discrete transfer function:
-        #                   (Tsamping/Tconst) * z^(-1)
-        # G(z) = K * ----------------------------------------
-        #              1 + (Tsampling/Tconst - 1) * z^(-1)
-        #
-        self._y = (1 - self._Tsampling/self._Tconst) * self._y + self._k * (self._Tsampling/self._Tconst) * u
-        return self._y
-
 
 class MoveCloser:
     def __init__(self):
 
-        # "translation" or "rotation"
-        self._base_motion_mode = ''
-
-        self._Tsampling = 0.01
-        self._sampling_time = rospy.get_rostime()
-        self._base_x_speed_filter = LowPassFilter(k=1.0, Tconst=0.2, Tsampling=0.01)
-        self._base_y_speed_filter = LowPassFilter(k=1.0, Tconst=0.2, Tsampling=0.01)
-        self._base_theta_z_speed_filter = LowPassFilter(k=1.0, Tconst=0.1, Tsampling=0.01)
-
-        self._is_first_run = True
-        self._start_time = rospy.get_rostime()
-
-        self._nearest_face_sub = rospy.Subscriber("/face_detector/nearest_face", FaceFound, self._nearest_face_cb)
         self._stop_dist = 1.0
 
-        # self._base_cmd_pub = rospy.Publisher("/movo/base/follow_me/cmd_vel", Twist, queue_size = 1)
-        self._base_cmd_pub = rospy.Publisher("/movo/base/movo_closer/cmd_vel", Twist, queue_size = 1)
+        is_sim = rospy.get_param("~sim", False)
+        self._movo_base = MoveBaseActionClient(sim=is_sim, frame="odom")
 
-        self._base_cfg_pub = rospy.Publisher("/movo/gp_command", ConfigCmd, queue_size = 10)
-        self._base_cfg_msg = ConfigCmd()
+        self._nearest_face = Pose2D(x=0.0, y=0.0, theta=0.0)
+
+        self._base_target = Pose2D(x=0.0, y=0.0, theta=0.0)
+        self._movo_base.goto(self._base_target)
+        rospy.sleep(5)
+
+        self._has_pose_target = False
+
+        self._nearest_face_mutex = threading.Lock()
+
+        self._move_base_thread   = threading.Thread(target = self._move_base_thread_cb)
+        self._move_base_thread.start()
+
+        self._nearest_face_sub = rospy.Subscriber("/face_detector/nearest_face", FaceFound, self._nearest_face_cb)
 
         rospy.loginfo("Follow Me initialization finished")
         rospy.spin()
 
 
     """
-    Move to nearest face.
+    Update base target according to found nearest face.
     """
     def _nearest_face_cb(self, msg):
 
-        # enable movo base motion
-        if self._is_first_run:
-            # mimic press joystick button 4 continuously for 0.1sec. Publish just one time with first run not working
-            while rospy.get_rostime() - self._start_time < rospy.Duration(0.1):
-                # make sure robot can move the base
-                self._base_cfg_msg.gp_cmd = "GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE"
-                self._base_cfg_msg.gp_param = TRACTOR_REQUEST
-                self._base_cfg_msg.header.stamp = rospy.get_rostime()
-                self._base_cfg_pub.publish(self._base_cfg_msg)
+        # run only once to update target pose
+        if not self._has_pose_target:
+            rospy.sleep(0.001)
 
-            self._base_cfg_msg.gp_cmd = 'GENERAL_PURPOSE_CMD_NONE'
-            self._base_cfg_msg.gp_param = 0
-            self._base_cfg_msg.header.stamp = rospy.get_rostime()
-            self._base_cfg_pub.publish(self._base_cfg_msg)
-            self._is_first_run = False
-            # self._base_cfg_pub.unregister()
+            with self._nearest_face_mutex:
+                self._nearest_face.x = msg.face_dist * numpy.cos(msg.tilt_pose) * numpy.cos(-msg.pan_pose)
+                self._nearest_face.y = msg.face_dist * numpy.cos(msg.tilt_pose) * numpy.sin(-msg.pan_pose)
+                # self._nearest_face.z = msg.face_dist * numpy.sin(msg.tilt_pose)
+                self._nearest_face.theta = -msg.pan_pose
 
-        print "pan_pose is ", msg.pan_pose, ", tilt_pose is ", msg.tilt_pose, ", dist of face is ", msg.face_dist
+                self._has_pose_target = True
+                rospy.loginfo("[pan_pose, tilt_pose, dist_of_face] is [%f, %f, %f] " %( msg.pan_pose, msg.tilt_pose, msg.face_dist) )
+                self._nearest_face_sub.unregister()
 
-        base_cmd_vel = Twist()
 
-        base_cmd_vel.linear.z = 0.0
-        base_cmd_vel.angular.x = 0.0
-        base_cmd_vel.angular.y = 0.0
+    def _move_base_thread_cb(self):
 
-        # apply low pass filter
-        base_cmd_vel.linear.x = round(self._base_x_speed_filter.get_output(base_cmd_vel.linear.x, (rospy.get_rostime() - self._sampling_time).to_sec()), 3)
-        base_cmd_vel.linear.y = round(self._base_y_speed_filter.get_output(base_cmd_vel.linear.y, (rospy.get_rostime() - self._sampling_time).to_sec()), 3)
-        base_cmd_vel.angular.z = round(self._base_theta_z_speed_filter.get_output(base_cmd_vel.angular.z, (rospy.get_rostime() - self._sampling_time).to_sec()), 3)
-        self._sampling_time = rospy.get_rostime()
+        rate = rospy.Rate(10)
+        while (not self._has_pose_target) and (not rospy.is_shutdown()):
+            rospy.logdebug("wait for new target accepted " )
+            rate.sleep()
+            pass
 
-        return base_cmd_vel
+        self._base_target = Pose2D(x=self._nearest_face.x - self._stop_dist * numpy.cos(self._nearest_face.theta),
+                                   y=self._nearest_face.y - self._stop_dist * numpy.sin(self._nearest_face.theta),
+                                   theta=self._nearest_face.theta)
+        rospy.loginfo("send movo base to [x, y, theta] is [%f, %f, %f] "%(self._base_target.x, self._base_target.y, self._base_target.theta) )
+        self._movo_base.goto(self._base_target)
+        rospy.sleep(10.0)
 
 
 if __name__ == "__main__":
     rospy.loginfo("start Move Closer")
-    rospy.init_node("move_closer", log_level=rospy.DEBUG)
-    # rospy.init_node("move_closer", log_level=rospy.INFO)
+    # rospy.init_node("move_closer", log_level=rospy.DEBUG)
+    rospy.init_node("move_closer", log_level=rospy.INFO)
 
     MoveCloser()
 
