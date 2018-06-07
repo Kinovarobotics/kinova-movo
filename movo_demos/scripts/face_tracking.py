@@ -38,6 +38,7 @@ import roslib; roslib.load_manifest('people_msgs')
 import rospy
 from sensor_msgs.msg import PointCloud
 from sensor_msgs.msg import JointState
+from topic_tools.srv import MuxSelect, MuxSelectRequest
 
 from movo.utils import *
 from movo_msgs.msg import PanTiltCmd
@@ -63,6 +64,7 @@ class Face:
 
 class FaceTracking:
     def __init__(self):
+        rospy.on_shutdown(self._shutdown)
 
         self.last_tracking_time = rospy.get_time()
 
@@ -73,6 +75,12 @@ class FaceTracking:
 
         self.list_faces = []
         self.nearest_face = Face()
+
+        self.head_cmd_srv = rospy.ServiceProxy("/head_cmd_mux/select", MuxSelect)
+        rospy.wait_for_service('/head_cmd_mux/select')
+        head_cmd_request = MuxSelectRequest()
+        head_cmd_request.topic = '/movo/head/face_tracking/cmd'
+        self.head_cmd_srv.call(head_cmd_request)
 
         self.sync_head_pose_mutex = threading.Lock()
 
@@ -242,6 +250,13 @@ class FaceTracking:
             self._tracking_motion_pub()
         else:
             rospy.logdebug("detected face is not clear for face tracking")
+
+
+    # set back to default head control channel
+    def _shutdown(self):
+        head_cmd_request = MuxSelectRequest()
+        head_cmd_request.topic = '/movo/head/teleop/cmd'
+        self.head_cmd_srv.call(head_cmd_request)
 
 
 if __name__ == "__main__":
