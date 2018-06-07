@@ -97,6 +97,19 @@ class MoveCloser(smach.State):
                 return 'failed'
 
 
+class DanceRequest(smach.State):
+    def __init__(self, launch_follow_me_pose):
+        smach.State.__init__(self, outcomes=['succeeded', 'failed'])
+        self._launch_follow_me_pose = launch_follow_me_pose
+
+
+    def execute(self, userdata):
+        rospy.loginfo('Executing state DanceRequest')
+        self._launch_follow_me_pose.start()
+        rospy.sleep(5)
+        return 'succeeded'
+
+
 class DanceInvitation():
     def __init__(self):
         rospy.on_shutdown(self._shutdown)
@@ -105,11 +118,12 @@ class DanceInvitation():
         uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         roslaunch.configure_logging(uuid)
         self._launch_face_detection = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/face_tracking/face_tracking.launch'])
-        self._launch_move_closer = roslaunch.parent.ROSLaunchParent(uuid, [
-            rospkg.RosPack().get_path('movo_demos') + '/launch/dance_invitation/move_closer.launch'])
+        self._launch_move_closer = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/dance_invitation/move_closer.launch'])
+        self._launch_follow_me_pose = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/follow_me/follow_me_pose.launch'])
 
         self._search_face_obj = SearchFace(self._launch_face_detection, self._launch_move_closer)
         self._move_closer_obj = MoveCloser(self._launch_move_closer)
+        self._dance_request_obj = DanceRequest(self._launch_follow_me_pose)
 
         # construct state machine
         self._sm = self._construct_sm()
@@ -127,6 +141,7 @@ class DanceInvitation():
     def _shutdown(self):
         self._launch_face_detection.shutdown()
         self._launch_move_closer.shutdown()
+        self._launch_follow_me_pose.shutdown()
         # self._intro_spect.stop()
         pass
 
@@ -138,7 +153,8 @@ class DanceInvitation():
         # create launch file handles
         with sm:
             smach.StateMachine.add('SEARCH_FACE', self._search_face_obj, transitions={'succeeded': 'MOVE_CLOSER', 'failed':'failed'})
-            smach.StateMachine.add('MOVE_CLOSER', self._move_closer_obj, transitions={'succeeded': 'succeeded', 'failed':'failed'})
+            smach.StateMachine.add('MOVE_CLOSER', self._move_closer_obj, transitions={'succeeded': 'DANCE_REQUEST', 'failed':'failed'})
+            smach.StateMachine.add('DANCE_REQUEST', self._dance_request_obj, transitions={'succeeded': 'succeeded', 'failed': 'failed'})
 
         return sm
 
