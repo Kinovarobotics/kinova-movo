@@ -57,10 +57,6 @@ class MoveCloser:
 
         self._nearest_face = Pose2D(x=0.0, y=0.0, theta=0.0)
 
-        self._base_target = Pose2D(x=0.0, y=0.0, theta=0.0)
-        self._movo_base.goto(self._base_target)
-        rospy.sleep(5)
-
         self._has_pose_target = False
 
         self._nearest_face_mutex = threading.Lock()
@@ -102,11 +98,11 @@ class MoveCloser:
             rate.sleep()
             pass
 
-        self._base_target = Pose2D(x=self._nearest_face.x - self._stop_dist * numpy.cos(self._nearest_face.theta),
+        base_target = Pose2D(x=self._nearest_face.x - self._stop_dist * numpy.cos(self._nearest_face.theta),
                                    y=self._nearest_face.y - self._stop_dist * numpy.sin(self._nearest_face.theta),
                                    theta=self._nearest_face.theta)
-        rospy.loginfo("send movo base to [x, y, theta] is [%f, %f, %f] "%(self._base_target.x, self._base_target.y, self._base_target.theta) )
-        self._movo_base.goto(self._base_target)
+        rospy.loginfo("send movo base to [x, y, theta] is [%f, %f, %f] "%(base_target.x, base_target.y, base_target.theta) )
+        self._movo_base.goto(base_target)
         rospy.sleep(10.0)
 
 

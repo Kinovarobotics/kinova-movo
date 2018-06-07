@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+ <launch>
+ 	<arg name="sim" default="false"/>
+    <arg name="local" default="true"/>
+
+  <machine name="movo1" address="movo1" user="movo"
+               env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+
+    <!-- Navigation configuration -->
+	<include file="$(find movo_demos)/launch/nav/sensor_nav.launch">
+		<arg name="local" value="$(arg local)"/>
+		<arg name="sim" value="$(arg sim)"/>
+	</include>
+
+    <node name="dance_invitation" pkg="movo_demos" type="dance_invitation.py" output="screen">
+		<rosparam command="load" file="$(find movo_moveit_config)/config/kinematics.yaml"/>
+    	<param name="sim" value="$(arg sim)"/>
+	</node>
+
+</launch>

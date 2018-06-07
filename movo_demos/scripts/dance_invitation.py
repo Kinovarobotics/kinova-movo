@@ -40,6 +40,8 @@ import rospkg
 import smach
 import smach_ros
 from move_base_msgs.msg import MoveBaseActionResult
+from movo_action_clients.move_base_action_client import MoveBaseActionClient
+from geometry_msgs.msg import Pose2D
 
 from movo_msgs.msg import FaceFound
 
@@ -52,6 +54,38 @@ Proposal solution of demo and comments for next step:
  - Combine SearchFace and MoveCloser as one state (MoveToPeople)
 
 '''
+
+class InitRobot(smach.State):
+    def __init__(self, launch_tuck_robot):
+        smach.State.__init__(self, outcomes=['succeeded', 'failed'])
+        self._launch_tuck_robot = launch_tuck_robot
+        self._movo_base = MoveBaseActionClient(sim=False, frame="odom")
+        self.result = False
+
+
+    def execute(self, userdata):
+        rospy.loginfo('Executing state INIT_ROBOT')
+
+        # tuck upper body joints
+        self._launch_tuck_robot.start()
+
+        # go to initial pose
+        self._init_pose = Pose2D(x=0.0, y=0.0, theta=0.0)
+        self._movo_base.goto(self._init_pose)
+        rospy.sleep(8.0)
+
+        # move_base_result = rospy.wait_for_message('/movo_move_base/result', MoveBaseActionResult)
+        # if (move_base_result.status.text == 'Goal succeeded!'):
+        #     rospy.logdebug('reached the initial pose! ')
+        #     rospy.loginfo('************* _movo_base true')
+        #     return 'succeeded'
+        # else:
+        #     rospy.loginfo('-------------- _movo_base false')
+        #     return 'failed'
+
+        self._launch_tuck_robot.shutdown()
+        return 'succeeded'
+
 
 
 class SearchFace(smach.State):
@@ -84,17 +118,25 @@ class MoveCloser(smach.State):
         # two goals: first to go to init pose, second to go to target_pose
 
         move_base_result = rospy.wait_for_message('/movo_move_base/result', MoveBaseActionResult)
-        if move_base_result.header.seq == 1:
-            rospy.logdebug('Received the move_base result for initial pose goal')
-            move_base_result = rospy.wait_for_message('/movo_move_base/result', MoveBaseActionResult)
+        rospy.logdebug('Received the move_base result for target goal')
+        if (move_base_result.status.text == 'Goal succeeded!'):
+            rospy.logdebug('reached the goal! ')
+            return 'succeeded'
+        else:
+            return 'failed'
 
-        if move_base_result.header.seq == 2:
-            rospy.logdebug('Received the move_base result for target goal')
-            if (move_base_result.status.text == 'Goal succeeded!'):
-                rospy.logdebug('reached the goal! ')
-                return 'succeeded'
-            else:
-                return 'failed'
+
+class DanceRequest(smach.State):
+    def __init__(self, launch_follow_me_pose):
+        smach.State.__init__(self, outcomes=['succeeded', 'failed'])
+        self._launch_follow_me_pose = launch_follow_me_pose
+
+
+    def execute(self, userdata):
+        rospy.loginfo('Executing state DANCE_REQUEST')
+        self._launch_follow_me_pose.start()
+        rospy.sleep(5)
+        return 'succeeded'
 
 
 class DanceInvitation():
@@ -104,12 +146,17 @@ class DanceInvitation():
         # create roslaunch handles
         uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         roslaunch.configure_logging(uuid)
+        self._launch_tuck_robot = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/robot/tuck_robot.launch'])
         self._launch_face_detection = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/face_tracking/face_tracking.launch'])
-        self._launch_move_closer = roslaunch.parent.ROSLaunchParent(uuid, [
-            rospkg.RosPack().get_path('movo_demos') + '/launch/dance_invitation/move_closer.launch'])
+        self._launch_move_closer = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/dance_invitation/move_closer.launch'])
+        self._launch_follow_me_pose = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/follow_me/follow_me_pose.launch'])
 
+        self._launch_tuck_robot.start()
+        rospy.sleep(5.0)
+        self._init_robot_obj = InitRobot(self._launch_tuck_robot)
         self._search_face_obj = SearchFace(self._launch_face_detection, self._launch_move_closer)
         self._move_closer_obj = MoveCloser(self._launch_move_closer)
+        self._dance_request_obj = DanceRequest(self._launch_follow_me_pose)
 
         # construct state machine
         self._sm = self._construct_sm()
@@ -125,8 +172,10 @@ class DanceInvitation():
 
 
     def _shutdown(self):
+        self._launch_tuck_robot.shutdown()
         self._launch_face_detection.shutdown()
         self._launch_move_closer.shutdown()
+        self._launch_follow_me_pose.shutdown()
         # self._intro_spect.stop()
         pass
 
@@ -137,8 +186,10 @@ class DanceInvitation():
 
         # create launch file handles
         with sm:
+            smach.StateMachine.add('INIT_ROBOT', self._init_robot_obj, transitions={'succeeded': 'SEARCH_FACE', 'failed': 'failed'})
             smach.StateMachine.add('SEARCH_FACE', self._search_face_obj, transitions={'succeeded': 'MOVE_CLOSER', 'failed':'failed'})
-            smach.StateMachine.add('MOVE_CLOSER', self._move_closer_obj, transitions={'succeeded': 'succeeded', 'failed':'failed'})
+            smach.StateMachine.add('MOVE_CLOSER', self._move_closer_obj, transitions={'succeeded': 'DANCE_REQUEST', 'failed':'failed'})
+            smach.StateMachine.add('DANCE_REQUEST', self._dance_request_obj, transitions={'succeeded': 'succeeded', 'failed': 'failed'})
 
         return sm
 
