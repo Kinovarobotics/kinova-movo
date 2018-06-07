@@ -40,6 +40,8 @@ import rospkg
 import smach
 import smach_ros
 
+from movo_msgs.msg import FaceFound
+
 '''
 Proposal solution of demo and comments for next step:
 
@@ -53,15 +55,17 @@ Proposal solution of demo and comments for next step:
 
 class SearchFace(smach.State):
     def __init__(self, launch_face_detection):
-        smach.State.__init__(self, outcomes=['succeeded'])
+        smach.State.__init__(self, outcomes=['succeeded', 'failed'])
         self._launch_face_detection = launch_face_detection
 
     def execute(self, userdata):
         rospy.loginfo('Executing state SEARCH_FACE')
 
         self._launch_face_detection.start()
-        rospy.sleep(20)
+        rospy.sleep(5)
 
+        rospy.wait_for_message("/face_detector/nearest_face", FaceFound)
+        rospy.sleep(1.0)
         return 'succeeded'
 
 
@@ -74,7 +78,7 @@ class MoveCloser(smach.State):
         rospy.loginfo('Executing state MOVE_CLOSER')
 
         self._launch_face_detection.shutdown()
-        rospy.sleep(2)
+        rospy.sleep(10)
         return 'succeeded'
 
 
@@ -85,10 +89,10 @@ class DanceInvitation():
         # create roslaunch handles
         uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         roslaunch.configure_logging(uuid)
-        launch_face_detection = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/face_tracking/face_tracking.launch'])
+        self._launch_face_detection = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/face_tracking/face_tracking.launch'])
 
-        self._search_face_obj = SearchFace(launch_face_detection)
-        self._move_closer_obj = MoveCloser(launch_face_detection)
+        self._search_face_obj = SearchFace(self._launch_face_detection)
+        self._move_closer_obj = MoveCloser(self._launch_face_detection)
 
         # construct state machine
         self._sm = self._construct_sm()
@@ -104,17 +108,18 @@ class DanceInvitation():
 
 
     def _shutdown(self):
+        self._launch_face_detection.shutdown()
         # self._intro_spect.stop()
         pass
 
 
     def _construct_sm(self):
         rospy.loginfo('Constructing state machine')
-        sm = smach.StateMachine(outcomes = ['succeeded'])
+        sm = smach.StateMachine(outcomes = ['succeeded', 'failed'])
 
         # create launch file handles
         with sm:
-            smach.StateMachine.add('SEARCH_FACE', self._search_face_obj, transitions={'succeeded': 'MOVE_CLOSER'})
+            smach.StateMachine.add('SEARCH_FACE', self._search_face_obj, transitions={'succeeded': 'MOVE_CLOSER', 'failed':'failed'})
             smach.StateMachine.add('MOVE_CLOSER', self._move_closer_obj, transitions={'succeeded': 'succeeded'})
 
         return sm
