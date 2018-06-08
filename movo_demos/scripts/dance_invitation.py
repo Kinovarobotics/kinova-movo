@@ -35,10 +35,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
 import rospy
+import roslib;
+roslib.load_manifest('pocketsphinx')
+roslib.load_manifest('sound_play')
+from sound_play.libsoundplay import SoundClient
+
 import roslaunch
 import rospkg
 import smach
 import smach_ros
+from std_msgs.msg import String
 from move_base_msgs.msg import MoveBaseActionResult
 from movo_action_clients.move_base_action_client import MoveBaseActionClient
 from geometry_msgs.msg import Pose2D
@@ -127,16 +133,50 @@ class MoveCloser(smach.State):
 
 
 class DanceRequest(smach.State):
-    def __init__(self, launch_follow_me_pose):
-        smach.State.__init__(self, outcomes=['succeeded', 'failed'])
+    def __init__(self, launch_follow_me_pose, launch_invitation_answer):
+        smach.State.__init__(self, outcomes=['accepted', 'rejected', 'failed'])
         self._launch_follow_me_pose = launch_follow_me_pose
-
+        self._launch_invitation_answer = launch_invitation_answer
+        self._speech_pub = rospy.Publisher("/movo/voice/text", String, queue_size=1, latch=True)
+        self._speech_text = String()
 
     def execute(self, userdata):
         rospy.loginfo('Executing state DANCE_REQUEST')
         self._launch_follow_me_pose.start()
+        self._launch_invitation_answer.start()
         rospy.sleep(5)
-        return 'succeeded'
+
+        self._speech_text.data = "Please say yes movo to accept, or sorry movo to reject my infivation"
+        self._speech_pub.publish(self._speech_text)
+        rospy.sleep(5)
+
+        self._launch_follow_me_pose.shutdown()
+
+        max_try_time = 5
+        tried_time = 0
+        while not rospy.is_shutdown():
+            tried_time += 1
+            invitation_answer = rospy.wait_for_message('/recognizer/output', String)
+            if invitation_answer.data.find("yes movo") > -1:
+                self._speech_text.data = "Let the music rock!" # cannot handle "let's", :-(
+                self._speech_pub.publish(self._speech_text)
+                self._launch_invitation_answer.shutdown()
+                rospy.sleep(5)
+                return 'accepted'
+            elif (invitation_answer.data.find("sorry movo") > -1):
+                self._speech_text.data = "you should learn how to dance latin."
+                self._speech_pub.publish(self._speech_text)
+                self._launch_invitation_answer.shutdown()
+                rospy.sleep(5)
+                return 'rejected'
+            else:
+                self._speech_text.data = "I do not get your answer, can you repeat"
+                self._speech_pub.publish(self._speech_text)
+                rospy.sleep(5)
+                if tried_time == max_try_time:
+                    self._launch_invitation_answer.shutdown()
+                    rospy.logwarn('failed to get answer with %d tries'%max_try_time)
+                    return 'failed'
 
 
 class DanceInvitation():
@@ -150,13 +190,15 @@ class DanceInvitation():
         self._launch_face_detection = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/face_tracking/face_tracking.launch'])
         self._launch_move_closer = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/dance_invitation/move_closer.launch'])
         self._launch_follow_me_pose = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/follow_me/follow_me_pose.launch'])
+        self._launch_invitation_answer = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/dance_invitation/invitation_answer.launch'])
+
 
         self._launch_tuck_robot.start()
         rospy.sleep(5.0)
         self._init_robot_obj = InitRobot(self._launch_tuck_robot)
         self._search_face_obj = SearchFace(self._launch_face_detection, self._launch_move_closer)
         self._move_closer_obj = MoveCloser(self._launch_move_closer)
-        self._dance_request_obj = DanceRequest(self._launch_follow_me_pose)
+        self._dance_request_obj = DanceRequest(self._launch_follow_me_pose, self._launch_invitation_answer)
 
         # construct state machine
         self._sm = self._construct_sm()
@@ -176,6 +218,7 @@ class DanceInvitation():
         self._launch_face_detection.shutdown()
         self._launch_move_closer.shutdown()
         self._launch_follow_me_pose.shutdown()
+        self._launch_invitation_answer.shutdown()
         # self._intro_spect.stop()
         pass
 
@@ -189,7 +232,7 @@ class DanceInvitation():
             smach.StateMachine.add('INIT_ROBOT', self._init_robot_obj, transitions={'succeeded': 'SEARCH_FACE', 'failed': 'failed'})
             smach.StateMachine.add('SEARCH_FACE', self._search_face_obj, transitions={'succeeded': 'MOVE_CLOSER', 'failed':'failed'})
             smach.StateMachine.add('MOVE_CLOSER', self._move_closer_obj, transitions={'succeeded': 'DANCE_REQUEST', 'failed':'failed'})
-            smach.StateMachine.add('DANCE_REQUEST', self._dance_request_obj, transitions={'succeeded': 'succeeded', 'failed': 'failed'})
+            smach.StateMachine.add('DANCE_REQUEST', self._dance_request_obj, transitions={'accepted': 'succeeded', 'rejected': 'succeeded', 'failed': 'failed'})
 
         return sm
 

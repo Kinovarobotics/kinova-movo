@@ -7,5 +7,4 @@
 		<param name="dict" value="$(find movo_demos)/launch/dance_invitation/invitation_answer.dic"/>
 	</node>
 
-    <!--<node name="take_action" pkg="movo_demos" type="take_action.py" output="screen"/>-->
 </launch>
