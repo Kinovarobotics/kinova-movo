@@ -143,10 +143,11 @@ class DanceRequest(smach.State):
     def execute(self, userdata):
         rospy.loginfo('Executing state DANCE_REQUEST')
         self._launch_follow_me_pose.start()
+        rospy.sleep(1)
         self._launch_invitation_answer.start()
         rospy.sleep(5)
 
-        self._speech_text.data = "Please say yes movo to accept, or sorry movo to reject my infivation"
+        self._speech_text.data = "Please say yes movo to accept, or sorry movo to reject my invitation"
         self._speech_pub.publish(self._speech_text)
         rospy.sleep(5)
 
@@ -164,17 +165,20 @@ class DanceRequest(smach.State):
                 rospy.sleep(5)
                 return 'accepted'
             elif (invitation_answer.data.find("sorry movo") > -1):
-                self._speech_text.data = "you should learn how to dance latin."
+                self._speech_text.data = "Remember you just turned off a dance invitation from a lovely robot. Bye bye then."
                 self._speech_pub.publish(self._speech_text)
                 self._launch_invitation_answer.shutdown()
-                rospy.sleep(5)
+                rospy.sleep(10)
                 return 'rejected'
             else:
                 self._speech_text.data = "I do not get your answer, can you repeat"
                 self._speech_pub.publish(self._speech_text)
                 rospy.sleep(5)
                 if tried_time == max_try_time:
+                    self._speech_text.data = "I tried %d times but still do not understand you."%max_try_time
+                    self._speech_pub.publish(self._speech_text)
                     self._launch_invitation_answer.shutdown()
+                    rospy.sleep(5)
                     rospy.logwarn('failed to get answer with %d tries'%max_try_time)
                     return 'failed'
 
