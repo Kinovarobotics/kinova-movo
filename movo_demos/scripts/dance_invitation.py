@@ -179,7 +179,7 @@ class DanceRequest(smach.State):
                 self._speech_pub.publish(self._speech_text)
                 rospy.sleep(5)
                 if tried_time == max_try_time:
-                    self._speech_text.data = "I tried %d times but still do not understand you."%max_try_time
+                    self._speech_text.data = "I tried %d times but still do not understand you. I am going back."%max_try_time
                     self._speech_pub.publish(self._speech_text)
                     self._launch_face_detection.shutdown()
                     self._launch_invitation_answer.shutdown()
@@ -187,6 +187,39 @@ class DanceRequest(smach.State):
                     rospy.logwarn('failed to get answer with %d tries'%max_try_time)
                     return 'failed'
 
+
+class LetsDance(smach.State):
+    def __init__(self, launch_follow_me_activation, launch_face_detection):
+        smach.State.__init__(self, outcomes=['succeeded', 'failed'])
+        self._launch_follow_me_activation = launch_follow_me_activation
+        self._launch_face_detection = launch_face_detection
+
+        # play music
+        self._play_music_client = SoundClient()
+
+        self._speech_pub = rospy.Publisher("/movo/voice/text", String, queue_size=1, latch=True)
+        self._speech_text = String()
+
+    def execute(self, userdata):
+        rospy.loginfo('Executing state LETS_DANCE')
+        try:
+            self._play_music_client.playWave('/home/movo/movo_ws/src/movo_demos/launch/voice_control/we_are_robots.wav')
+            self._launch_follow_me_activation.start()
+        except:
+            rospy.logwarn('failed to enable dance')
+            return 'failed'
+
+        music_duration = 20
+        rospy.sleep(music_duration)
+
+        self._speech_text.data = "You dance much better than Longfei. Thank you very much. I will take a rest now, see you."
+        self._speech_pub.publish(self._speech_text)
+        rospy.sleep(5)
+        self._launch_face_detection.shutdown()
+        rospy.sleep(3)
+        self._launch_follow_me_activation.shutdown()
+        rospy.sleep(3)
+        return 'succeeded'
 
 
 class DanceInvitation():
@@ -202,11 +235,13 @@ class DanceInvitation():
         self._launch_move_closer = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/dance_invitation/move_closer.launch'])
         self._launch_follow_me_pose = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/follow_me/follow_me_pose.launch'])
         self._launch_invitation_answer = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/dance_invitation/invitation_answer.launch'])
+        self._launch_follow_me_activation = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/follow_me/follow_me_activation.launch'])
 
         self._init_robot_obj = InitRobot(self._launch_tuck_robot, 'INIT_ROBOT')
         self._search_face_obj = SearchFace(self._launch_face_detection, self._launch_move_closer)
         self._move_closer_obj = MoveCloser(self._launch_move_closer)
         self._dance_request_obj = DanceRequest(self._launch_follow_me_pose, self._launch_invitation_answer, self._launch_face_detection)
+        self._lets_dance_obj = LetsDance(self._launch_follow_me_activation, self._launch_face_detection)
         self._ending_back_obj = InitRobot(self._launch_tuck_robot2, 'ENDING_BACK')
 
         # construct state machine
@@ -229,6 +264,7 @@ class DanceInvitation():
         self._launch_move_closer.shutdown()
         self._launch_follow_me_pose.shutdown()
         self._launch_invitation_answer.shutdown()
+        self._launch_follow_me_activation.shutdown()
         # self._intro_spect.stop()
         pass
 
@@ -242,7 +278,8 @@ class DanceInvitation():
             smach.StateMachine.add('INIT_ROBOT', self._init_robot_obj, transitions={'succeeded': 'SEARCH_FACE', 'failed': 'failed'})
             smach.StateMachine.add('SEARCH_FACE', self._search_face_obj, transitions={'succeeded': 'MOVE_CLOSER', 'failed':'failed'})
             smach.StateMachine.add('MOVE_CLOSER', self._move_closer_obj, transitions={'succeeded': 'DANCE_REQUEST', 'failed':'failed'})
-            smach.StateMachine.add('DANCE_REQUEST', self._dance_request_obj, transitions={'accepted': 'ENDING_BACK', 'rejected': 'ENDING_BACK', 'failed': 'ENDING_BACK'})
+            smach.StateMachine.add('DANCE_REQUEST', self._dance_request_obj, transitions={'accepted': 'LETS_DANCE', 'rejected': 'ENDING_BACK', 'failed': 'ENDING_BACK'})
+            smach.StateMachine.add('LETS_DANCE', self._lets_dance_obj, transitions={'succeeded': 'ENDING_BACK', 'failed': 'ENDING_BACK'})
             smach.StateMachine.add('ENDING_BACK', self._ending_back_obj, transitions={'succeeded': 'succeeded', 'failed': 'failed'})
 
         return sm
