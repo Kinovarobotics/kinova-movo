@@ -1,0 +1,11 @@
+<launch>
+	<node name="recognizer" pkg="pocketsphinx" type="recognizer.py" output="screen">
+		<!--<param name="mic_name" value="alsa_input.usb-Logitech_Logitech_Wireless_Headset-00-Headset.analog-mono"/>-->
+		<!-- find Kinect with command: $pacmd list-sources -->
+		<param name="mic_name" value="alsa_input.usb-Microsoft_Xbox_NUI_Sensor_008609564447-02-Sensor.analog-4-channel-input"/>
+		<param name="lm" value="$(find movo_demos)/launch/dance_invitation/invitation_answer.lm"/>
+		<param name="dict" value="$(find movo_demos)/launch/dance_invitation/invitation_answer.dic"/>
+	</node>
+
+    <!--<node name="take_action" pkg="movo_demos" type="take_action.py" output="screen"/>-->
+</launch>
