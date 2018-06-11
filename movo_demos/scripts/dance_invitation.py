@@ -46,8 +46,6 @@ import smach
 import smach_ros
 from std_msgs.msg import String
 from move_base_msgs.msg import MoveBaseActionResult
-from movo_action_clients.move_base_action_client import MoveBaseActionClient
-from geometry_msgs.msg import Pose2D
 
 from movo_msgs.msg import FaceFound
 
@@ -62,10 +60,10 @@ Proposal solution of demo and comments for next step:
 '''
 
 class InitRobot(smach.State):
-    def __init__(self, launch_tuck_robot, state_name):
+    def __init__(self, launch_tuck_robot, launch_move_to_origin, state_name):
         smach.State.__init__(self, outcomes=['succeeded', 'failed'])
         self._launch_tuck_robot = launch_tuck_robot
-        self._movo_base = MoveBaseActionClient(sim=False, frame="odom")
+        self._launch_move_to_origin = launch_move_to_origin
         self._state_name = state_name
 
 
@@ -75,24 +73,18 @@ class InitRobot(smach.State):
         # tuck upper body joints
         self._launch_tuck_robot.start()
         rospy.sleep(3.0)
+        self._launch_move_to_origin.start()
 
-        # go to initial pose
-        self._init_pose = Pose2D(x=0.0, y=0.0, theta=0.0)
-        self._movo_base.goto(self._init_pose)
-        rospy.sleep(5.0)
-
-        # move_base_result = rospy.wait_for_message('/movo_move_base/result', MoveBaseActionResult)
-        # if (move_base_result.status.text == 'Goal succeeded!'):
-        #     rospy.logdebug('reached the initial pose! ')
-        #     rospy.loginfo('************* _movo_base true')
-        #     return 'succeeded'
-        # else:
-        #     rospy.loginfo('-------------- _movo_base false')
-        #     return 'failed'
-
-        self._launch_tuck_robot.shutdown()
-        return 'succeeded'
-
+        move_base_result = rospy.wait_for_message('/movo_move_base/result', MoveBaseActionResult)
+        if (move_base_result.status.text == 'Goal succeeded!'):
+            rospy.logdebug('reached the initial pose! ')
+            self._launch_tuck_robot.shutdown()
+            self._launch_move_to_origin.shutdown()
+            return 'succeeded'
+        else:
+            self._launch_tuck_robot.shutdown()
+            self._launch_move_to_origin.shutdown()
+            return 'failed'
 
 
 class SearchFace(smach.State):
@@ -162,7 +154,7 @@ class DanceRequest(smach.State):
             tried_time += 1
             invitation_answer = rospy.wait_for_message('/recognizer/output', String)
             if invitation_answer.data.find("yes movo") > -1:
-                self._speech_text.data = "Let the music rock!" # cannot handle "let's", :-(
+                self._speech_text.data = "Let the music rock!"
                 self._speech_pub.publish(self._speech_text)
                 self._launch_invitation_answer.shutdown()
                 rospy.sleep(5)
@@ -212,7 +204,7 @@ class LetsDance(smach.State):
         music_duration = 20
         rospy.sleep(music_duration)
 
-        self._speech_text.data = "You dance much better than Longfei. Thank you very much. I will take a rest now, see you."
+        self._speech_text.data = "You dance much better than Long fei. Thank you very much. I will take a rest now, good bye."
         self._speech_pub.publish(self._speech_text)
         rospy.sleep(5)
         self._launch_face_detection.shutdown()
@@ -231,18 +223,22 @@ class DanceInvitation():
         roslaunch.configure_logging(uuid)
         self._launch_tuck_robot = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/robot/tuck_robot.launch'])
         self._launch_tuck_robot2 = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/robot/tuck_robot.launch'])
+
+        self._launch_move_to_origin = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/dance_invitation/move_to_origin.launch'])
+        self._launch_move_to_origin2 = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/dance_invitation/move_to_origin.launch'])
+
         self._launch_face_detection = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/face_tracking/face_tracking.launch'])
         self._launch_move_closer = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/dance_invitation/move_closer.launch'])
         self._launch_follow_me_pose = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/follow_me/follow_me_pose.launch'])
         self._launch_invitation_answer = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/dance_invitation/invitation_answer.launch'])
         self._launch_follow_me_activation = roslaunch.parent.ROSLaunchParent(uuid, [rospkg.RosPack().get_path('movo_demos') + '/launch/follow_me/follow_me_activation.launch'])
 
-        self._init_robot_obj = InitRobot(self._launch_tuck_robot, 'INIT_ROBOT')
+        self._init_robot_obj = InitRobot(self._launch_tuck_robot, self._launch_move_to_origin, 'INIT_ROBOT')
         self._search_face_obj = SearchFace(self._launch_face_detection, self._launch_move_closer)
         self._move_closer_obj = MoveCloser(self._launch_move_closer)
         self._dance_request_obj = DanceRequest(self._launch_follow_me_pose, self._launch_invitation_answer, self._launch_face_detection)
         self._lets_dance_obj = LetsDance(self._launch_follow_me_activation, self._launch_face_detection)
-        self._ending_back_obj = InitRobot(self._launch_tuck_robot2, 'ENDING_BACK')
+        self._ending_back_obj = InitRobot(self._launch_tuck_robot2, self._launch_move_to_origin2, 'ENDING_BACK')
 
         # construct state machine
         self._sm = self._construct_sm()
@@ -258,6 +254,8 @@ class DanceInvitation():
 
 
     def _shutdown(self):
+        self._launch_tuck_robot.shutdown()
+        self._launch_move_to_origin.shutdown()
         self._launch_tuck_robot.shutdown()
         self._launch_tuck_robot2.shutdown()
         self._launch_face_detection.shutdown()
