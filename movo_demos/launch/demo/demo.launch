@@ -24,14 +24,14 @@
         <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" command="load" file="$(find movo_7dof_moveit_config)/config/kinematics.yaml"/>
     </node>
 
-    <node if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" name="demo" pkg="movo_demos" type="inplace_pick_place_demo.py" output="screen">
+    <node if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" name="inplace_pick_place_demo" pkg="movo_demos" type="inplace_pick_place_demo.py" output="screen">
     	<rosparam command="load" file="$(find movo_moveit_config)/config/kinematics.yaml"/>
     	<param name="table_height" value="0.74"/>
 		<param name="sim" value="$(arg sim)"/>
 		<param name="jaco_dof" value="6dof"/>
 	</node>
 	
-	<node if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" name="demo" pkg="movo_demos" type="inplace_pick_place_demo.py" output="screen">
+	<node if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" name="inplace_pick_place_demo" pkg="movo_demos" type="inplace_pick_place_demo.py" output="screen">
     	<rosparam command="load" file="$(find movo_7dof_moveit_config)/config/kinematics.yaml"/>
     	<param name="table_height" value="0.74"/>
 		<param name="sim" value="$(arg sim)"/>
