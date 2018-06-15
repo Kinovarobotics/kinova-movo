@@ -1,0 +1,13 @@
+<launch>
+
+  <!-- Move to pick hand pose -->
+  <node pkg="si_utils" type="timed_roslaunch"
+        args="1 movo_demos face_detection.launch"
+        name="face_detection" output="screen"/>
+
+    <!-- Enable follow_me feature -->
+  <node pkg="si_utils" type="timed_roslaunch"
+        args="3 movo_demos tracking_activation.launch"
+        name="tracking_activation" output="screen"/>
+
+</launch>

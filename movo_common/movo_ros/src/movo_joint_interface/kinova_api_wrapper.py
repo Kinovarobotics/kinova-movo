@@ -65,7 +65,15 @@ class AngularInfo(Structure):
               ("Actuator5",c_float),
               ("Actuator6",c_float),
               ("Actuator7",c_float)]
-              
+
+class CartesianInfo(Structure):
+    _fields_ = [("X",c_float),
+                ("Y",c_float),
+                ("Z",c_float),
+                ("ThetaX",c_float),
+                ("ThetaY",c_float),
+                ("ThetaZ",c_float)]
+
 class FingersPosition(Structure):
     _fields_=[("Finger1",c_float),
               ("Finger2",c_float),
@@ -74,7 +82,11 @@ class FingersPosition(Structure):
 class AngularPosition(Structure):
     _fields_=[("Actuators",AngularInfo),
               ("Fingers",FingersPosition)]
-    
+
+class CartesianPosition(Structure):
+    _fields_=[("Coordinates",CartesianInfo),
+              ("Fingers",FingersPosition)]
+
 class Limitation(Structure):
     _fields_ = [("speedParameter1",c_float),
                 ("speedParameter2",c_float),
@@ -85,14 +97,6 @@ class Limitation(Structure):
                 ("accelerationParameter1",c_float),
                 ("accelerationParameter2",c_float),
                 ("accelerationParameter3",c_float)]
-    
-class CartesianInfo(Structure):
-    _fields_ = [("X",c_float),
-                ("Y",c_float),
-                ("Z",c_float),
-                ("ThetaX",c_float),
-                ("ThetaY",c_float),
-                ("ThetaZ",c_float)]
     
 class UserPosition(Structure):
     _fields_ = [("Type",c_int),
@@ -124,13 +128,14 @@ class SensorInfo(Structure):
                 ("FingerTemp1",c_float),
                 ("FingerTemp2",c_float),
                 ("FingerTemp3",c_float)]
-    
+
 NO_ERROR_KINOVA = 1
 LARGE_ACTUATOR_VELOCITY =deg_to_rad(35.0) #maximum velocity of large actuator (joints 1-3) (deg/s)
 SMALL_ACTUATOR_VELOCITY =deg_to_rad(45.0) #maximum velocity of small actuator (joints 4-6) (deg/s)
 ANGULAR_POSITION   = 2
 CARTESIAN_VELOCITY = 7
 ANGULAR_VELOCITY   = 8
+GRAVITY_VECTOR_SIZE = 3
 
 FINGER_FACTOR = (0.986111027/121.5)
 
@@ -205,7 +210,13 @@ class KinovaAPI(object):
         self.MoveHome = self.kinova.Ethernet_MoveHome
         self.InitFingers = self.kinova.Ethernet_InitFingers
         self.DevInfoArrayType = ( KinovaDevice * 20 )
-        
+        self.SetGravityVector = self.kinova.Ethernet_SetGravityVector
+        self.SetGravityVector.argtypes = [POINTER(c_float)]
+        self.GetCartesianForce = self.kinova.Ethernet_GetCartesianForce
+        self.GetCartesianForce.argtypes = [POINTER(CartesianPosition)]
+        self.GetAngularForceGravityFree = self.kinova.Ethernet_GetAngularForceGravityFree
+        self.GetAngularForceGravityFree.argtypes = [POINTER(AngularPosition)]
+
         local_ip = get_ip_address(interface)
         eth_cfg = EthernetCommConfig()
         eth_cfg.localIpAddress = dottedQuadToNum(local_ip)
@@ -495,3 +506,62 @@ class KinovaAPI(object):
         self.handle_comm_err(api_stat)
         return ret
 
+
+    def set_gravity_vector(self, gravity_x, gravity_y, gravity_z):
+        gravity_vector = (c_float*GRAVITY_VECTOR_SIZE)(gravity_x, gravity_y, gravity_z)
+        api_stat = self.SetGravityVector(gravity_vector)
+
+        if (NO_ERROR_KINOVA == api_stat):
+            rospy.loginfo("The gravity vector is set to [%f, %f, %f]", gravity_x, gravity_y, gravity_z)
+        else:
+            rospy.logerr("Failed to set gravity vector to [%f, %f, %f]", gravity_x, gravity_y, gravity_z)
+
+        self.handle_comm_err(api_stat)
+
+
+    def get_cartesian_force(self):
+        force = CartesianPosition()
+        api_stat = self.GetCartesianForce(byref(force))
+
+        if(NO_ERROR_KINOVA == api_stat):
+            ret = [force.Coordinates.X,
+                   force.Coordinates.Y,
+                   force.Coordinates.Z,
+                   force.Coordinates.ThetaX,
+                   force.Coordinates.ThetaY,
+                   force.Coordinates.ThetaZ]
+        else:
+            rospy.loginfo("Kinova API failed: GetCartesianForce (%d)",api_stat)
+            ret = []
+
+        self.handle_comm_err(api_stat)
+        return ret
+
+
+    def get_angular_force_gravity_free(self):
+        force = AngularPosition()
+        api_stat = self.GetAngularForceGravityFree(byref(force))
+
+        if(NO_ERROR_KINOVA == api_stat):
+            if ("6dof" == self.arm_dof):
+                ret = [force.Actuators.Actuator1,
+                       force.Actuators.Actuator2,
+                       force.Actuators.Actuator3,
+                       force.Actuators.Actuator4,
+                       force.Actuators.Actuator5,
+                       force.Actuators.Actuator6]
+
+            elif ("7dof" == self.arm_dof):
+                ret = [force.Actuators.Actuator1,
+                       force.Actuators.Actuator2,
+                       force.Actuators.Actuator3,
+                       force.Actuators.Actuator4,
+                       force.Actuators.Actuator5,
+                       force.Actuators.Actuator6,
+                       force.Actuators.Actuator7]
+        else:
+            rospy.loginfo("Kinova API failed: GetAngularForceGravityFree (%d)",api_stat)
+            ret = []
+
+        self.handle_comm_err(api_stat)
+        return ret

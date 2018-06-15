@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<launch>
+    <arg name="local" default="true"/>
+
+    <machine name="movo1" address="movo1" user="movo"
+                 env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+
+    <node pkg="movo_demos" type="follow_me_activation.py" name="follow_me_activation" output="log" />
+
+</launch>

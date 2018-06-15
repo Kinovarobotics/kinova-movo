@@ -15,25 +15,35 @@ subscribers:
   - name:        "Manual Override"
     topic:       "/movo/manual_override/cmd_vel"
     timeout:     2.0
-    priority:    4
+    priority:    6
 
   - name:        "Assisted Teleop"
     topic:       "/movo/assisted_teleop/cmd_vel"
     timeout:     1.0
-    priority:    3
+    priority:    5
             
   - name:        "XBOX360 Controller"
     topic:       "/movo/teleop/cmd_vel"
     timeout:     1.0
-    priority:    2
+    priority:    4
 
   - name:        "Interactive Marker"
     topic:       "/movo/int_marker/cmd_vel"
     timeout:     0.5
-    priority:    1
+    priority:    3
     
   - name:        "MoveBase (ROS Navigation)"
     topic:       "/movo/navigation/cmd_vel"
+    timeout:     0.5
+    priority:    2
+
+  - name:        "Follow Me (Hold Arm)"
+    topic:       "/movo/base/follow_me/cmd_vel"
+    timeout:     0.5
+    priority:    1
+
+  - name:        "Voice Control"
+    topic:       "/movo/base/voice_control/cmd_vel"
     timeout:     0.5
     priority:    0
 

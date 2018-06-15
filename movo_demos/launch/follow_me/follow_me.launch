@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<launch>
+
+    <!-- Move to pick hand pose -->
+    <node pkg="si_utils" type="timed_roslaunch"
+          args="1 movo_demos follow_me_pose.launch"
+          name="follow_me_pose" output="screen"/>
+
+    <!-- Enable follow_me feature -->
+    <node pkg="si_utils" type="timed_roslaunch"
+          args="8 movo_demos follow_me_activation.launch"
+          name="follow_me_activation" output="screen"/>
+
+</launch>
+
+
