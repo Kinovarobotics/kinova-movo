@@ -12,8 +12,11 @@
     <include if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" file="$(find movo_moveit_config)/launch/movo_moveit_planning_execution.launch"/>
     
 	<node pkg="movo_bringup" type="init_robot" name="init_robot" respawn="false" output="screen">
+		<param name="initialized" value="False" type="bool" />
     	<param if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" name="jaco_dof" value="7dof" />
   		<param if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" name="jaco_dof" value="6dof" />
+		<param name="gripper_right" value="rq85" if="$(optenv MOVO_HAS_RIGHT_ROBOTIQ_GRIPPER false)"/>
+		<param name="gripper_left" value="rq85" if="$(optenv MOVO_HAS_LEFT_ROBOTIQ_GRIPPER false)"/>
   		<rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" command="load" file="$(find movo_7dof_moveit_config)/config/kinematics.yaml" />
   		<rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" command="load" file="$(find movo_moveit_config)/config/kinematics.yaml" />
 	</node>

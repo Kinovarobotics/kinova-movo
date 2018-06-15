@@ -52,7 +52,7 @@ class Robotiq85GripperTest:
         self._right_gripper_pub = rospy.Publisher('/movo/right_gripper/cmd', GripperCmd, queue_size=10)               
         if (self._num_grippers == 2):
             rospy.Subscriber("/left_gripper/stat", GripperStat, self._update_left_gripper_stat, queue_size=10)
-            self._left_gripper_pub = rospy.Publisher('/movo/left_gripper/stat', GripperCmd, queue_size=10)
+            self._left_gripper_pub = rospy.Publisher('/movo/left_gripper/cmd', GripperCmd, queue_size=10)
 
             
         self._gripper_stat = [GripperStat()] * self._num_grippers

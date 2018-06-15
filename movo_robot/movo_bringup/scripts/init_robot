@@ -49,6 +49,13 @@ if __name__ == "__main__":
 	lgripper = GripperActionClient('left')
 	rgripper = GripperActionClient('right')
 	dof = rospy.get_param('~jaco_dof')
+	initialized = rospy.get_param('~initialized')
+
+	if initialized:
+		rospy.set_param('~initialized', False)
+
+	rgripper_type = rospy.get_param('~gripper_right', 'kg3')
+	lgripper_type = rospy.get_param('~gripper_left', 'kg3')
 
 	if ("6dof" == dof):
 		upper_body_joints = ["right_elbow_joint",
@@ -68,6 +75,11 @@ if __name__ == "__main__":
 							"tilt_joint"]
 		homed = [-2.135,-0.227,-1.478,-2.083,1.445,1.321,2.135,0.227,1.478,2.083,-1.445,-1.321,0.35,0.0,0.0]
 		tucked = [-2.8,-1.48,-1.48,0,0,1.571, 2.8,1.48,1.48,0,0,-1.571,0.0371,0.0,0.0]
+		if (rgripper_type == 'rq85'):
+			tucked[5] -= 1.571
+		if (lgripper_type == 'rq85'):
+			tucked[11] += 1.571
+
 
 	elif ("7dof" == dof):
 		upper_body_joints = ["right_shoulder_pan_joint",
@@ -90,6 +102,10 @@ if __name__ == "__main__":
 
 		homed = [-1.5,-0.2,-0.15,-2.0,2.0,-1.24,-1.1, 1.5,0.2,0.15,2.0,-2.0,1.24,1.1,0.35,0,0]
 		tucked = [-1.6,-1.4,0.4,-2.7,0.0,0.5,-1.7, 1.6,1.4,-0.4,2.7,0.0,-0.5, 1.7, 0.04, 0, 0]
+		if (rgripper_type == 'rq85'):
+			tucked[5] += 1.571
+		if (lgripper_type == 'rq85'):
+			tucked[11] -= 1.571
 
 	else:
 		rospy.logerr("DoF needs to be set 6 or 7, aborting process")
@@ -122,3 +138,4 @@ if __name__ == "__main__":
 	rgripper.command(gripper_closed)
 
 	rospy.sleep(5)
+	rospy.set_param('~initialized', True)
