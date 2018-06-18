@@ -4,8 +4,8 @@ Movo configuration parameters
 -----------------------------
 
 Parameter | Values | Description
-:---: | :---: | :---:
-MOVO_IP_ADDRESS | IP address value | IP adress of the Waypoint vector. Do not modify unless the Waypoint vector is modified accordingly.
+:--- | :--- | :---
+MOVO_IP_ADDRESS | IP address value | IP address of the Waypoint vector. Do not modify unless the Waypoint vector is modified accordingly.
 MOVO_POWERS_PC_ONBOARD | not used | Not used, should be removed from the file
 MOVO_HAS_KINOVA_ARM | true / false | Set to true to indicates if MOVO is equiped with at least one JACO arm. Set to false otherwise.
 MOVO_HAS_TWO_KINOVA_ARMS | true / false | Set to false to indicate that MOVO is equiped with 1 JACO arm. In that case, the arm needs to be installed on the right side. Set to true to indicate that MOVO is equiped with 2 JACO arms. Both arms must be of the same type (either both 6DOF or both 7DOF but not one of each).
