@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
-import sys, rospy
+import sys, rospy, numpy
 from std_msgs.msg import Bool
 from moveit_python import MoveGroupInterface
 from moveit_msgs.msg import MoveItErrorCodes
@@ -98,10 +98,9 @@ if __name__ == "__main__":
 		homed = [-1.5,-0.2,-0.15,-2.0,2.0,-1.24,-1.1, 1.5,0.2,0.15,2.0,-2.0,1.24,1.1,0.35,0,0]
 		tucked = [-1.6,-1.4,0.4,-2.7,0.0,0.5,-1.7, 1.6,1.4,-0.4,2.7,0.0,-0.5, 1.7, 0.04, 0, 0]
 		if (rgripper_type == 'rq85'):
-			tucked[5] += 1.571
+			tucked[6] -= numpy.radians(60.0)
 		if (lgripper_type == 'rq85'):
-			tucked[11] -= 1.571
-
+			tucked[13] += numpy.radians(60.0)
 	else:
 		rospy.logerr("DoF needs to be set 6 or 7, aborting process")
 		exit()
