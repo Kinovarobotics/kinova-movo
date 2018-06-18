@@ -31,7 +31,7 @@ Set to true to indicate that the JACO arms installed are 7DOF.
 MOVO_HAS_KINOVA_ARM_6DOF
 Set to true to indicate that the JACO arms installed are 6DOF.
 
-*NOTE: MOVO_HAS_KINOVA_ARM_6DOF and MOVO_HAS_ARM_7DOF must not be the same. If one is true, the other must be false.*
+**NOTE: MOVO_HAS_KINOVA_ARM_6DOF and MOVO_HAS_ARM_7DOF must not be the same. If one is true, the other must be false.**
 
 USE_KG2_FOR_MOVEIT_CONFIG
 Set to true to indicate to moveit that a gripper of type KG2 is to be used.
