@@ -31,7 +31,7 @@ Set to true to indicate that the JACO arms installed are 7DOF.
 MOVO_HAS_KINOVA_ARM_6DOF
 Set to true to indicate that the JACO arms installed are 6DOF.
 
-*NOTE* MOVO_HAS_KINOVA_ARM_6DOF and MOVO_HAS_ARM_7DOF must not be the same. If one is true, the other must be false.
+*NOTE: MOVO_HAS_KINOVA_ARM_6DOF and MOVO_HAS_ARM_7DOF must not be the same. If one is true, the other must be false.*
 
 USE_KG2_FOR_MOVEIT_CONFIG
 Set to true to indicate to moveit that a gripper of type KG2 is to be used.
@@ -54,8 +54,8 @@ Set to true if the left arm is equiped with a gripper of type KG3.
 USE_R85_FOR_MOVEIT_CONFIG
 Set to true to indicate to moveit that a Robotiq gripper of type R85 is to be used.
 
-MOVO_HAS_RIGHT_KG3_GRIPPER
-Set to true if the right is equiped with a gripper of type KG3.
+MOVO_HAS_RIGHT_ROBOTIQ_GRIPPER
+Set to true if the right is equiped with a Robotiq R85 gripper.
 
-MOVO_HAS_LEFT_KG3_GRIPPER
-Set to true if the left is equiped with a gripper of type KG3.
+MOVO_HAS_LEFT_ROBOTIQ_GRIPPER
+Set to true if the left is equiped with a Robotiq R85 gripper.
