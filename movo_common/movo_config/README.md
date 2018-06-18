@@ -24,6 +24,8 @@ Indicates the IP address of the left arm to the arm controler. If the default va
 
 KINOVA_ARM_IFACE
 Indicates to the arm controller the interface to be used for the communication with the JACO arms.
+- eth0 - Ethernet
+- wlan0 - WiFi
 
 MOVO_HAS_KINOVA_ARM_7DOF
 Set to true to indicate that the JACO arms installed are 7DOF. 
