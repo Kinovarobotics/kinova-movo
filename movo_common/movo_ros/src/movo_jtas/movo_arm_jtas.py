@@ -301,6 +301,8 @@ class MovoArmJTAS(object):
 
         # Record start time
         start_time = rospy.get_time()
+        
+        self._ctl.Resume()
 
         def now_from_start(start):
             return rospy.get_time() - start
