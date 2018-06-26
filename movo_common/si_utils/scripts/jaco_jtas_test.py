@@ -116,7 +116,8 @@ class JacoJTASTest(object):
 
 def main():
     rospy.init_node('jaco_jtas_test')
-    dof = rospy.get_param('~jaco_dof')
+    arm_laterality='right'
+    dof = rospy.get_param('/' + arm_laterality + '_arm_ctl/jaco_dof')
     
     tmp = rospy.wait_for_message("/movo/right_arm/joint_states", JointState)
     current_angles= tmp.position
