@@ -15,6 +15,8 @@
   
   <param name="$(arg robot_description)_semantic" textfile="$(find movo_7dof_moveit_config)/config/movo_r85.srdf" if="$(optenv USE_R85_FOR_MOVEIT_CONFIG false)"/>
   
+  <param name="$(arg robot_description)_semantic" textfile="$(find movo_7dof_moveit_config)/config/movo_mixed_kg3_r85.srdf" if="$(optenv USE_MIXED_CONFIG_FOR_MOVEIT_CONFIG false)"/>
+  
   <!-- Load updated joint limits (override information from URDF) -->
   <group ns="$(arg robot_description)_planning">
     <rosparam command="load" file="$(find movo_7dof_moveit_config)/config/joint_limits.yaml"/>
