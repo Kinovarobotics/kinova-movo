@@ -121,7 +121,7 @@ def main():
     
     tmp = rospy.wait_for_message("/movo/right_arm/joint_states", JointState)
     current_angles= tmp.position
-    traj = JacoJTASTest('right')
+    traj = JacoJTASTest('right', dof)
     traj.add_point(current_angles, 0.0)
 
     if '6dof' == dof:
