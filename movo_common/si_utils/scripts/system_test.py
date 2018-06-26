@@ -64,7 +64,8 @@ class MovoVoiceTest(object):
 
 if __name__ == "__main__":
     rospy.init_node('system_test')
-    dof = rospy.get_param('~jaco_dof')
+    arm_laterality='right'
+    dof = rospy.get_param('/' + arm_laterality + '_arm_ctl/jaco_dof')
 
     voice = MovoVoiceTest() 
     voice.say("Hello,       I am movo.          I can be your best friend!")
