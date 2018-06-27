@@ -87,6 +87,7 @@ class SIArmController(object):
         self._prefix = prefix
         self.iface = interface
         self.arm_dof = dof
+	self.gripper=gripper
 
         # List of joint names
         if ("6dof"== self.arm_dof):
@@ -206,7 +207,8 @@ class SIArmController(object):
 
         if (0 != self.num_fingers):
             self._gripper_vel_cmd_sub = rospy.Subscriber("/movo/%s_gripper/vel_cmd"%self._prefix,Float32,self._update_gripper_vel_cmd)
-            self._gripper_jspub = rospy.Publisher("/movo/%s_gripper/joint_states"%self._prefix,JointState,queue_size=10)
+	    if ("rq85" != gripper):
+                self._gripper_jspub = rospy.Publisher("/movo/%s_gripper/joint_states"%self._prefix,JointState,queue_size=10)
             self._gripper_jsmsg = JointState()
             self._gripper_jsmsg.header.seq = 0
             self._gripper_jsmsg.header.frame_id = ''
@@ -527,7 +529,7 @@ class SIArmController(object):
         self._jsmsg.header.seq+=1
         
 
-        if (0 != self.num_fingers):
+        if (0 != self.num_fingers and "rq85" != self.gripper):
             if (len(pos) > 0):
                 self._gripper_fb['position'] = pos[self._num_joints:self._num_joints+self.num_fingers]
 

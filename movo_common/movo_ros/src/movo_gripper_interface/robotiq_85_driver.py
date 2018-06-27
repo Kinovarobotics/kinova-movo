@@ -141,7 +141,7 @@ class Robotiq85Driver:
             prefix = 'right_'
         else:
             prefix='left_'
-        js.name = ['%srobotiq_85_left_knuckle_joint'%prefix]
+        js.name = ['%sgripper_finger1_joint'%prefix]
         pos = np.clip(0.8 - ((0.8/0.085) * self._gripper.get_pos(dev)), 0., 0.8)
         js.position = [pos]
         dt = rospy.get_time() - self._prev_js_time[dev]
