@@ -16,7 +16,7 @@ find_package(catkin REQUIRED grasp_msgs
     shape_msgs
     tf
 )
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 link_directories(
   ${catkin_LIBRARY_DIRS}
@@ -43,7 +43,7 @@ include_directories(
   SYSTEM
   ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
-  ${Eigen_INCLUDE_DIRS}
+  ${Eigen3_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
 )
 

@@ -5,7 +5,7 @@ find_package(catkin REQUIRED COMPONENTS roscpp tf filters laser_geometry pcl_ros
 
 catkin_package(
     DEPENDS 
-    CATKIN-DEPENDS roscpp tf filters laser_geometry pcl_ros geometry_msgs sensor_msgs message_filters
+    CATKIN_DEPENDS roscpp tf filters laser_geometry pcl_ros geometry_msgs sensor_msgs message_filters
     INCLUDE_DIRS include
     LIBRARIES range_sensor_filters
 )
