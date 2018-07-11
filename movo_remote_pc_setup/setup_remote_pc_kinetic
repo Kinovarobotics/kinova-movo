@@ -31,37 +31,48 @@ sudo apt-get install python-rosinstall
 sudo apt-get update && sudo apt-get upgrade
 sudo apt-get install xdotool wmctrl iperf chrony htop bridge-utils ros-kinetic-navigation ros-kinetic-gmapping ros-kinetic-robot-localization ros-kinetic-yocs-cmd-vel-mux ros-kinetic-joy ros-kinetic-urg-node ros-kinetic-sick-tim ros-kinetic-cmake-modules daemontools openssh-server libpcap0.8-dev ros-kinetic-um7 ros-kinetic-imu-tools ros-kinetic-jsk-recognition ros-kinetic-ros-controllers ros-kinetic-scan-tools ros-kinetic-gazebo-ros ros-kinetic-gazebo-plugins ros-kinetic-moveit ros-kinetic-gazebo-ros-control ros-kinetic-hector-gazebo-plugins ros-kinetic-trac-ik
 # more things to add : 
-#sudo apt-get install libproj-dev
+sudo apt-get install libproj-dev
 
-# echo -e "\niai_kinect2 prerequisites must be installed!!!!!\nIf you have a PC with Intel integrated graphics answering Y will install\neverything. If you have a PC with a dedicated NVIDIA graphics card\nand want to be able to use CUDA follow the instructions\non https://github.com/code-iai/iai_kinect2 and then enter N here\n"
-# read -r -p "Do you want to install iai_kinect2 prerequisites for Intel CPU now? [y/N]" response
-# if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
-# then
-#     sudo add-apt-repository ppa:floe/beignet && sudo apt-get update
-#     sudo apt-get install beignet beignet-dev opencl-headers
-#     git clone https://github.com/OpenKinect/libfreenect2.git
-#     cd libfreenect2
-#     cd depends
-#     ./download_debs_trusty.sh
-#     sudo apt-get install build-essential cmake pkg-config
-#     sudo dpkg -i debs/libusb*deb
-#     sudo apt-get install libturbojpeg libjpeg-turbo8-dev
-#     sudo dpkg -i debs/libglfw3*deb; sudo apt-get install -f
-#     sudo apt-get install libgl1-mesa-dri-lts-vivid
-#     sudo apt-add-repository ppa:floe/beignet
-#     sudo apt-get update
-#     sudo apt-get install beignet-dev
-#     sudo dpkg -i debs/ocl-icd*deb
-#     sudo apt-add-repository ppa:deb-rob/ros-trusty && sudo apt-get update
-#     sudo apt-get install libopenni2-dev
-#     cd ..
-#     mkdir build && cd build
-#     cmake .. -DENABLE_CXX11=ON
-#     make
-#     sudo make install
-#     cd ../../
-#     rm -rf libfreenect2
-# fi
+# KINECT RELATED
+echo -e "\niai_kinect2 prerequisites must be installed!!!!!\nIf you have a PC with Intel integrated graphics answering Y will install\neverything. If you have a PC with a dedicated NVIDIA graphics card\nand want to be able to use CUDA follow the instructions\non https://github.com/code-iai/iai_kinect2 and then enter N here\n"
+read -r -p "Do you want to install iai_kinect2 prerequisites for Intel CPU now? [y/N]" response
+if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
+then
+    sudo add-apt-repository ppa:floe/beignet && sudo apt-get update
+    sudo apt-get install beignet beignet-dev opencl-headers
+    git clone https://github.com/OpenKinect/libfreenect2.git
+    cd libfreenect2
+    cd depends
+    ./download_debs_trusty.sh
+    sudo apt-get install build-essential cmake pkg-config
+    sudo dpkg -i debs/libusb*deb
+    sudo apt-get install libturbojpeg libjpeg-turbo8-dev
+    sudo dpkg -i debs/libglfw3*deb; sudo apt-get install -f
+    sudo apt-get install libgl1-mesa-dri-lts-vivid
+    sudo apt-add-repository ppa:floe/beignet
+    sudo apt-get update
+    sudo apt-get install beignet-dev
+    sudo dpkg -i debs/ocl-icd*deb
+    sudo apt-add-repository ppa:deb-rob/ros-trusty && sudo apt-get update
+    sudo apt-get install libopenni2-dev
+    cd ..
+    mkdir build && cd build
+    cmake .. -DENABLE_CXX11=ON
+    make
+    sudo make install
+    cd ../../
+    rm -rf libfreenect2
+fi
+
+# Uninstall Gazebo7 and install Gazebo9 and the packages for compatibility with ROS Kinetic
+sudo apt-get remove gazebo*
+sudo apt-get remove ros-kinetic-gazebo*
+sudo apt-get remove libgazebo*
+sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install ros-kinetic-gazebo9-*
+
 
 if grep -q "MOVO REMOTE PC START" ~/.bashrc
 then
