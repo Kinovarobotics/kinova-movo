@@ -151,8 +151,8 @@ bool GazeboGraspGripper::HandleAttach(const std::string& objName)
     ignition::math::Pose3<double> diff = obj->GetLink()->WorldPose() - this->palmLink->WorldPose();
     this->fixedJoint->Load(this->palmLink,obj->GetLink(), diff);
     this->fixedJoint->Init();
-    this->fixedJoint->SetHighStop(0, 0);
-    this->fixedJoint->SetLowStop(0, 0);
+    this->fixedJoint->SetUpperLimit(0, 0);
+    this->fixedJoint->SetLowerLimit(0, 0);
     if (this->disableCollisionsOnAttach) {
         // we can disable collisions of the grasped object, because when the fingers keep colliding with
         // it, the fingers keep wobbling, which can create difficulties when moving the arm. 
