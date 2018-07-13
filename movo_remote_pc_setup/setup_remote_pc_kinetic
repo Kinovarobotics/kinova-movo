@@ -71,8 +71,32 @@ sudo apt-get remove libgazebo*
 sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 sudo apt-get update
-sudo apt-get install ros-kinetic-gazebo9-*
+# Change that :
+sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+sudo apt-get update
+sudo apt-add-repository ppa:dartsim
+sudo apt-get update
+sudo apt-get install libdart6-dev xsltproc ruby-ronn robot-player-dev*
+hg clone https://bitbucket.org/osrf/gazebo /tmp/gazebo -r gazebo9
+cd /tmp/gazebo
+sed -i 's/const bool preserveWorldVelocity_=false/const bool preserveWorldVelocity_=true/g' ./gazebo/physics/Joint.hh ./gazebo/physics/ode/ODEJoint.hhmkdir ./gazebo/physics/bullet/BulletJoint.hh
+cd build/
+cmake ../
+make -j4
+sudo make install
+echo '/usr/local/lib' | sudo tee /etc/ld.so.conf.d/gazebo.conf
+sudo ldconfig
+rm -rf /tmp/gazebo/
+sudo apt-get install --download-only ros-kinetic-gazebo9-*
+cd /var/cache/apt/archives/
 
+sudo dpkg --force-depends -i ros-kinetic-gazebo9-dev_2.5.15-0xenial_amd64.deb
+sudo dpkg --force-depends -i ros-kinetic-gazebo9-msgs_2.5.15-0xenial_amd64.deb
+sudo dpkg --force-depends -i ros-kinetic-gazebo9-plugins_2.5.15-0xenial_amd64.deb
+sudo dpkg --force-depends -i ros-kinetic-gazebo9-ros_2.5.15-0xenial_amd64.deb
+sudo dpkg --force-depends -i ros-kinetic-gazebo9-ros-pkgs_2.5.15-0xenial_amd64.deb
+sudo dpkg --force-depends -i ros-kinetic-gazebo9-ros-control_2.5.15-0xenial_amd64.deb
 
 if grep -q "MOVO REMOTE PC START" ~/.bashrc
 then
