@@ -66,7 +66,7 @@ if __name__ == "__main__":
                             "linear_joint",
                             "pan_joint",
                             "tilt_joint"]
-        tucked = [-2.8, -1.48, -1.48, 0, 0, 1.571, 2.8, 1.48, 1.48, 0, 0, -1.571, 0.0371, 0.0, 0.0]
+        tucked = [-2.8, -1.48, -1.48, 0, 0, 1.571, 2.8, 1.48, 1.48, 0, 0, -1.571, 0.0371, 0.0, -0.5235]
 
     if "7dof" == dof:
         upper_body_joints = ["right_shoulder_lift_joint",
@@ -87,7 +87,8 @@ if __name__ == "__main__":
                              "pan_joint",
                              "tilt_joint"]
 
-        tucked = [-1.6, -1.5, 0.4, -2.7, 0.0, 0.5, -2.7, 1.6, 1.5, -0.4, 2.7, 0.0, -0.5, 2.7, 0.04, 0, 0]
+        tucked = [-1.6, -1.5, 0.4, -2.7, 0.0, 0.5, -1.7, 1.6, 1.5, -0.4, 2.7, 0.0, -0.5, 1.7, 0.04, 0, -0.5235]
+
 
     # This is not simulation so need to adjust gripper parameters
     gripper_closed = 0.01

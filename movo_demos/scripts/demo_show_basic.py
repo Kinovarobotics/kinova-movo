@@ -56,7 +56,7 @@ def say(_pub, _data):
 if __name__ == "__main__":
 
     process_start_time = dt.datetime.now()
-    rospy.init_node("demo_show_basic")
+    rospy.init_node("demo_show_basic", anonymous=True)
     dof = rospy.get_param('~jaco_dof')
     sim = rospy.get_param("~sim", False)
     if (sim):
@@ -155,36 +155,32 @@ if __name__ == "__main__":
     movo_larm.wait(from_start_time+2)
     movo_rarm.wait(from_start_time+2)
     print "Movo Completing Greeting Task!"
-    # """
-    # 2. Feature Motion
-    # """
+
+
+    """
+    2. Feature Motion
+    """
+
     # Movo base motion
-    say(Publisher, "I can move all over the place. Forward... and backward... and to the side. "
+    say(Publisher, "I can move all over the place. Forward, backward... and to the side. "
                    "Do I look like Michael Jackson? ")
     target = Pose2D(x=0.2, y=0.0, theta=0.0)
     movo_base.goto(target)
+    rospy.sleep(0.1)
+
+    target = Pose2D(x=0.2, y=0.2, theta=0.0)
+    movo_base.goto(target)
+    rospy.sleep(0.1)
 
     target = Pose2D(x=0.0, y=0.0, theta=0.0)
     movo_base.goto(target)
-    rospy.sleep(1)
-
-    target = Pose2D(x=0.0, y=0.3, theta=0.0)
-    movo_base.goto(target)
-
-    rospy.sleep(1)
-    target = Pose2D(x=0.0, y=0.0, theta=0.0)
-    movo_base.goto(target)
-    rospy.sleep(1)
+    rospy.sleep(0.1)
 
     say(Publisher, "I can even do a pirouette. ")
-    target = Pose2D(x=0.0, y=0.0, theta=-0.52)
+    target = Pose2D(x=0.0, y=0.0, theta=-0.5)
     movo_base.goto(target)
+    rospy.sleep(0.1)
 
-    rospy.sleep(1)
-    target = Pose2D(x=0.0, y=0.0, theta=0.52)
-    movo_base.goto(target)
-
-    rospy.sleep(1)
     target = Pose2D(x=0.0, y=0.0, theta=0.0)
     movo_base.goto(target)
     print "Movo Completing Base Motion"

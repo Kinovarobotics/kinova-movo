@@ -36,15 +36,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------"""
 from ctypes import *
 import rospy
+
 from movo_msgs.msg import (
     JacoCartesianVelocityCmd,
     JacoAngularVelocityCmd6DOF,
     JacoAngularVelocityCmd7DOF,
-    KinovaActuatorFdbk
+    KinovaActuatorFdbk,
+    JacoStatus
 )
 from sensor_msgs.msg import JointState
 from control_msgs.msg import JointTrajectoryControllerState
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, String
 import threading
 import math
 from angles import *
@@ -153,8 +155,15 @@ class SIArmController(object):
             self._gripper_fb['position'] = pos[self._num_joints:self._num_joints+self.num_fingers]
             self._gripper_fb['velocity'] = vel[self._num_joints:self._num_joints+self.num_fingers]
             self._gripper_fb['force'] = force[self._num_joints:self._num_joints+self.num_fingers]
-                
-        # Register the publishers and subscribers
+
+        """
+        Reset gravity vector to [0.0 9.81 0.0], along with positive y axis of kinova_arm base
+        """
+        self.api.set_gravity_vector(0.0, 9.81, 0.0)
+
+        """
+        Register the publishers and subscribers
+        """
         self.last_cartesian_vel_cmd_update = rospy.get_time()-0.5
         # X, Y, Z, ThetaX, ThetaY, ThetaZ, FingerVel
         self._last_cartesian_vel_cmd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
@@ -163,7 +172,7 @@ class SIArmController(object):
             JacoCartesianVelocityCmd,
             self._update_cartesian_vel_cmd
         )
-        
+
         self.last_angular_vel_cmd_update = rospy.get_time()-0.5
         self._last_angular_vel_cmd = [0.0] * (self._num_joints + self.num_fingers)
         if "6dof"== self.arm_dof:
@@ -214,8 +223,24 @@ class SIArmController(object):
             self._gripper_jsmsg.header.frame_id = ''
             self._gripper_jsmsg.header.stamp = rospy.get_rostime()
             self._gripper_jsmsg.name  = self._gripper_joint_names
-        
-        # Set initial parameters for the controller
+
+        self._cartesianforce_pub = rospy.Publisher("/movo/%s_arm/cartesianforce"%self._prefix, JacoCartesianVelocityCmd, queue_size=10)
+        self._cartesianforce_msg = JacoCartesianVelocityCmd()
+        self._cartesianforce_msg.header.seq = 0
+        self._cartesianforce_msg.header.frame_id = ''
+        self._cartesianforce_msg.header.stamp = rospy.get_rostime()
+
+
+        self._angularforce_gravityfree_pub = rospy.Publisher("/movo/%s_arm/angularforce_gravityfree"%self._prefix, JacoStatus, queue_size=10)
+        self._angularforce_gravityfree_msg = JacoStatus()
+        self._angularforce_gravityfree_msg.header.seq = 0
+        self._angularforce_gravityfree_msg.header.frame_id = ''
+        self._angularforce_gravityfree_msg.header.stamp = rospy.get_rostime()
+        self._angularforce_gravityfree_msg.type = "angularforce_gravityfree"
+
+        """
+        This starts the controller in cart vel mode so that teleop is active by default
+        """
         if (0 != self.num_fingers):
             self._gripper_pid = [None]*self.num_fingers
             for i in range(self.num_fingers):
@@ -480,8 +505,10 @@ class SIArmController(object):
     def _update_controller_data(self):
         pos = self.api.get_angular_position()
         vel = self.api.get_angular_velocity()
-        force = self.api.get_angular_force()
+        angular_force = self.api.get_angular_force()
         sensor_data = self.api.get_sensor_data()
+        cartesian_force = self.api.get_cartesian_force()
+        angular_force_gravity_free = self.api.get_angular_force_gravity_free()
 
         if(len(sensor_data[0]) > 0):
             self._actfdbk_msg.current = sensor_data[0]
@@ -499,8 +526,8 @@ class SIArmController(object):
         if(len(vel) > 0):
             self._joint_fb['velocity'] = vel[:self._num_joints]
 
-        if(len(force) > 0):
-            self._joint_fb['force'] = force[:self._num_joints]
+        if(len(angular_force) > 0):
+            self._joint_fb['force'] = angular_force[:self._num_joints]
 
 
         tmp = [0.0]*self._num_joints
@@ -536,8 +563,8 @@ class SIArmController(object):
             if (len(vel) > 0):
                 self._gripper_fb['velocity'] = vel[self._num_joints:self._num_joints+self.num_fingers]
 
-            if (len(force) > 0):
-                self._gripper_fb['force'] = force[self._num_joints:self._num_joints+self.num_fingers]
+            if (len(angular_force) > 0):
+                self._gripper_fb['force'] = angular_force[self._num_joints:self._num_joints+self.num_fingers]
             
             self._gripper_jsmsg.header.stamp = rospy.get_rostime()
             self._gripper_jsmsg.position = self._gripper_fb['position']
@@ -545,6 +572,26 @@ class SIArmController(object):
             self._gripper_jsmsg.effort = self._gripper_fb['force']
             self._gripper_jspub.publish(self._gripper_jsmsg)
             self._gripper_jsmsg.header.seq+=1
+
+        # update and publish cartesian force (wrench)
+        self._cartesianforce_msg.header.stamp = rospy.get_rostime()
+        self._cartesianforce_msg.x = cartesian_force[0]
+        self._cartesianforce_msg.y = cartesian_force[1]
+        self._cartesianforce_msg.z = cartesian_force[2]
+        self._cartesianforce_msg.theta_x = cartesian_force[3]
+        self._cartesianforce_msg.theta_y = cartesian_force[4]
+        self._cartesianforce_msg.theta_z = cartesian_force[5]
+
+        self._cartesianforce_pub.publish(self._cartesianforce_msg)
+        self._cartesianforce_msg.header.seq += 1
+
+
+        # update and publish angular force gravity free(joint torque)
+        self._angularforce_gravityfree_msg.header.stamp = rospy.get_rostime()
+        self._angularforce_gravityfree_msg.joint = [round(x, 3) for x in angular_force_gravity_free]
+        self._angularforce_gravityfree_pub.publish(self._angularforce_gravityfree_msg)
+        self._angularforce_gravityfree_msg.header.seq += 1
+
 
     def _run_ctl(self,events):
         if self._is_shutdown():

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package>
+  <name>executive_smach_visualization</name>
+  <version>2.0.2</version>
+  <description>
+    This metapackage depends on the SMACH visualization tools.
+  </description>
+  <maintainer email="jbo@jhu.edu">Jonathan Bohren</maintainer>
+  <maintainer email="ros-orphaned-packages@googlegroups.com">ROS Orphaned Package Maintainers</maintainer>
+  <license>BSD</license>
+
+  <url>http://ros.org/wiki/smach</url>
+  <author>Jonathan Bohren</author>
+  <author>Wim Meeussen</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>smach_viewer</run_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>
