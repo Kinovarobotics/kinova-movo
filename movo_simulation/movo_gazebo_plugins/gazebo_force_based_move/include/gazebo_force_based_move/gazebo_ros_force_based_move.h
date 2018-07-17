@@ -102,7 +102,7 @@ namespace gazebo {
       double rot_;
       bool alive_;
       common::Time last_odom_publish_time_;
-      ignition::math::Pose3<double> last_odom_pose_;
+      math::Pose last_odom_pose_;
       
       double torque_yaw_velocity_p_gain_;
       double force_x_velocity_p_gain_;

@@ -1,0 +1,18 @@
+gazebo_ros_control:
+  pid_gains:
+    right_shoulder_pan_joint : {p: 100.1, i: 0.01, d: 1.0}
+    right_shoulder_lift_joint : {p: 100.1, i: 0.01, d: 1.0}
+    right_arm_half_joint : {p: 100.1, i: 0.01, d: 1.0}
+    right_elbow_joint : {p: 100.1, i: 0.01, d: 1.0}
+    right_wrist_spherical_1_joint : {p: 100.1, i: 0.01, d: 1.0}
+    right_wrist_spherical_2_joint : {p: 100.1, i: 0.01, d: 1.0}
+    right_wrist_3_joint : {p: 100.1, i: 0.01, d: 1.0}
+    left_shoulder_pan_joint : {p: 100.1, i: 0.01, d: 1.0}
+    left_shoulder_lift_joint : {p: 100.1, i: 0.01, d: 1.0}
+    left_arm_half_joint : {p: 100.1, i: 0.01, d: 1.0}
+    left_elbow_joint : {p: 100.1, i: 0.01, d: 1.0}
+    left_wrist_spherical_1_joint : {p: 100.1, i: 0.01, d: 1.0}
+    left_wrist_spherical_2_joint : {p: 100.1, i: 0.01, d: 1.0}
+    left_wrist_3_joint : {p: 100.1, i: 0.01, d: 1.0}
+    pan_joint : {p: 100.1, i: 0.01, d: 1.0}
+    tilt_joint : {p: 100.1, i: 0.01, d: 1.0}      

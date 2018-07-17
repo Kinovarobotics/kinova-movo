@@ -35,8 +35,7 @@ MimicJointPlugin::MimicJointPlugin()
 
 MimicJointPlugin::~MimicJointPlugin()
 {
-  // Kill the connection is taken care of in event::~Connection from Gazebo 8.X on
-  //event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
+  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
 
   kill_sim = true;
 }
@@ -150,24 +149,23 @@ void MimicJointPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf )
 
 void MimicJointPlugin::UpdateChild()
 {
-  static ros::Duration period(world_->Physics()->GetMaxStepSize());
+  static ros::Duration period(world_->GetPhysicsEngine()->GetMaxStepSize());
 
   // Set mimic joint's angle based on joint's angle
-  double angle = joint_->Position(0)*multiplier_+offset_;
+  double angle = joint_->GetAngle(0).Radian()*multiplier_+offset_;
   
-  if(abs(angle-mimic_joint_->Position(0))>=sensitiveness_)
+  if(abs(angle-mimic_joint_->GetAngle(0).Radian())>=sensitiveness_)
   {
     if(has_pid_)
     {
-      double a = mimic_joint_->Position(0);
+      double a = mimic_joint_->GetAngle(0).Radian();
       if(a!=a)
         a = angle;
       double error = angle-a;
-      double effort = ignition::math::clamp(pid_.computeCommand(error, period), -max_effort_, max_effort_);
+      double effort = gazebo::math::clamp(pid_.computeCommand(error, period), -max_effort_, max_effort_);
     }
     else
-      mimic_joint_->SetPosition(0, angle, true);
-  }
+      mimic_joint_->SetPosition(0, angle);  }
 }
 
 GZ_REGISTER_MODEL_PLUGIN(MimicJointPlugin);
