@@ -1,0 +1,49 @@
+#!/bin/bash
+
+echo -e "This script will give access to the Internet to MOVO1 and upgrade its OS to Ubuntu 16.04.\nMAKE SURE YOU HAVE A BACKUP IMAGE OF THIS COMPUTER!\n"
+
+read -r -p "Are you absolutely sure you want to continue? [y/n] \n" response
+if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
+then
+    echo "Starting internet connection setup...\n"
+    sleep 1
+else
+    echo "Aborting.\n"
+    exit 1
+fi
+
+sudo su
+iptables -F
+iptables -t nat -F
+iptables -t mangle -F
+iptables -X
+iptables -t nat -X
+iptables -t mangle -X
+
+iptables-save > /etc/network/iptables.rules
+
+echo 1 > /proc/sys/net/ipv4/ip_forward
+iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+
+iptables-save > /etc/network/iptables.rules
+
+ssh movo1
+sudo ip route del default
+sudo ip route add default via 10.66.171.1
+sudo sh -c "echo `nameserver 8.8.4.4` > /etc/resolv.conf"
+
+wget -q --tries=5 --timeout=10 --spider http://google.com
+if [[ $? -eq 0 ]]; then
+        echo "MOVO1 is online.\nUpdating packages..."
+        sudo apt-get update -y
+        echo "MOVO1 will be upgraded to Ubuntu 16.04.\nYou will be prompted a couple times during the installation process.\n"
+        sudo do-release-update
+else
+        echo "MOVO1 is offline and the internet setup failed.\n"
+        exit 1
+fi
+
+echo "Press any key to continue...\n"
+read -n 1 -s
+
+
