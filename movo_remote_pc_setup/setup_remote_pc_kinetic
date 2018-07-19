@@ -19,9 +19,13 @@ echo "$USER ALL=(ALL) NOPASSWD:ALL" | (sudo su -c 'EDITOR="tee -a" visudo') >> /
 #sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 #sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
 # If this is an update from Ubuntu 14.04, run this line : 
-#sudo apt-get purge libopenni*
+sudo apt-get purge libopenni*
+sudo apt-get purge ros-indigo*
+sudo apt-get autoremove
 #change the .bashrc file in home for sourcing kinetic instead of indigo
 
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
 sudo apt-get update
 sudo apt-get install ros-kinetic-desktop-full
 sudo rosdep init
@@ -60,7 +64,6 @@ then
     sudo apt-get install libgl1-mesa-dri-lts-vivid
     sudo apt-add-repository ppa:deb-rob/ros-xenial && sudo apt-get update
     sudo apt-get install libopenni2-dev
-    cd ..
     mkdir build && cd build
     cmake .. -DENABLE_CXX11=ON
     make
