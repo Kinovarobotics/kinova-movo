@@ -53,7 +53,7 @@ if [[ ! -d $log_path ]]; then
 fi
 
 @[if interface]@
-export ROS_IP=`rosrun movo_upstart getifip @(interface)`
+export ROS_IP=`rosrun robot_upstart getifip @(interface)`
 if [ "$ROS_IP" = "" ]; then
   log err "@(name): No IP address on @(interface), cannot roslaunch."
   exit 1
@@ -67,13 +67,15 @@ export ROS_MASTER_URI=@(master_uri)
 @[else]@
 export ROS_MASTER_URI=http://127.0.0.1:11311
 @[end if]@
+export ROS_HOME=${ROS_HOME:=$(echo ~@(user))/.ros}
+export ROS_LOG_DIR=$log_path
 
-log info "@(name): Launching ROS_HOSTNAME=$ROS_HOSTNAME, ROS_IP=$ROS_IP, ROS_MASTER_URI=$ROS_MASTER_URI, ROS_LOG_DIR=$log_path"
+log info "@(name): Launching ROS_HOSTNAME=$ROS_HOSTNAME, ROS_IP=$ROS_IP, ROS_MASTER_URI=$ROS_MASTER_URI, ROS_HOME=$ROS_HOME, ROS_LOG_DIR=$log_path"
 
 # If xacro files are present in job folder, generate and expand an amalgamated urdf.
 XACRO_FILENAME=$log_path/@(name).xacro
 XACRO_ROBOT_NAME=$(echo "@(name)" | cut -d- -f1)
-rosrun movo_upstart mkxacro $JOB_FOLDER $XACRO_ROBOT_NAME > $XACRO_FILENAME
+rosrun robot_upstart mkxacro $JOB_FOLDER $XACRO_ROBOT_NAME > $XACRO_FILENAME
 if [[ "$?" == "0" ]]; then
   URDF_FILENAME=$log_path/@(name).urdf
   rosrun xacro xacro $XACRO_FILENAME -o $URDF_FILENAME
@@ -87,7 +89,7 @@ fi
 
 # Assemble amalgamated launchfile.
 LAUNCH_FILENAME=$log_path/@(name).launch
-rosrun movo_upstart mklaunch $JOB_FOLDER > $LAUNCH_FILENAME
+rosrun robot_upstart mklaunch $JOB_FOLDER > $LAUNCH_FILENAME
 if [[ "$?" != "0" ]]; then
   log err "@(name): Unable to generate amalgamated launchfile."
   exit 1
@@ -102,8 +104,6 @@ if [ "$?" != "0" ]; then
 fi
 
 # Punch it.
-export ROS_HOME=$(echo ~@(user))/.ros
-export ROS_LOG_DIR=$log_path
 setuidgid @(user) roslaunch $LAUNCH_FILENAME @(roslaunch_wait?'--wait ')&
 PID=$!
 

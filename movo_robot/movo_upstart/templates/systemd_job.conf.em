@@ -24,12 +24,16 @@
 @# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 @# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 @#
-@# Please send comments, questions, or patches to code@clearpathrobotics.com !/bin/bash
-#!/bin/bash
+@# Please send comments, questions, or patches to code@clearpathrobotics.com
 # THIS IS A GENERATED FILE, NOT RECOMMENDED TO EDIT.
 
-PID=$(cat @(log_path)/@(name).pid)
-logger -p user.info "Attempting to stop @(name) (PID $PID)"
-kill $PID
-logger -s -p user.info "Waiting for roslaunch process to end"
-while kill -0 $PID 2>/dev/null; do sleep 0.2; done
+[Unit]
+Description="bringup @(name)"
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/@(name)-start
+
+[Install]
+WantedBy=multi-user.target
