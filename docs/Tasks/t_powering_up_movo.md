@@ -8,9 +8,7 @@ This section describes the procedure for powering up MOVO. This is carried out e
     **Note:** As a safety precaution, the E-Stop will have been engaged before shipping. Make sure to disengage the E-Stop before your first power up after unboxing and charging MOVO.
 
 
-1.   The arms stay flexible when not powered. They become stiff a few seconds after boot up. To avoid damaging the arms or the fingers, please pay attention to the following aspects. If required, please position the arms manually prior to powering up Movo. 
-
-![](../Graphics/movo_arm_pos.svg)
+1.   The arms stay flexible when not powered. They become stiff a few seconds after boot up. To avoid damaging the arms or the fingers, please pay attention to the following aspects. If required, please position the arms manually prior to powering up Movo. ![](../Graphics/movo_arm_pos.svg)
 
     **Note:** During the startup process, the arms will both rise up into the homing position. The arms will use MoveIt for planning their trajectory to the home position, but it may happen that the planning in MoveIt fails or leads to inadequate planning and eventually collision. To avoid those situations, please position the arms manually before boot up taking into account the criteria mentionned above. 
 
