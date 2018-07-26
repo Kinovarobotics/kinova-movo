@@ -67,7 +67,7 @@ class voice_control:
         self._movo_base_uz = 0.0
 
         # subscriber
-        self._speech_sub = rospy.Subscriber('recognizer/output', String, self._speechCb)
+        self._speech_sub = rospy.Subscriber('asr_control/detected_words', String, self._speechCb)
 
         # publisher
         self._movo_base_cmd_pub = rospy.Publisher('/movo/base/voice_control/cmd_vel', Twist, queue_size=1)
@@ -90,9 +90,9 @@ class voice_control:
 
     def _speechCb(self, msg):
         rospy.loginfo(msg.data)
-
+        msg.data = msg.data.lower()
         with self._movo_base_cmd_mutex:
-            # set speed of movo base motion
+            # set speed of movo base motion.
             if msg.data.find("hello movo") > -1:
                 self._speech_text.data = "Hello, how are you today"
                 self._speech_pub.publish(self._speech_text)
