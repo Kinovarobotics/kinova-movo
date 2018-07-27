@@ -15,7 +15,7 @@
   <arg name="use_rgbd" default="true" />
   <arg name="approximate_sync" default="true" />
 
-  <arg name="nodename" default="face_detector" />  <!-- Default is 0 length str -->
+  <arg name="nodename" default="facedetector" />  <!-- Default is 0 length str -->
 
   <node pkg="face_detector" type="face_detector" name="$(arg nodename)" output="screen">
     <remap from="camera" to="$(arg camera)" />

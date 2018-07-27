@@ -12,7 +12,7 @@ import face_detector.msg
 
 def face_detector_client():
     # Creates the SimpleActionClient, passing the type of the action to the constructor.
-    client = actionlib.SimpleActionClient('face_detector', face_detector.msg.FaceDetectorAction)
+    client = actionlib.SimpleActionClient('face_detector_action', face_detector.msg.FaceDetectorAction)
 
     # Waits until the action server has started up and started
     # listening for goals.

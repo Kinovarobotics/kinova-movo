@@ -62,11 +62,11 @@
 
 using namespace std;
 
-#define FACE_SIZE_MIN_M 0.15 /**< Default minimum face size, in meters. Only use this for initialization. */
-#define FACE_SIZE_MAX_M 0.30 /**< Default maximum face size, in meters. Only use this for initialization. */
-#define MAX_FACE_Z_M    3.5 /**< Default maximum distance from the camera, in meters. Only use this for initialization. */
+#define FACE_SIZE_MIN_M 0.1 /**< Default minimum face size, in meters. Only use this for initialization. */
+#define FACE_SIZE_MAX_M 0.5 /**< Default maximum face size, in meters. Only use this for initialization. */
+#define MAX_FACE_Z_M    8.0 /**< Default maximum distance from the camera, in meters. Only use this for initialization. */
 // Default thresholds for face tracking.
-#define FACE_SEP_DIST_M 0.5 /**< Default separation distance for associating faces. Only use this for initialization. */
+#define FACE_SEP_DIST_M 1.0 /**< Default separation distance for associating faces. Only use this for initialization. */
 
 namespace people
 {
