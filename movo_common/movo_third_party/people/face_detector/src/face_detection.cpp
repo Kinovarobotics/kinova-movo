@@ -493,7 +493,7 @@ public:
     gettimeofday(&timeofday, NULL);
     ros::Time endtdetect = ros::Time().fromNSec(1e9 * timeofday.tv_sec + 1e3 * timeofday.tv_usec);
     ros::Duration diffdetect = endtdetect - starttdetect;
-    ROS_INFO_STREAM_NAMED("face_detector", "Detection duration = " << diffdetect.toSec() << "sec");
+    //ROS_INFO_STREAM_NAMED("face_detector", "Detection duration = " << diffdetect.toSec() << "sec");
 
     matchAndDisplay(faces_vector, image->header);
   }
@@ -650,7 +650,7 @@ private:
               (*close_it).second.dist = mindist;
               (*close_it).second.pos = pos;
             }
-            ROS_INFO_STREAM_NAMED("face_detector", "Found face to match with id " << pos.object_id);
+            //ROS_INFO_STREAM_NAMED("face_detector", "Found face to match with id " << pos.object_id);
           }
           else
           {
@@ -744,7 +744,7 @@ private:
 
     /******** Done display **********************************************************/
 
-    ROS_INFO_STREAM_NAMED("face_detector", "Number of faces found: " << faces_vector.size() << ", number with good depth and size: " << ngood);
+    //ROS_INFO_STREAM_NAMED("face_detector", "Number of faces found: " << faces_vector.size() << ", number with good depth and size: " << ngood);
 
     // If you don't want continuous processing and you've found at least one face, turn off the detector.
     if (!do_continuous_ && found_faces)
