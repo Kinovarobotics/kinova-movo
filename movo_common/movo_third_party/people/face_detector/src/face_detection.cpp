@@ -443,22 +443,22 @@ public:
     void operator()(void const *) const {}
   };
 
-  /*!
+   /*!
    * \brief Image callback for synced messages.
    *
    * For each new image:
    * convert it to OpenCV format, perform face detection using OpenCV's haar filter cascade classifier, and
    * (if requested) draw rectangles around the found faces.
    * Can also compute which faces are associated (by proximity, currently) with faces it already has in its list of people.
-   */Subscriber
-  voiSubscriber&image, const sensor_msgs::Image::ConstPtr& depth_image, const sensor_msgs::CameraInfo::ConstPtr& c1_info, const sensor_msgs::CameraInfo::ConstPtr& c2_info)
+   */
+  void imageCBAllDepth(const sensor_msgs::Image::ConstPtr &image, const sensor_msgs::Image::ConstPtr& depth_image, const sensor_msgs::CameraInfo::ConstPtr& c1_info, const sensor_msgs::CameraInfo::ConstPtr& c2_info)
   {
 
-    /Subscriberdetector was turned on through an action invocation.
-    iSubscriber
-     Subscriber
+    // Only run the detector if in continuous mode or the detector was turned on through an action invocation.
+    if (!do_continuous_ && !as_.isActive())
+      return;
 
-    /Subscriber
+    // Clear out the result vector.
     result_.face_positions.clear();
 
     if (do_display_)
