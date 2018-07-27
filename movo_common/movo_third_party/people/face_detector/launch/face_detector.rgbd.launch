@@ -5,12 +5,12 @@
         /camera/rgb/image_rect_color
         /camera/depth_ns/image_rect_raw 
    -->
-  <arg name="camera" default="kinect2" />
-  <arg name="rgb_ns" default="qhd" />
-  <arg name="depth_ns" default="qhd" />
-  <arg name="image_topic" default="image_color_rect" />
-  <arg name="depth_topic" default="image_depth_rect" />
-  <arg name="fixed_frame" default="kinect2_rgb_optical_frame" />
+  <arg name="camera" default="camera" />
+  <arg name="rgb_ns" default="rgb" />  
+  <arg name="depth_ns" default="depth_registered" />
+  <arg name="image_topic" default="image_rect_color" />
+  <arg name="depth_topic" default="image_rect_raw" />
+  <arg name="fixed_frame" default="camera_rgb_optical_frame" />
 
   <arg name="paramfile_classifier" default="$(find face_detector)/param/classifier.yaml"/>
 
@@ -31,8 +31,8 @@
     <arg name="paramfile_classifier" value="$(arg paramfile_classifier)"/>
     <arg name="classifier_reliability" value="0.9"/>
     <arg name="do_continuous" value="true" />
-    <arg name="do_publish_faces_of_unknown_size" value="false" />
-    <arg name="do_display" value="true" />
+    <arg name="do_publish_faces_of_unknown_size" value="false" />	
+    <arg name="do_display" value="false" />
     <arg name="use_rgbd" value="true" />
     <arg name="approximate_sync" value="true" />
   </include>

@@ -19,7 +19,7 @@
 
   <arg name="paramfile_classifier" default="$(find face_detector)/param/classifier.yaml"/>
 
-  <!--include file="$(find openni_launch)/launch/openni.launch"/-->
+  <!-- <include file="$(find openni_launch)/launch/openni.launch"/> -->
   <node name="$(anon dynparam)" pkg="dynamic_reconfigure" type="dynparam" args="set_from_parameters $(arg camera)/driver">
     <param name="depth_registration" type="bool" value="true" />
   </node>
@@ -37,7 +37,7 @@
     <arg name="classifier_reliability" value="0.9"/>
     <arg name="do_continuous" value="true" />
     <arg name="do_publish_faces_of_unknown_size" value="false" />
-    <arg name="do_display" value="true" />
+    <arg name="do_display" value="false" />
     <arg name="use_rgbd" value="true" />
     <arg name="approximate_sync" value="true" />
   </include>
