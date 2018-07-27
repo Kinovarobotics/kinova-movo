@@ -28,9 +28,9 @@ function save_map()
 {
   if [ ! -z "$1" ]
   then
-    local dest='/home/$USER/movo_ws/src/movo_demos/maps/'$1
+    local dest=/home/$USER/movo_ws/src/movo_demos/maps/$1
   else
-    local dest='/home/$USER/movo_ws/src/movo_demos/maps/mymap'
+    local dest=/home/$USER/movo_ws/src/movo_demos/maps/mymap
   fi
   
   rosrun map_server map_saver -f $dest 
