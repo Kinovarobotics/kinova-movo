@@ -66,7 +66,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     <xacro:movo_base/>
     
-    
+    <!-- CHANGE_THIS -->
     <xacro:movo_pan_tilt rgbd_prefix="kinect2" parent="linear_actuator_link">
         <origin xyz="0.19735 0 0.3449888" rpy="0 0 0"/>
     </xacro:movo_pan_tilt>

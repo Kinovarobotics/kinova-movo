@@ -28,7 +28,7 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="kinect_one_sensor">
-
+    <!-- CHANGE_THIS -->
 	<xacro:macro name="kinect_one_sensor" params="prefix parent *origin">
         <joint name="${prefix}_joint" type="fixed">
             <xacro:insert_block name="origin" />
