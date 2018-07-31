@@ -95,7 +95,7 @@ class FaceTracking:
         self.face_found_msg = FaceFound()
         self.face_found_msg.header.seq = 0
         self.face_found_msg.header.stamp = rospy.get_rostime()
-        self.face_found_msg.header.frame_id = "camera_rgb_optical_frame"
+        self.face_found_msg.header.frame_id = "camera_color_optical_frame"
 
         # self.pantilt_vel_lim = rospy.get_param('~sim_teleop_pan_tilt_vel_limit', 0.524)
         self.pan_vel_lim = self.max_pan_view_angle # np.radians(30) = 0.524

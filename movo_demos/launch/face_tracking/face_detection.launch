@@ -15,7 +15,7 @@
   <arg name="depth_ns" default="qhd" />
   <arg name="image_topic" default="image_color_rect" />
   <arg name="depth_topic" default="image_depth_rect" />
-  <arg name="fixed_frame" default="camera_rgb_optical_frame" />
+  <arg name="fixed_frame" default="camera_color_optical_frame" />
 
   <arg name="paramfile_classifier" default="$(find face_detector)/param/classifier.yaml"/>
 

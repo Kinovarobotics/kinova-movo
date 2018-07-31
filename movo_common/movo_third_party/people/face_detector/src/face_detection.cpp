@@ -254,7 +254,7 @@ public:
       ROS_DEBUG("camera_info_topic_: %s", camera_info_topic_.c_str());
       ROS_DEBUG("depth_info_topic_: %s", depth_info_topic_.c_str());
 
-      local_nh.param("fixed_frame", fixed_frame_, std::string("camera_rgb_optical_frame"));
+      local_nh.param("fixed_frame", fixed_frame_, std::string("camera_color_optical_frame"));
 
       if (approx)
       {

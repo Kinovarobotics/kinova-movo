@@ -71,17 +71,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <child link="${prefix}_ir_optical_frame"/>
         </joint>
 
-        <link name="${prefix}_rgb_link"/>
-        <joint name="${prefix}_rgb_joint" type="fixed">
+        <link name="${prefix}_color_link"/>
+        <joint name="${prefix}_color_joint" type="fixed">
             <parent link="${prefix}_ir_link"/>
-            <child link="${prefix}_rgb_link" />
+            <child link="${prefix}_color_link" />
             <origin xyz="0 -0.06175  0" rpy="0 0 0"/>
         </joint>
         
-        <link name="${prefix}_rgb_optical_frame"/>
-        <joint name="${prefix}_rgb_optical_joint" type="fixed">
-            <parent link="${prefix}_rgb_link"/>
-            <child link="${prefix}_rgb_optical_frame" />
+        <link name="${prefix}_color_optical_frame"/>
+        <joint name="${prefix}_color_optical_joint" type="fixed">
+            <parent link="${prefix}_color_link"/>
+            <child link="${prefix}_color_optical_frame" />
             <origin xyz="0 0 0" rpy="${-M_PI / 2.0} 0 ${-M_PI / 2.0}"/>
         </joint>
         
