@@ -1,6 +1,7 @@
 <!-- Launch file for Stanley Innovation enabled Movo1 PC startup -->
 
 <launch>
+    <!-- CHANGE_THIS use_camera instead? -->
     <arg name="use_kinect" default="true"/>
     
     <!-- joystick USB port is attached to this PC -->    
@@ -25,7 +26,7 @@
     <!-- Platform Manipulation -->
     <node pkg="si_utils" type="timed_roslaunch"
         args="14 movo_bringup movo_perception.launch"
-        name="perception_bringup" output="screen" if="$(arg use_kinect)"/> 
+        name="perception_bringup" output="screen" if="$(arg use_kinect)"/>      <!-- CHANGE_THIS use_camera instead? -->
 
     <!-- ROS Driver, Robot State Publisher, and sensors -->
     <node pkg="si_utils" type="timed_roslaunch"
