@@ -3,6 +3,15 @@
 
 <!-- General arguments -->
 <arg name="base_name"         default="movo_camera"/>
+
+<arg name="rgb_ns"            default="color"/>
+<arg name="depth_ns"          default="depth"/>
+<arg name="point_cloud_ns"    default="point_cloud"/>
+
+<arg name="rgb_topic"         default="image_color_rect"/>
+<arg name="depth_topic"       default="image_depth_rect"/>
+<arg name="points_topic"      default="points"/>
+
 <arg name="respawn"           default="true"/>
 <arg name="use_nodelet"       default="true"/>
 <arg name="output"            default="screen"/>
@@ -93,10 +102,10 @@
   <node pkg="nodelet" type="nodelet" name="$(arg base_name)_points_xyzrgb_sd" 
         args="load depth_image_proc/point_cloud_xyzrgb $(arg nodelet_manager)" respawn="$(arg respawn)">
     <group if="$(arg remap_sd_into_movo_image)">
-      <remap from="rgb/camera_info"             to="$(arg base_name)/camera_info"/>
-      <remap from="rgb/image_rect_color"        to="$(arg base_name)/image_color_rect"/>
-      <remap from="depth_registered/image_rect" to="$(arg base_name)/image_depth_rect"/>
-      <remap from="depth_registered/points"     to="$(arg base_name)/points"/>
+      <remap from="rgb/camera_info"             to="$(arg base_name)/$(rgb_ns)/camera_info"/>
+      <remap from="rgb/image_rect_color"        to="$(arg base_name)/$(rgb_ns)/$(rgb_topic)"/>
+      <remap from="depth_registered/image_rect" to="$(arg base_name)/$(depth_ns)/$(depth_topic)"/>
+      <remap from="depth_registered/points"     to="$(arg base_name)/$(point_cloud_ns)/$(points_topic)"/>
     </group>
     <group unless="$(arg remap_sd_into_movo_image)">
       <remap from="rgb/camera_info"             to="kinect/sd/camera_info"/>
@@ -111,10 +120,10 @@
   <node pkg="nodelet" type="nodelet" name="$(arg base_name)_points_xyzrgb_qhd" 
         args="load depth_image_proc/point_cloud_xyzrgb $(arg nodelet_manager)" respawn="$(arg respawn)">
     <group if="$(arg remap_qhd_into_movo_image)">
-      <remap from="rgb/camera_info"             to="$(arg base_name)/camera_info"/>
-      <remap from="rgb/image_rect_color"        to="$(arg base_name)/image_color_rect"/>
-      <remap from="depth_registered/image_rect" to="$(arg base_name)/image_depth_rect"/>
-      <remap from="depth_registered/points"     to="$(arg base_name)/points"/>
+      <remap from="rgb/camera_info"             to="$(arg base_name)/$(rgb_ns)/camera_info"/>
+      <remap from="rgb/image_rect_color"        to="$(arg base_name)/$(rgb_ns)/$(rgb_topic)"/>
+      <remap from="depth_registered/image_rect" to="$(arg base_name)/$(depth_ns)/$(depth_topic)"/>
+      <remap from="depth_registered/points"     to="$(arg base_name)/$(point_cloud_ns)/$(points_topic)"/>
     </group>
     <group unless="$(arg remap_qhd_into_movo_image)">
       <remap from="rgb/camera_info"             to="kinect/qhd/camera_info"/>
@@ -129,10 +138,10 @@
   <node pkg="nodelet" type="nodelet" name="$(arg base_name)_points_xyzrgb_hd" 
         args="load depth_image_proc/point_cloud_xyzrgb $(arg nodelet_manager)" respawn="$(arg respawn)">
     <group if="$(arg remap_hd_into_movo_image)">
-      <remap from="rgb/camera_info"             to="$(arg base_name)/camera_info"/>
-      <remap from="rgb/image_rect_color"        to="$(arg base_name)/image_color_rect"/>
-      <remap from="depth_registered/image_rect" to="$(arg base_name)/image_depth_rect"/>
-      <remap from="depth_registered/points"     to="$(arg base_name)/points"/>
+      <remap from="rgb/camera_info"             to="$(arg base_name)/$(rgb_ns)/camera_info"/>
+      <remap from="rgb/image_rect_color"        to="$(arg base_name)/$(rgb_ns)/$(rgb_topic)"/>
+      <remap from="depth_registered/image_rect" to="$(arg base_name)/$(depth_ns)/$(depth_topic)"/>
+      <remap from="depth_registered/points"     to="$(arg base_name)/$(point_cloud_ns)/$(points_topic)"/>
     </group>
     <group unless="$(arg remap_hd_into_movo_image)">
       <remap from="rgb/camera_info"             to="kinect/hd/camera_info"/>

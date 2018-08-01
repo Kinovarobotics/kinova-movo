@@ -2,7 +2,7 @@
 
 <launch>
     <!-- CHANGE_THIS use_camera instead? -->
-    <arg name="use_kinect" default="true"/>
+    <arg name="use_camera" default="true"/>
     
     <!-- joystick USB port is attached to this PC -->    
     <node pkg="joy" type="joy_node" name="joy_node" if="$(optenv MOVO_JOY_IS_ATTACHED false)">
@@ -26,7 +26,7 @@
     <!-- Platform Manipulation -->
     <node pkg="si_utils" type="timed_roslaunch"
         args="14 movo_bringup movo_perception.launch"
-        name="perception_bringup" output="screen" if="$(arg use_kinect)"/>      <!-- CHANGE_THIS use_camera instead? -->
+        name="perception_bringup" output="screen" if="$(arg use_camera)"/>
 
     <!-- ROS Driver, Robot State Publisher, and sensors -->
     <node pkg="si_utils" type="timed_roslaunch"

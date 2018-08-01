@@ -14,8 +14,8 @@
 	
 	<!-- Start Perception -->
     <node name="basic_grasping_perception" pkg="simple_grasping" type="basic_grasping_perception" output="screen">
-    	<remap if="$(arg sim)" from="/head_camera/depth_registered/points" to="/kinect2/sd/points"/>
-    	<remap unless="$(arg sim)" from="/head_camera/depth_registered/points" to="/kinect2/sd/points"/>
+    	<remap if="$(arg sim)" from="/head_camera/depth_registered/points" to="/movo_camera/points"/>
+    	<remap unless="$(arg sim)" from="/head_camera/depth_registered/points" to="/movo_camera/points"/>
     	<param name="simulated_kinova" value="$(arg sim)"/>
     	<param name="use_debug" value="true"/>
         <rosparam command="load" file="$(find movo_demos)/config/simple_grasping.yaml"/>
