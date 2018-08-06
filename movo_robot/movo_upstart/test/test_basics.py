@@ -8,7 +8,7 @@ import sys
 import tempfile
 import unittest
 
-import robot_upstart
+import movo_upstart
 
 
 class TestBasics(unittest.TestCase):
@@ -28,7 +28,7 @@ class TestBasics(unittest.TestCase):
         return os.path.join(self.root_dir, *p)
 
     def test_install(self):
-        j = robot_upstart.Job(name="foo")
+        j = movo_upstart.Job(name="foo")
         j.install(sudo=None, root=self.root_dir)
 
         self.assertTrue(os.path.exists(self.pjoin("usr/sbin/foo-start")), "Start script not created.")
@@ -41,8 +41,8 @@ class TestBasics(unittest.TestCase):
                          "Stop script not valid bash syntax.")
 
     def test_install_launcher(self):
-        j = robot_upstart.Job(name="bar")
-        j.add('robot_upstart', 'test/launch/a.launch')
+        j = movo_upstart.Job(name="bar")
+        j.add('movo_upstart', 'test/launch/a.launch')
         j.install(sudo=None, root=self.root_dir)
 
         self.assertTrue(os.path.exists(self.pjoin("etc/ros", os.getenv("ROS_DISTRO"), "bar.d/a.launch")),
@@ -51,8 +51,8 @@ class TestBasics(unittest.TestCase):
                          "Launch copied which shouldn't have been.")
 
     def test_install_glob(self):
-        j = robot_upstart.Job(name="baz")
-        j.add('robot_upstart', glob='test/launch/*.launch')
+        j = movo_upstart.Job(name="baz")
+        j.add('movo_upstart', glob='test/launch/*.launch')
         j.install(sudo=None, root=self.root_dir)
 
         self.assertTrue(os.path.exists(self.pjoin("etc/ros", os.getenv("ROS_DISTRO"), "baz.d/a.launch")),
@@ -61,8 +61,8 @@ class TestBasics(unittest.TestCase):
                         "Launch file not copied.")
 
     def test_uninstall(self):
-        j = robot_upstart.Job(name="boo")
-        j.add('robot_upstart', glob='test/launch/*.launch')
+        j = movo_upstart.Job(name="boo")
+        j.add('movo_upstart', glob='test/launch/*.launch')
         j.install(sudo=None, root=self.root_dir)
         j.uninstall(sudo=None, root=self.root_dir)
 
@@ -72,8 +72,8 @@ class TestBasics(unittest.TestCase):
                          "Start script not removed.")
 
     def test_uninstall_user_file(self):
-        j = robot_upstart.Job(name="goo")
-        j.add('robot_upstart', glob='test/launch/*.launch')
+        j = movo_upstart.Job(name="goo")
+        j.add('movo_upstart', glob='test/launch/*.launch')
         j.install(sudo=None, root=self.root_dir)
         with open(self.pjoin("etc/ros", os.getenv("ROS_DISTRO"), "goo.d/c.launch"), "w") as f:
             f.write("<launch></launch>")
@@ -85,4 +85,4 @@ class TestBasics(unittest.TestCase):
 
 if __name__ == '__main__':
     import rosunit
-    rosunit.unitrun('robot_upstart', 'test_basics', TestBasics)
+    rosunit.unitrun('movo_upstart', 'test_basics', TestBasics)

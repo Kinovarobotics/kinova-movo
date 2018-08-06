@@ -34,7 +34,6 @@ import StringIO
 
 from catkin.find_in_workspaces import find_in_workspaces
 
-
 def detect_provider():
     cmd = open('/proc/1/cmdline', 'rb').read().split('\x00')[0]
     print os.path.realpath(cmd)
@@ -55,7 +54,7 @@ class Generic(object):
             commands with.
         :type root: str
         :param job: The job definition to transform to a set of system files.
-        :type job: :py:class:robot_upstart.Job
+        :type job: :py:class:movo_upstart.Job
         """
         self.root = root
         self.job = job
@@ -106,7 +105,7 @@ class Upstart(Generic):
             self.installation_files[os.path.join(self.root, "etc/init", self.job.name + ".conf")] = {
                 "content": self._fill_template("templates/job.conf.em"), "mode": 0o644}
             self.installation_files[os.path.join(self.root, "usr/sbin", self.job.name + "-start")] = {
-                "content": self._fill_template("templates/"%job_start_file), "mode": 0o755}
+                "content": self._fill_template("templates/%s"%job_start_file), "mode": 0o755}
             self.installation_files[os.path.join(self.root, "usr/sbin", self.job.name + "-stop")] = {
                 "content": self._fill_template("templates/job-stop.em"), "mode": 0o755}
             self.interpreter.shutdown()
@@ -148,11 +147,10 @@ class Upstart(Generic):
     def _fill_template(self, template):
         self.interpreter.output = StringIO.StringIO()
         self.interpreter.reset()
-        with open(find_in_workspaces(project="robot_upstart", path=template)[0]) as f:
+        with open(find_in_workspaces(project="movo_upstart", path=template)[0]) as f:
             self.interpreter.file(f)
             return self.interpreter.output.getvalue()
         self.set_job_path()
-
 
 class Systemd(Generic):
     """ The Systemd implementation places the user-specified files in ``/etc/ros/DISTRO/NAME.d``,
@@ -225,7 +223,8 @@ class Systemd(Generic):
     def _fill_template(self, template):
         self.interpreter.output = StringIO.StringIO()
         self.interpreter.reset()
-        with open(find_in_workspaces(project="robot_upstart", path=template)[0]) as f:
+        with open(find_in_workspaces(project="movo_upstart", path=template)[0]) as f:
             self.interpreter.file(f)
             return self.interpreter.output.getvalue()
         self.set_job_path()
+

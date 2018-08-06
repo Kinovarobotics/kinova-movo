@@ -26,6 +26,7 @@
 @#
 @# Please send comments, questions, or patches to code@clearpathrobotics.com
 # THIS IS A GENERATED FILE, NOT RECOMMENDED TO EDIT.
+# THE TEMPLATE HAS BEEN MODIFIED FOR MOVO
 
 description "bringup @(name)"
 

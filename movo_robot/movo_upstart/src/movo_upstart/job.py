@@ -22,7 +22,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 """
-This file defines the Job class, which is the primary code API to robot_upstart.
+This file defines the Job class, which is the primary code API to movo_upstart.
 """
 
 import getpass
@@ -40,7 +40,7 @@ class Job(object):
     """ Represents a ROS configuration to launch on machine startup. """
 
     def __init__(self, name="ros", interface=None, user=None, workspace_setup=None,
-                 rosdistro=None, master_uri=None, job_start_file='job_start.em'log_path=None):
+                 rosdistro=None, master_uri=None, job_start_file='job-start.em', log_path=None):
         """Construct a new Job definition.
 
         :param name: Name of job to create. Defaults to "ros", but you might
@@ -101,7 +101,7 @@ class Job(object):
         self.roslaunch_wait = False
 
         #Override the default jobstart template
-        self.jobstart_file = job_start_file
+        self.job_start_file = job_start_file
 
         # Set of files to be installed for the job. This is only launchers
         # and other user-specified configs--- nothing related to the system
@@ -128,7 +128,7 @@ class Job(object):
         if package:
             search_paths = reversed(find_in_workspaces(project=package))
         else:
-            search_paths = ('.', )
+            search_paths = ('.',)
 
         if glob and filename:
             raise RuntimeError("You must specify only an exact filename or a glob, not both.")
@@ -201,11 +201,11 @@ class Job(object):
         try:
             # Installed script location
             mutate_files_exec = find_in_workspaces(
-                project="robot_upstart", path="mutate_files", first_match_only=True)[0]
+                project="movo_upstart", path="mutate_files", first_match_only=True)[0]
         except IndexError:
             # Devel script location
             mutate_files_exec = find_in_workspaces(
-                project="robot_upstart", path="scripts/mutate_files", first_match_only=True)[0]
+                project="movo_upstart", path="scripts/mutate_files", first_match_only=True)[0]
 
         # If sudo is specified, then the user will be prompted at this point.
         cmd = [mutate_files_exec]
