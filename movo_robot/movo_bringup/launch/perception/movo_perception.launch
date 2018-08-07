@@ -47,7 +47,23 @@
 
 
   <node pkg="nodelet" type="nodelet" name="$(arg nodelet_manager)" args="manager"
-        if="$(arg start_manager)" output="screen"/>
+        if="$(arg start_manager)" output="screen">
+    <!-- Remap topics to match the movo_camera topics naming -->
+    <remap from="$(arg base_name)/sd/camera_info"       to="$(arg base_name)/$(arg rgb_ns)/camera_info"                 if="$(arg remap_sd_into_movo_image)"/>
+    <remap from="$(arg base_name)/sd/image_color_rect"  to="$(arg base_name)/$(arg rgb_ns)/$(arg rgb_topic)"            if="$(arg remap_sd_into_movo_image)"/>
+    <remap from="$(arg base_name)/sd/image_depth_rect"  to="$(arg base_name)/$(arg depth_ns)/$(arg depth_topic)"        if="$(arg remap_sd_into_movo_image)"/>
+    <remap from="$(arg base_name)/point_cloud/points"   to="$(arg base_name)/$(arg point_cloud_ns)/$(arg points_topic)" if="$(arg remap_sd_into_movo_image)"/>
+    
+    <remap from="$(arg base_name)/qhd/camera_info"       to="$(arg base_name)/$(arg rgb_ns)/camera_info"                if="$(arg remap_qhd_into_movo_image)"/>
+    <remap from="$(arg base_name)/qhd/image_color_rect"  to="$(arg base_name)/$(arg rgb_ns)/$(arg rgb_topic)"           if="$(arg remap_qhd_into_movo_image)"/>
+    <remap from="$(arg base_name)/qhd/image_depth_rect"  to="$(arg base_name)/$(arg depth_ns)/$(arg depth_topic)"       if="$(arg remap_qhd_into_movo_image)"/>
+    <remap from="$(arg base_name)/point_cloud/points"   to="$(arg base_name)/$(arg point_cloud_ns)/$(arg points_topic)" if="$(arg remap_qhd_into_movo_image)"/>
+
+    <remap from="$(arg base_name)/hd/camera_info"       to="$(arg base_name)/$(arg rgb_ns)/camera_info"                 if="$(arg remap_hd_into_movo_image)"/>
+    <remap from="$(arg base_name)/hd/image_color_rect"  to="$(arg base_name)/$(arg rgb_ns)/$(arg rgb_topic)"            if="$(arg remap_hd_into_movo_image)"/>
+    <remap from="$(arg base_name)/hd/image_depth_rect"  to="$(arg base_name)/$(arg depth_ns)/$(arg depth_topic)"        if="$(arg remap_hd_into_movo_image)"/>
+    <remap from="$(arg base_name)/point_cloud/points"   to="$(arg base_name)/$(arg point_cloud_ns)/$(arg points_topic)" if="$(arg remap_hd_into_movo_image)"/>
+  </node>
 
   <!-- Nodelet version of kinect2_bridge -->
   <node pkg="nodelet" type="nodelet" name="$(arg base_name)_bridge" 

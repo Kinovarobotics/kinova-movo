@@ -70,7 +70,7 @@ class PointHeadClient(object):
         self.pag = PointHeadGoal()
         self.pag.max_velocity = 1.0
         self.pag.pointing_axis.x = 1.0
-        self.pag.pointing_frame = "/camera_link"
+        self.pag.pointing_frame = "/movo_camera_link"
 
     def look_at(self, x, y, z, frame, duration=1.0):
         self.pag.target.header.stamp = rospy.get_rostime()
