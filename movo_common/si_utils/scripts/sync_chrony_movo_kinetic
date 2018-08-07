@@ -1,0 +1,55 @@
+#!/bin/bash          
+#
+# Script to synchronize time between the movo computers
+#
+# Alexandre Vannobel
+# 6 Aug 2018
+#
+# Use: ./sync_chrony_movo_kinetic
+#
+
+function showHelp(){
+    echo 
+    echo "This function is used to synchonize both movo computers clocks"
+    echo "Place it in the 'scripts' folder of your catkin package"
+    echo "and make sure that the file is executable (chmod +x sync_chrony_movo_kinetic.sh)"
+    echo
+    echo "Run it from command line on movo 2:"
+    echo 
+    echo "Use: ./sync_chrony_movo_kinetic"
+    echo
+    echo "Or run it from another roslaunch file:"
+    echo 
+    echo '<launch>'
+    echo '  <node pkg="si_utils" type="sync_chrony_movo_kinetic"'
+    echo '    name="time_sync" output="screen">'
+    echo '  </node>'
+    echo '</launch>'
+}
+
+if [ "$1" = "-h" ]; then
+    showHelp
+else 
+    echo "Setting MOVO2 as time sync server..."
+
+    # Find local stratum and uncomment if it is commented
+    if grep -F '#local stratum' /etc/chrony/chrony.conf > /dev/null; then
+        sudo sed -i -e 's/#local stratum/local stratum/g' /etc/chrony/chrony.conf > /dev/null
+    else
+        echo "local stratum already set in chrony.conf file so nothing to do"
+    fi
+    
+    # Allow MOVO1 as client if not yet allowed
+    if grep -Fx "allow 10.66.171.2" /etc/chrony/chrony.conf > /dev/null; then
+        echo "MOVO1 already configured as time client in chrony.conf file so nothing to do"
+    else
+        echo "allow 10.66.171.2" | sudo tee --append /etc/chrony/chrony.conf
+    fi
+
+    echo "Resetting chrony service on MOVO2..."
+    sudo systemctl restart chrony.service
+    sleep 1
+
+    #echo "Setting MOVO1 as time sync client..."
+    #ssh -t movo@movo1 "bash -ic +m 'if grep -Fx "server 10.66.171.1 iburst" /etc/chrony/chrony.conf; then; echo "MOVO1 already configured as time client in chrony.conf file so nothing to do"; else; echo "server 10.66.171.1 iburst" | sudo tee --append /etc/chrony/chrony.conf; fi; sudo systemctl restart chrony.service; sleep 1'"
+fi
