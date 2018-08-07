@@ -63,6 +63,10 @@ export KINOVA_ARM_IFACE=eth0
 export MOVO_HAS_KINOVA_ARM_7DOF=false
 export MOVO_HAS_KINOVA_ARM_6DOF=true
 
+#Camera configurations
+export MOVO_HAS_KINECT_CAMERA=true
+export MOVO_HAS_REALSENSE_CAMERA=false
+
 #gripper configurations
 
 # Must set all three environment variables for on gripper

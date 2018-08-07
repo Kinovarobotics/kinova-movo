@@ -28,7 +28,7 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="kinect_one_sensor">
-
+    <!-- CHANGE_THIS -->
 	<xacro:macro name="kinect_one_sensor" params="prefix parent *origin">
         <joint name="${prefix}_joint" type="fixed">
             <xacro:insert_block name="origin" />
@@ -56,32 +56,32 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 			</collision>
 		</link>
 
-        <link name="${prefix}_ir_link"/>
+        <link name="${prefix}_ir_frame"/>
 
         <joint name="${prefix}_ir_joint" type="fixed">
             <parent link="${prefix}_link"/>
-            <child link="${prefix}_ir_link" />
+            <child link="${prefix}_ir_frame" />
             <origin xyz="0.0245 -0.03325  0.04201" rpy="0 0 0"/>
         </joint>
 
         <link name="${prefix}_ir_optical_frame"/>
         <joint name="${prefix}_ir_optical_frame_joint" type="fixed">
             <origin xyz="0 0 0" rpy="${-M_PI / 2.0} 0 ${-M_PI / 2.0}" />
-            <parent link="${prefix}_ir_link"/>
+            <parent link="${prefix}_ir_frame"/>
             <child link="${prefix}_ir_optical_frame"/>
         </joint>
 
-        <link name="${prefix}_rgb_link"/>
-        <joint name="${prefix}_rgb_joint" type="fixed">
-            <parent link="${prefix}_ir_link"/>
-            <child link="${prefix}_rgb_link" />
+        <link name="${prefix}_color_frame"/>
+        <joint name="${prefix}_color_joint" type="fixed">
+            <parent link="${prefix}_ir_frame"/>
+            <child link="${prefix}_color_frame" />
             <origin xyz="0 -0.06175  0" rpy="0 0 0"/>
         </joint>
         
-        <link name="${prefix}_rgb_optical_frame"/>
-        <joint name="${prefix}_rgb_optical_joint" type="fixed">
-            <parent link="${prefix}_rgb_link"/>
-            <child link="${prefix}_rgb_optical_frame" />
+        <link name="${prefix}_color_optical_frame"/>
+        <joint name="${prefix}_color_optical_joint" type="fixed">
+            <parent link="${prefix}_color_frame"/>
+            <child link="${prefix}_color_optical_frame" />
             <origin xyz="0 0 0" rpy="${-M_PI / 2.0} 0 ${-M_PI / 2.0}"/>
         </joint>
         

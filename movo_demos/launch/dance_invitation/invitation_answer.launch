@@ -1,10 +1,46 @@
 <launch>
-	<node name="recognizer" pkg="pocketsphinx" type="recognizer.py" output="screen">
-		<!--<param name="mic_name" value="alsa_input.usb-Logitech_Logitech_Wireless_Headset-00-Headset.analog-mono"/>-->
-		<!-- find Kinect with command: $pacmd list-sources -->
+	<!-- <node name="recognizer" pkg="pocketsphinx" type="recognizer.py" output="screen">
 		<param name="mic_name" value="alsa_input.usb-Microsoft_Xbox_NUI_Sensor_008609564447-02-Sensor.analog-4-channel-input"/>
 		<param name="lm" value="$(find movo_demos)/launch/dance_invitation/invitation_answer.lm"/>
 		<param name="dict" value="$(find movo_demos)/launch/dance_invitation/invitation_answer.dic"/>
+	</node> -->
+
+	<arg name="input" default="plughw:2"/>
+	<arg name="hmm" default="/usr/share/pocketsphinx/model/en-us/en-us"/>
+	<arg name="dict" default="$(find movo_demos)/launch/dance_invitation/invitation_answer.dic"/>
+	<arg name="lm" default="$(find movo_demos)/launch/dance_invitation/invitation_answer.lm"/>
+	<arg name="gram" default=":default"/>
+	<arg name="grammar" default=":default"/>
+	<arg name="rule" default=":default"/>
+
+	<!--
+	Node for publishing audio inputs
+	-->
+	<node
+		name="audio_control"
+		pkg="pocketsphinx"
+		type="send_audio.py"
+		output="screen"
+		>
+		<param name="input" value="$(arg input)"/>
+	</node>
+
+	<!--
+	Node for handling jsgf grammar mode
+	-->
+	<node
+		name="asr_control"
+		pkg="pocketsphinx"
+		type="asr_test.py"
+		output="screen"
+		>
+		<remap from="jsgf_audio" to="sphinx_audio" />
+		<param name="lm" value="$(arg lm)"/>
+		<param name="dict" value="$(arg dict)"/>
+		<param name="hmm" value="$(arg hmm)"/>
+		<param name="gram" value="$(arg gram)"/>
+		<param name="grammar" value="$(arg grammar)"/>
+		<param name="rule" value="$(arg rule)"/>
 	</node>
 
 </launch>

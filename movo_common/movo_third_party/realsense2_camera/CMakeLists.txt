@@ -16,14 +16,12 @@ find_package(catkin REQUIRED COMPONENTS
     diagnostic_updater
     )
 
-if(BUILD_WITH_OPENMP)
-    find_package(OpenMP)
-    if(NOT OpenMP_FOUND)
-        message(FATAL_ERROR "\n\n OpenMP is missing!\n\n")
-    else()
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -fopenmp")
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-    endif()
+find_package(OpenMP)
+if(NOT OpenMP_FOUND)
+    message(FATAL_ERROR "\n\n OpenMP is missing!\n\n")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -fopenmp")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
 find_package(realsense2)

@@ -46,7 +46,6 @@ namespace people
 {
 
 Faces::Faces():
-  list_(NULL),
   cam_model_(NULL)
 {
 }

@@ -143,6 +143,7 @@ class DanceRequest(smach.State):
         rospy.sleep(3)
 
         self._speech_text.data = "Please say yes movo to accept, or sorry movo to reject my invitation"
+        rospy.loginfo("Please say yes movo to accept, or sorry movo to reject my invitation")
         self._speech_pub.publish(self._speech_text)
         rospy.sleep(5)
 
@@ -152,15 +153,18 @@ class DanceRequest(smach.State):
         tried_time = 0
         while not rospy.is_shutdown():
             tried_time += 1
-            invitation_answer = rospy.wait_for_message('/recognizer/output', String)
+            invitation_answer = rospy.wait_for_message('/asr_control/detected_words', String)
+            invitation_answer.data = invitation_answer.data.lower()
             if invitation_answer.data.find("yes movo") > -1:
                 self._speech_text.data = "Let the music rock!"
+                rospy.loginfo("Let the music rock!")
                 self._speech_pub.publish(self._speech_text)
                 self._launch_invitation_answer.shutdown()
                 rospy.sleep(5)
                 return 'accepted'
             elif (invitation_answer.data.find("sorry movo") > -1):
                 self._speech_text.data = "Remember you just turned off a dance invitation from a lovely robot. Bye bye then."
+                rospy.loginfo("You said no")
                 self._speech_pub.publish(self._speech_text)
                 self._launch_face_detection.shutdown()
                 self._launch_invitation_answer.shutdown()

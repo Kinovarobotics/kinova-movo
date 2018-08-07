@@ -1,7 +1,23 @@
 <?xml version="1.0"?>
 <launch>
 
-  <arg name="base_name"         default="kinect2"/>
+<!-- General arguments -->
+<arg name="base_name"         default="movo_camera"/>
+
+<arg name="rgb_ns"            default="color"/>
+<arg name="depth_ns"          default="depth"/>
+<arg name="point_cloud_ns"    default="point_cloud"/>
+
+<arg name="rgb_topic"         default="image_color_rect"/>
+<arg name="depth_topic"       default="image_depth_rect"/>
+<arg name="points_topic"      default="points"/>
+
+<arg name="respawn"           default="true"/>
+<arg name="use_nodelet"       default="true"/>
+<arg name="output"            default="screen"/>
+
+<!-- Kinect camera bridge launch -->
+<group if="$(optenv MOVO_HAS_KINECT_CAMERA false)">
   <arg name="sensor"            default=""/>
   <arg name="publish_tf"        default="false"/>
   <arg name="base_name_tf"      default="$(arg base_name)"/>
@@ -23,9 +39,11 @@
   <arg name="nodelet_manager"   default="$(arg base_name)"/>
   <arg name="start_manager"     default="true"/>
   <arg name="use_machine"       default="true"/>
-  <arg name="respawn"           default="true"/>
-  <arg name="use_nodelet"       default="true"/>
-  <arg name="output"            default="screen"/>
+
+  <!-- Choose if movo_camera uses images from SD [512x424], QHD [960x540] or HD[1920x1080] from Kinect -->
+  <arg name="remap_sd_into_movo_image"        default="false"/>
+  <arg name="remap_qhd_into_movo_image"       default="true"/>
+  <arg name="remap_hd_into_movo_image"        default="false"/>
 
 
   <node pkg="nodelet" type="nodelet" name="$(arg nodelet_manager)" args="manager"
@@ -83,30 +101,204 @@
   <!-- sd point cloud (512 x 424) -->
   <node pkg="nodelet" type="nodelet" name="$(arg base_name)_points_xyzrgb_sd" 
         args="load depth_image_proc/point_cloud_xyzrgb $(arg nodelet_manager)" respawn="$(arg respawn)">
-    <remap from="rgb/camera_info"             to="$(arg base_name)/sd/camera_info"/>
-    <remap from="rgb/image_rect_color"        to="$(arg base_name)/sd/image_color_rect"/>
-    <remap from="depth_registered/image_rect" to="$(arg base_name)/sd/image_depth_rect"/>
-    <remap from="depth_registered/points"     to="$(arg base_name)/sd/points"/>
+    <remap from="rgb/camera_info"             to="$(arg base_name)/$(arg rgb_ns)/camera_info"                 if="$(arg remap_sd_into_movo_image)"/>
+    <remap from="rgb/image_rect_color"        to="$(arg base_name)/$(arg rgb_ns)/$(arg rgb_topic)"            if="$(arg remap_sd_into_movo_image)"/>
+    <remap from="depth_registered/image_rect" to="$(arg base_name)/$(arg depth_ns)/$(arg depth_topic)"        if="$(arg remap_sd_into_movo_image)"/>
+    <remap from="depth_registered/points"     to="$(arg base_name)/$(arg point_cloud_ns)/$(arg points_topic)" if="$(arg remap_sd_into_movo_image)"/>
+    
+    <remap from="rgb/camera_info"             to="kinect/sd/camera_info"                                      unless="$(arg remap_sd_into_movo_image)"/>
+    <remap from="rgb/image_rect_color"        to="kinect/sd/image_color_rect"                                 unless="$(arg remap_sd_into_movo_image)"/>
+    <remap from="depth_registered/image_rect" to="kinect/sd/image_depth_rect"                                 unless="$(arg remap_sd_into_movo_image)"/>
+    <remap from="depth_registered/points"     to="kinect/sd/points"                                           unless="$(arg remap_sd_into_movo_image)"/>
     <param name="queue_size" type="int" value="$(arg queue_size)"/>
   </node>
 
   <!-- qhd point cloud (960 x 540) -->
   <node pkg="nodelet" type="nodelet" name="$(arg base_name)_points_xyzrgb_qhd" 
         args="load depth_image_proc/point_cloud_xyzrgb $(arg nodelet_manager)" respawn="$(arg respawn)">
-    <remap from="rgb/camera_info"             to="$(arg base_name)/qhd/camera_info"/>
-    <remap from="rgb/image_rect_color"        to="$(arg base_name)/qhd/image_color_rect"/>
-    <remap from="depth_registered/image_rect" to="$(arg base_name)/qhd/image_depth_rect"/>
-    <remap from="depth_registered/points"     to="$(arg base_name)/qhd/points"/>
+    <remap from="rgb/camera_info"             to="$(arg base_name)/$(arg rgb_ns)/camera_info"                 if="$(arg remap_qhd_into_movo_image)"/>
+    <remap from="rgb/image_rect_color"        to="$(arg base_name)/$(arg rgb_ns)/$(arg rgb_topic)"            if="$(arg remap_qhd_into_movo_image)"/>
+    <remap from="depth_registered/image_rect" to="$(arg base_name)/$(arg depth_ns)/$(arg depth_topic)"        if="$(arg remap_qhd_into_movo_image)"/>
+    <remap from="depth_registered/points"     to="$(arg base_name)/$(arg point_cloud_ns)/$(arg points_topic)" if="$(arg remap_qhd_into_movo_image)"/>
+    
+    <remap from="rgb/camera_info"             to="kinect/qhd/camera_info"                                     unless="$(arg remap_qhd_into_movo_image)"/>
+    <remap from="rgb/image_rect_color"        to="kinect/qhd/image_color_rect"                                unless="$(arg remap_qhd_into_movo_image)"/>
+    <remap from="depth_registered/image_rect" to="kinect/qhd/image_depth_rect"                                unless="$(arg remap_qhd_into_movo_image)"/>
+    <remap from="depth_registered/points"     to="kinect/qhd/points"                                          unless="$(arg remap_qhd_into_movo_image)"/>
     <param name="queue_size" type="int" value="$(arg queue_size)"/>
   </node>
 
   <!-- hd point cloud (1920 x 1080) -->
   <node pkg="nodelet" type="nodelet" name="$(arg base_name)_points_xyzrgb_hd" 
         args="load depth_image_proc/point_cloud_xyzrgb $(arg nodelet_manager)" respawn="$(arg respawn)">
-    <remap from="rgb/camera_info"             to="$(arg base_name)/hd/camera_info"/>
-    <remap from="rgb/image_rect_color"        to="$(arg base_name)/hd/image_color_rect"/>
-    <remap from="depth_registered/image_rect" to="$(arg base_name)/hd/image_depth_rect"/>
-    <remap from="depth_registered/points"     to="$(arg base_name)/hd/points"/>
+     
+    <remap from="rgb/camera_info"             to="$(arg base_name)/$(arg rgb_ns)/camera_info"                 if="$(arg remap_hd_into_movo_image)"/>
+    <remap from="rgb/image_rect_color"        to="$(arg base_name)/$(arg rgb_ns)/$(arg rgb_topic)"            if="$(arg remap_hd_into_movo_image)"/>>
+    <remap from="depth_registered/image_rect" to="$(arg base_name)/$(arg depth_ns)/$(arg depth_topic)"        if="$(arg remap_hd_into_movo_image)"/>
+    <remap from="depth_registered/points"     to="$(arg base_name)/$(arg point_cloud_ns)/$(arg points_topic)" if="$(arg remap_hd_into_movo_image)"/>
+
+    <remap from="rgb/camera_info"             to="kinect/hd/camera_info"                                      unless="$(arg remap_hd_into_movo_image)"/>
+    <remap from="rgb/image_rect_color"        to="kinect/hd/image_color_rect"                                 unless="$(arg remap_hd_into_movo_image)"/>
+    <remap from="depth_registered/image_rect" to="kinect/hd/image_depth_rect"                                 unless="$(arg remap_hd_into_movo_image)"/>
+    <remap from="depth_registered/points"     to="kinect/hd/points"                                           unless="$(arg remap_hd_into_movo_image)"/>
     <param name="queue_size" type="int" value="$(arg queue_size)"/>
   </node>
+</group>
+<!-- End Kinect camera bridge launch -->
+
+<!-- Realsense camera bridge launch -->
+<group if="$(optenv MOVO_HAS_REALSENSE_CAMERA false)">
+
+  <arg name="manager"             default="realsense2_camera_manager"/>
+
+  <!-- Camera device specific arguments -->
+
+  <arg name="serial_no"           default=""/>
+  <arg name="json_file_path"      default=""/>
+
+  <arg name="fisheye_width"       default="640"/>
+  <arg name="fisheye_height"      default="480"/>
+  <arg name="enable_fisheye"      default="true"/>
+
+  <arg name="depth_width"         default="640"/>
+  <arg name="depth_height"        default="480"/>
+  <arg name="enable_depth"        default="true"/>
+
+  <arg name="infra1_width"        default="640"/>
+  <arg name="infra1_height"       default="480"/>
+  <arg name="enable_infra1"       default="true"/>
+
+  <arg name="infra2_width"        default="640"/>
+  <arg name="infra2_height"       default="480"/>
+  <arg name="enable_infra2"       default="true"/>
+
+  <arg name="color_width"         default="640"/>
+  <arg name="color_height"        default="480"/>
+  <arg name="enable_color"        default="true"/>
+
+  <arg name="fisheye_fps"         default="30"/>
+  <arg name="depth_fps"           default="30"/>
+  <arg name="infra1_fps"          default="30"/>
+  <arg name="infra2_fps"          default="30"/>
+  <arg name="color_fps"           default="30"/>
+  <arg name="gyro_fps"            default="1000"/>
+  <arg name="accel_fps"           default="1000"/>
+  <arg name="enable_imu"          default="true"/>
+
+  <arg name="enable_pointcloud"   default="false"/>
+  <arg name="enable_sync"         default="true"/>
+  <arg name="align_depth"         default="true"/>
+
+  <!-- rgbd_launch specific arguments -->
+
+  <!-- Arguments for remapping all device namespaces -->
+  <arg name="rgb"                             default="color" />
+  <arg name="ir"                              default="infra1" />
+  <arg name="depth"                           default="depth" />
+  <arg name="depth_registered_pub"            default="depth_registered" />
+  <arg name="depth_registered"                default="depth_registered" unless="$(arg align_depth)" />
+  <arg name="depth_registered"                default="aligned_depth_to_color" if="$(arg align_depth)" />
+  <arg name="depth_registered_filtered"       default="$(arg depth_registered)" />
+  <arg name="projector"                       default="projector" />
+
+  <!-- Disable bond topics by default -->
+  <arg name="bond"                            default="false" />
+
+  <!-- Processing Modules -->
+  <arg name="rgb_processing"                  default="true"/>
+  <arg name="debayer_processing"              default="false" />
+  <arg name="ir_processing"                   default="false"/>
+  <arg name="depth_processing"                default="false"/>
+  <arg name="depth_registered_processing"     default="true"/>
+  <arg name="disparity_processing"            default="false"/>
+  <arg name="disparity_registered_processing" default="false"/>
+  <arg name="hw_registered_processing"        default="$(arg align_depth)" />
+  <arg name="sw_registered_processing"        default="true" unless="$(arg align_depth)" />
+  <arg name="sw_registered_processing"        default="false" if="$(arg align_depth)" />
+
+  <group ns="$(arg base_name)">
+
+    <!-- Launch the camera device nodelet-->
+    <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
+      <arg name="manager"                  value="$(arg manager)"/>
+      <arg name="serial_no"                value="$(arg serial_no)"/>
+      <arg name="json_file_path"           value="$(arg json_file_path)"/>
+
+      <arg name="enable_pointcloud"        value="$(arg enable_pointcloud)"/>
+      <arg name="enable_sync"              value="$(arg enable_sync)"/>
+      <arg name="align_depth"              value="$(arg align_depth)"/>
+
+      <arg name="fisheye_width"            value="$(arg fisheye_width)"/>
+      <arg name="fisheye_height"           value="$(arg fisheye_height)"/>
+      <arg name="enable_fisheye"           value="$(arg enable_fisheye)"/>
+
+      <arg name="depth_width"              value="$(arg depth_width)"/>
+      <arg name="depth_height"             value="$(arg depth_height)"/>
+      <arg name="enable_depth"             value="$(arg enable_depth)"/>
+
+      <arg name="color_width"              value="$(arg color_width)"/>
+      <arg name="color_height"             value="$(arg color_height)"/>
+      <arg name="enable_color"             value="$(arg enable_color)"/>
+
+      <arg name="infra1_width"             value="$(arg infra1_width)"/>
+      <arg name="infra1_height"            value="$(arg infra1_height)"/>
+      <arg name="enable_infra1"            value="$(arg enable_infra1)"/>
+
+      <arg name="infra2_width"             value="$(arg infra2_width)"/>
+      <arg name="infra2_height"            value="$(arg infra2_height)"/>
+      <arg name="enable_infra2"            value="$(arg enable_infra2)"/>
+
+      <arg name="fisheye_fps"              value="$(arg fisheye_fps)"/>
+      <arg name="depth_fps"                value="$(arg depth_fps)"/>
+      <arg name="infra1_fps"               value="$(arg infra1_fps)"/>
+      <arg name="infra2_fps"               value="$(arg infra2_fps)"/>
+      <arg name="color_fps"                value="$(arg color_fps)"/>
+      <arg name="gyro_fps"                 value="$(arg gyro_fps)"/>
+      <arg name="accel_fps"                value="$(arg accel_fps)"/>
+      <arg name="enable_imu"               value="$(arg enable_imu)"/>
+    </include>
+
+    <!-- RGB processing -->
+    <include if="$(arg rgb_processing)"
+             file="$(find rgbd_launch)/launch/includes/rgb.launch.xml">
+      <arg name="manager"                       value="$(arg manager)" />
+      <arg name="respawn"                       value="$(arg respawn)" />
+      <arg name="rgb"                           value="$(arg rgb)" />
+      <arg name="debayer_processing"            value="$(arg debayer_processing)" />
+    </include>
+
+    <group if="$(eval depth_registered_processing and sw_registered_processing)">
+      <node pkg="nodelet" type="nodelet" name="register_depth"
+            args="load depth_image_proc/register $(arg manager) $(arg bond)" respawn="$(arg respawn)">
+        <remap from="rgb/camera_info"             to="$(arg rgb)/camera_info" />
+        <remap from="depth/camera_info"           to="$(arg depth)/camera_info" />
+        <remap from="depth/image_rect"            to="$(arg depth)/image_rect_raw" />
+        <remap from="depth_registered/image_rect" to="$(arg depth_registered)/sw_registered/image_rect_raw" />
+      </node>
+
+      <!-- Publish registered XYZRGB point cloud with software registered input -->
+      <node pkg="nodelet" type="nodelet" name="points_xyzrgb_sw_registered"
+            args="load depth_image_proc/point_cloud_xyzrgb $(arg manager) $(arg bond)" respawn="$(arg respawn)">
+        <remap from="rgb/image_rect_color"        to="image_color_rect" />
+        <remap from="rgb/camera_info"             to="camera_info" />
+        <remap from="depth_registered/image_rect" to="image_depth_rect" />
+        <remap from="depth_registered/points"     to="points" />
+      </node>
+    </group>
+
+    <group if="$(eval depth_registered_processing and hw_registered_processing)">
+      <!-- Publish registered XYZRGB point cloud with hardware registered input (ROS Realsense depth alignment) -->
+      <node pkg="nodelet" type="nodelet" name="points_xyzrgb_hw_registered"
+            args="load depth_image_proc/point_cloud_xyzrgb $(arg manager) $(arg bond)" respawn="$(arg respawn)">
+        <remap from="rgb/image_rect_color"        to="image_color_rect" />
+        <remap from="rgb/camera_info"             to="camera_info" />
+        <remap from="depth_registered/image_rect" to="image_depth_rect" />
+        <remap from="depth_registered/points"     to="points" />
+      </node>
+    </group>
+  </group>
+  <!-- End namespace -->
+</group>
+<!-- End Realsense camera bridge launch -->
+
 </launch>
