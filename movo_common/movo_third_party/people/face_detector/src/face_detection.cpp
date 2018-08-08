@@ -246,8 +246,8 @@ public:
       depth_ns_ = nh_.resolveName("depth_ns");
       camera_topic_ = ros::names::clean(camera_ + "/" + rgb_ns_ + "/" + image_image_);
       depth_topic_ = ros::names::clean(camera_ + "/" + depth_ns_ + "/" + depth_image_);
-      camera_info_topic_ = ros::names::clean(camera_ + "/" + rgb_ns_ + "/camera_info");
-      depth_info_topic_ = ros::names::clean(camera_ + "/" + depth_ns_ + "/camera_info");
+      camera_info_topic_ = ros::names::clean(camera_ + "/camera_info");
+      depth_info_topic_ = ros::names::clean(camera_ + "/camera_info");
 
       ROS_DEBUG("camera_topic_: %s", camera_topic_.c_str());
       ROS_DEBUG("depth_topic_: %s", depth_topic_.c_str());

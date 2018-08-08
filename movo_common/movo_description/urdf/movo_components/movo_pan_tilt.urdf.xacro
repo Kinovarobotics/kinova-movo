@@ -34,7 +34,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     	<xacro:include filename="$(find movo_description)/urdf/sensors/kinect_one_sensor.urdf.xacro"/>
 	</xacro:if>
 	<!-- Realsense is the camera -->
-	<xacro:if value="$(optenv MOVO_HAS_REALSENSE_CAMERA false)">
+	<xacro:if value="$(optenv MOVO_HAS_REALSENSE_CAMERA false)">		
+		<xacro:include filename="$(find movo_description)/urdf/sensors/_r410.urdf.xacro"/>
     	<xacro:include filename="$(find movo_description)/urdf/sensors/_r430.urdf.xacro"/>
 	</xacro:if>
 
@@ -153,9 +154,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		</xacro:if>
 		<!-- Camera is Realsense -->
 		<xacro:if value="$(optenv MOVO_HAS_REALSENSE_CAMERA false)">
-			<xacro:sensor_r430 prefix="${rgbd_prefix}" parent="tilt_link">
+			<xacro:sensor_r410 prefix="${rgbd_prefix}" parent="tilt_link">
 				<origin xyz="0.05825 -0.0105875 -0.026" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
-			</xacro:sensor_r430>
+			</xacro:sensor_r410>
 		</xacro:if>
     </xacro:macro>
 

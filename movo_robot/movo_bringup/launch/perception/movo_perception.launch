@@ -49,17 +49,17 @@
   <node pkg="nodelet" type="nodelet" name="$(arg nodelet_manager)" args="manager"
         if="$(arg start_manager)" output="screen">
     <!-- Remap topics to match the movo_camera topics naming -->
-    <remap from="$(arg base_name)/sd/camera_info"       to="$(arg base_name)/$(arg rgb_ns)/camera_info"                 if="$(arg remap_sd_into_movo_image)"/>
+    <remap from="$(arg base_name)/sd/camera_info"       to="$(arg base_name)/camera_info"                               if="$(arg remap_sd_into_movo_image)"/>
     <remap from="$(arg base_name)/sd/image_color_rect"  to="$(arg base_name)/$(arg rgb_ns)/$(arg rgb_topic)"            if="$(arg remap_sd_into_movo_image)"/>
     <remap from="$(arg base_name)/sd/image_depth_rect"  to="$(arg base_name)/$(arg depth_ns)/$(arg depth_topic)"        if="$(arg remap_sd_into_movo_image)"/>
     <remap from="$(arg base_name)/point_cloud/points"   to="$(arg base_name)/$(arg point_cloud_ns)/$(arg points_topic)" if="$(arg remap_sd_into_movo_image)"/>
     
-    <remap from="$(arg base_name)/qhd/camera_info"       to="$(arg base_name)/$(arg rgb_ns)/camera_info"                if="$(arg remap_qhd_into_movo_image)"/>
-    <remap from="$(arg base_name)/qhd/image_color_rect"  to="$(arg base_name)/$(arg rgb_ns)/$(arg rgb_topic)"           if="$(arg remap_qhd_into_movo_image)"/>
-    <remap from="$(arg base_name)/qhd/image_depth_rect"  to="$(arg base_name)/$(arg depth_ns)/$(arg depth_topic)"       if="$(arg remap_qhd_into_movo_image)"/>
+    <remap from="$(arg base_name)/qhd/camera_info"      to="$(arg base_name)/camera_info"                               if="$(arg remap_qhd_into_movo_image)"/>
+    <remap from="$(arg base_name)/qhd/image_color_rect" to="$(arg base_name)/$(arg rgb_ns)/$(arg rgb_topic)"            if="$(arg remap_qhd_into_movo_image)"/>
+    <remap from="$(arg base_name)/qhd/image_depth_rect" to="$(arg base_name)/$(arg depth_ns)/$(arg depth_topic)"        if="$(arg remap_qhd_into_movo_image)"/>
     <remap from="$(arg base_name)/point_cloud/points"   to="$(arg base_name)/$(arg point_cloud_ns)/$(arg points_topic)" if="$(arg remap_qhd_into_movo_image)"/>
 
-    <remap from="$(arg base_name)/hd/camera_info"       to="$(arg base_name)/$(arg rgb_ns)/camera_info"                 if="$(arg remap_hd_into_movo_image)"/>
+    <remap from="$(arg base_name)/hd/camera_info"       to="$(arg base_name)/camera_info"                               if="$(arg remap_hd_into_movo_image)"/>
     <remap from="$(arg base_name)/hd/image_color_rect"  to="$(arg base_name)/$(arg rgb_ns)/$(arg rgb_topic)"            if="$(arg remap_hd_into_movo_image)"/>
     <remap from="$(arg base_name)/hd/image_depth_rect"  to="$(arg base_name)/$(arg depth_ns)/$(arg depth_topic)"        if="$(arg remap_hd_into_movo_image)"/>
     <remap from="$(arg base_name)/point_cloud/points"   to="$(arg base_name)/$(arg point_cloud_ns)/$(arg points_topic)" if="$(arg remap_hd_into_movo_image)"/>
@@ -102,7 +102,7 @@
     <param name="use_png"           type="bool"   value="$(arg use_png)"/>
     <param name="jpeg_quality"      type="int"    value="$(arg jpeg_quality)"/>
     <param name="png_level"         type="int"    value="$(arg png_level)"/>
-    <param name="depth_method"      type="str"    value="$(arg depth_method)"/>
+    <param name="depth_method"      type="str"    argvalue="$(arg depth_method)"/>
     <param name="depth_device"      type="int"    value="$(arg depth_device)"/>
     <param name="reg_method"        type="str"    value="$(arg reg_method)"/>
     <param name="reg_device"        type="int"    value="$(arg reg_device)"/>
@@ -205,6 +205,28 @@
   <arg name="enable_sync"         default="true"/>
   <arg name="align_depth"         default="true"/>
 
+  <arg name ="base_frame_id"                           default="$(arg base_name)_link"/>
+  <arg name ="depth_frame_id"                          default="$(arg base_name)_depth_frame"/>
+  <arg name ="infra1_frame_id"                         default="$(arg base_name)_left_ir_frame"/>
+  <arg name ="infra2_frame_id"                         default="$(arg base_name)_right_ir_frame"/>
+  <arg name ="color_frame_id"                          default="$(arg base_name)_color_frame"/>
+  <arg name ="fisheye_frame_id"                        default="$(arg base_name)_fisheye_frame"/>
+  <arg name ="imu_accel_frame_id"                      default="$(arg base_name)_accel_frame"/>
+  <arg name ="imu_gyro_frame_id"                       default="$(arg base_name)_gyro_frame"/>
+
+  <arg name="depth_optical_frame_id"                   default="$(arg base_name)_depth_optical_frame"/>
+  <arg name="infra1_optical_frame_id"                  default="$(arg base_name)_left_ir_optical_frame"/>
+  <arg name="infra2_optical_frame_id"                  default="$(arg base_name)_right_ir_optical_frame"/>
+  <arg name="color_optical_frame_id"                   default="$(arg base_name)_color_optical_frame"/>
+  <arg name="fisheye_optical_frame_id"                 default="$(arg base_name)_fisheye_optical_frame"/>
+  <arg name="accel_optical_frame_id"                   default="$(arg base_name)_accel_optical_frame"/>
+  <arg name="gyro_optical_frame_id"                    default="$(arg base_name)_gyro_optical_frame"/>
+
+  <arg name="camera_aligned_depth_to_color_frame_id"   default="$(arg base_name)_aligned_depth_to_color_frame"/>
+  <arg name="camera_aligned_depth_to_infra1_frame_id"  default="$(arg base_name)_aligned_depth_to_infra1_frame"/>
+  <arg name="camera_aligned_depth_to_infra2_frame_id"  default="$(arg base_name)_aligned_depth_to_infra2_frame"/>
+  <arg name="camera_aligned_depth_to_fisheye_frame_id" default="$(arg base_name)_aligned_depth_to_fisheye_frame"/>
+
   <!-- rgbd_launch specific arguments -->
 
   <!-- Arguments for remapping all device namespaces -->
@@ -235,44 +257,66 @@
   <group ns="$(arg base_name)">
 
     <!-- Launch the camera device nodelet-->
-    <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
-      <arg name="manager"                  value="$(arg manager)"/>
-      <arg name="serial_no"                value="$(arg serial_no)"/>
-      <arg name="json_file_path"           value="$(arg json_file_path)"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="realsense2_camera" args="load realsense2_camera/RealSenseNodeFactory $(arg manager)">
+      <param name="serial_no"                type="str"  value="$(arg serial_no)"/>
+      <param name="json_file_path"           type="str"  value="$(arg json_file_path)"/>
 
-      <arg name="enable_pointcloud"        value="$(arg enable_pointcloud)"/>
-      <arg name="enable_sync"              value="$(arg enable_sync)"/>
-      <arg name="align_depth"              value="$(arg align_depth)"/>
+      <param name="enable_pointcloud"        type="bool" value="$(arg enable_pointcloud)"/>
+      <param name="enable_sync"              type="bool" value="$(arg enable_sync)"/>
+      <param name="align_depth"              type="bool" value="$(arg align_depth)"/>
 
-      <arg name="fisheye_width"            value="$(arg fisheye_width)"/>
-      <arg name="fisheye_height"           value="$(arg fisheye_height)"/>
-      <arg name="enable_fisheye"           value="$(arg enable_fisheye)"/>
+      <param name="fisheye_width"            type="int"  value="$(arg fisheye_width)"/>
+      <param name="fisheye_height"           type="int"  value="$(arg fisheye_height)"/>
+      <param name="enable_fisheye"           type="bool" value="$(arg enable_fisheye)"/>
 
-      <arg name="depth_width"              value="$(arg depth_width)"/>
-      <arg name="depth_height"             value="$(arg depth_height)"/>
-      <arg name="enable_depth"             value="$(arg enable_depth)"/>
+      <param name="depth_width"              type="int"  value="$(arg depth_width)"/>
+      <param name="depth_height"             type="int"  value="$(arg depth_height)"/>
+      <param name="enable_depth"             type="bool" value="$(arg enable_depth)"/>
 
-      <arg name="color_width"              value="$(arg color_width)"/>
-      <arg name="color_height"             value="$(arg color_height)"/>
-      <arg name="enable_color"             value="$(arg enable_color)"/>
+      <param name="color_width"              type="int"  value="$(arg color_width)"/>
+      <param name="color_height"             type="int"  value="$(arg color_height)"/>
+      <param name="enable_color"             type="bool" value="$(arg enable_color)"/>
 
-      <arg name="infra1_width"             value="$(arg infra1_width)"/>
-      <arg name="infra1_height"            value="$(arg infra1_height)"/>
-      <arg name="enable_infra1"            value="$(arg enable_infra1)"/>
+      <param name="infra1_width"             type="int"  value="$(arg infra1_width)"/>
+      <param name="infra1_height"            type="int"  value="$(arg infra1_height)"/>
+      <param name="enable_infra1"            type="bool" value="$(arg enable_infra1)"/>
 
-      <arg name="infra2_width"             value="$(arg infra2_width)"/>
-      <arg name="infra2_height"            value="$(arg infra2_height)"/>
-      <arg name="enable_infra2"            value="$(arg enable_infra2)"/>
+      <param name="infra2_width"             type="int"  value="$(arg infra2_width)"/>
+      <param name="infra2_height"            type="int"  value="$(arg infra2_height)"/>
+      <param name="enable_infra2"            type="bool" value="$(arg enable_infra2)"/>
 
-      <arg name="fisheye_fps"              value="$(arg fisheye_fps)"/>
-      <arg name="depth_fps"                value="$(arg depth_fps)"/>
-      <arg name="infra1_fps"               value="$(arg infra1_fps)"/>
-      <arg name="infra2_fps"               value="$(arg infra2_fps)"/>
-      <arg name="color_fps"                value="$(arg color_fps)"/>
-      <arg name="gyro_fps"                 value="$(arg gyro_fps)"/>
-      <arg name="accel_fps"                value="$(arg accel_fps)"/>
-      <arg name="enable_imu"               value="$(arg enable_imu)"/>
-    </include>
+      <param name="fisheye_fps"              type="int"  value="$(arg fisheye_fps)"/>
+      <param name="depth_fps"                type="int"  value="$(arg depth_fps)"/>
+      <param name="infra1_fps"               type="int"  value="$(arg infra1_fps)"/>
+      <param name="infra2_fps"               type="int"  value="$(arg infra2_fps)"/>
+      <param name="color_fps"                type="int"  value="$(arg color_fps)"/>
+      <param name="gyro_fps"                 type="int"  value="$(arg gyro_fps)"/>
+      <param name="accel_fps"                type="int"  value="$(arg accel_fps)"/>
+      <param name="enable_imu"               type="bool" value="$(arg enable_imu)"/>
+
+      <param name ="base_frame_id"           type="str"  value="$(arg base_frame_id)"/>
+      <param name ="depth_frame_id"          type="str"  value="$(arg depth_frame_id)"/>
+      <param name ="infra1_frame_id"         type="str"  value="$(arg infra1_frame_id)"/>
+      <param name ="infra2_frame_id"         type="str"  value="$(arg infra2_frame_id)"/>
+      <param name ="color_frame_id"          type="str"  value="$(arg color_frame_id)"/>
+      <param name ="fisheye_frame_id"        type="str"  value="$(arg fisheye_frame_id)"/>
+      <param name ="imu_accel_frame_id"      type="str"  value="$(arg imu_accel_frame_id)"/>
+      <param name ="imu_gyro_frame_id"       type="str"  value="$(arg imu_gyro_frame_id)"/>
+
+      <param name="depth_optical_frame_id"   type="str"  value="$(arg depth_optical_frame_id)"/>
+      <param name="infra1_optical_frame_id"  type="str"  value="$(arg infra1_optical_frame_id)"/>
+      <param name="infra2_optical_frame_id"  type="str"  value="$(arg infra2_optical_frame_id)"/>
+      <param name="color_optical_frame_id"   type="str"  value="$(arg color_optical_frame_id)"/>
+      <param name="fisheye_optical_frame_id" type="str"  value="$(arg fisheye_optical_frame_id)"/>
+      <param name="accel_optical_frame_id"   type="str"  value="$(arg accel_optical_frame_id)"/>
+      <param name="gyro_optical_frame_id"    type="str"  value="$(arg gyro_optical_frame_id)"/>
+
+      <param name="camera_aligned_depth_to_color_frame_id"   type="str"  value="$(arg camera_aligned_depth_to_color_frame_id)"/>
+      <param name="camera_aligned_depth_to_infra1_frame_id"  type="str"  value="$(arg camera_aligned_depth_to_infra1_frame_id)"/>
+      <param name="camera_aligned_depth_to_infra2_frame_id"  type="str"  value="$(arg camera_aligned_depth_to_infra2_frame_id)"/>
+      <param name="camera_aligned_depth_to_fisheye_frame_id" type="str"  value="$(arg camera_aligned_depth_to_fisheye_frame_id)"/>
+    </node>
 
     <!-- RGB processing -->
     <include if="$(arg rgb_processing)"
