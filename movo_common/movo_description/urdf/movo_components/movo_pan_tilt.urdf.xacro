@@ -155,7 +155,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		<!-- Camera is Realsense -->
 		<xacro:if value="$(optenv MOVO_HAS_REALSENSE_CAMERA false)">
 			<xacro:sensor_r410 prefix="${rgbd_prefix}" parent="tilt_link">
-				<origin xyz="0.05825 -0.0105875 -0.026" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
+				<origin xyz="0.05825 -0.02 -0.065" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
 			</xacro:sensor_r410>
 		</xacro:if>
     </xacro:macro>
