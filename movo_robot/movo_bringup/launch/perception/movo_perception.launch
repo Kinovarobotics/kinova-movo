@@ -6,15 +6,26 @@
 
 <arg name="rgb_ns"            default="color"/>
 <arg name="depth_ns"          default="depth"/>
+<arg name="ir_ns"             default="infra"/>
 <arg name="point_cloud_ns"    default="point_cloud"/>
 
+<arg name="camera_info_topic" default="camera_info"/>
 <arg name="rgb_topic"         default="image_color_rect"/>
 <arg name="depth_topic"       default="image_depth_rect"/>
+<arg name="ir_topic"          default="image_infra_rect"/>
 <arg name="points_topic"      default="points"/>
 
 <arg name="respawn"           default="true"/>
 <arg name="use_nodelet"       default="true"/>
 <arg name="output"            default="screen"/>
+
+<!-- Remapping another camera : -->
+<!-- There are four outbound topics that you will need to remap to if you don't want to break the pub/subs with the other movo nodes : 
+remap from your color camera_info to : "$(arg base_name)/$(arg rgb_ns)/$(arg camera_info_topic)"   
+remap from your color image       to : "$(arg base_name)/$(arg rgb_ns)/$(arg rgb_topic)"           
+remap from your depth image       to : "$(arg base_name)/$(arg depth_ns)/$(arg depth_topic)"       
+remap from your point cloud 2d    to : "$(arg base_name)/$(arg point_cloud_ns)/$(arg points_topic)"
+ -->
 
 <!-- Kinect camera bridge launch -->
 <group if="$(optenv MOVO_HAS_KINECT_CAMERA false)">
@@ -49,17 +60,17 @@
   <node pkg="nodelet" type="nodelet" name="$(arg nodelet_manager)" args="manager"
         if="$(arg start_manager)" output="screen">
     <!-- Remap topics to match the movo_camera topics naming -->
-    <remap from="$(arg base_name)/sd/camera_info"       to="$(arg base_name)/camera_info"                               if="$(arg remap_sd_into_movo_image)"/>
+    <remap from="$(arg base_name)/sd/camera_info"       to="$(arg base_name)/$(arg rgb_ns)/$(arg camera_info_topic)"    if="$(arg remap_sd_into_movo_image)"/>
     <remap from="$(arg base_name)/sd/image_color_rect"  to="$(arg base_name)/$(arg rgb_ns)/$(arg rgb_topic)"            if="$(arg remap_sd_into_movo_image)"/>
     <remap from="$(arg base_name)/sd/image_depth_rect"  to="$(arg base_name)/$(arg depth_ns)/$(arg depth_topic)"        if="$(arg remap_sd_into_movo_image)"/>
     <remap from="$(arg base_name)/point_cloud/points"   to="$(arg base_name)/$(arg point_cloud_ns)/$(arg points_topic)" if="$(arg remap_sd_into_movo_image)"/>
     
-    <remap from="$(arg base_name)/qhd/camera_info"      to="$(arg base_name)/camera_info"                               if="$(arg remap_qhd_into_movo_image)"/>
+    <remap from="$(arg base_name)/qhd/camera_info"      to="$(arg base_name)/$(arg rgb_ns)/$(arg camera_info_topic)"    if="$(arg remap_qhd_into_movo_image)"/>
     <remap from="$(arg base_name)/qhd/image_color_rect" to="$(arg base_name)/$(arg rgb_ns)/$(arg rgb_topic)"            if="$(arg remap_qhd_into_movo_image)"/>
     <remap from="$(arg base_name)/qhd/image_depth_rect" to="$(arg base_name)/$(arg depth_ns)/$(arg depth_topic)"        if="$(arg remap_qhd_into_movo_image)"/>
     <remap from="$(arg base_name)/point_cloud/points"   to="$(arg base_name)/$(arg point_cloud_ns)/$(arg points_topic)" if="$(arg remap_qhd_into_movo_image)"/>
 
-    <remap from="$(arg base_name)/hd/camera_info"       to="$(arg base_name)/camera_info"                               if="$(arg remap_hd_into_movo_image)"/>
+    <remap from="$(arg base_name)/hd/camera_info"       to="$(arg base_name)/$(arg rgb_ns)/$(arg camera_info_topic)"    if="$(arg remap_hd_into_movo_image)"/>
     <remap from="$(arg base_name)/hd/image_color_rect"  to="$(arg base_name)/$(arg rgb_ns)/$(arg rgb_topic)"            if="$(arg remap_hd_into_movo_image)"/>
     <remap from="$(arg base_name)/hd/image_depth_rect"  to="$(arg base_name)/$(arg depth_ns)/$(arg depth_topic)"        if="$(arg remap_hd_into_movo_image)"/>
     <remap from="$(arg base_name)/point_cloud/points"   to="$(arg base_name)/$(arg point_cloud_ns)/$(arg points_topic)" if="$(arg remap_hd_into_movo_image)"/>
@@ -201,9 +212,9 @@
   <arg name="accel_fps"           default="1000"/>
   <arg name="enable_imu"          default="true"/>
 
-  <arg name="enable_pointcloud"   default="false"/>
-  <arg name="enable_sync"         default="true"/>
-  <arg name="align_depth"         default="true"/>
+  <arg name="enable_pointcloud"   default="true"/>
+  <arg name="enable_sync"         default="false"/>
+  <arg name="align_depth"         default="false"/>
 
   <arg name ="base_frame_id"                           default="$(arg base_name)_link"/>
   <arg name ="depth_frame_id"                          default="$(arg base_name)_depth_frame"/>
@@ -230,9 +241,9 @@
   <!-- rgbd_launch specific arguments -->
 
   <!-- Arguments for remapping all device namespaces -->
-  <arg name="rgb"                             default="color" />
-  <arg name="ir"                              default="infra1" />
-  <arg name="depth"                           default="depth" />
+  <arg name="rgb"                             default="$(arg rgb_ns)" />
+  <arg name="ir"                              default="$(arg ir_ns)" />
+  <arg name="depth"                           default="$(arg depth_ns)" />
   <arg name="depth_registered_pub"            default="depth_registered" />
   <arg name="depth_registered"                default="depth_registered" unless="$(arg align_depth)" />
   <arg name="depth_registered"                default="aligned_depth_to_color" if="$(arg align_depth)" />
@@ -257,7 +268,12 @@
   <group ns="$(arg base_name)">
 
     <!-- Launch the camera device nodelet-->
-    <node pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager" output="screen">
+      <remap from="$(arg rgb_ns)/image_rect_color" to="$(arg rgb_ns)/$(arg rgb_topic)"/>
+      <remap from="$(arg depth_ns)/image_rect_raw" to="$(arg depth_ns)/$(arg depth_topic)"/>
+      <remap from="$(arg depth_ns)/color/points"   to="$(arg point_cloud_ns)/$(arg points_topic)"/>
+    </node>
+    
     <node pkg="nodelet" type="nodelet" name="realsense2_camera" args="load realsense2_camera/RealSenseNodeFactory $(arg manager)">
       <param name="serial_no"                type="str"  value="$(arg serial_no)"/>
       <param name="json_file_path"           type="str"  value="$(arg json_file_path)"/>
@@ -330,19 +346,11 @@
     <group if="$(eval depth_registered_processing and sw_registered_processing)">
       <node pkg="nodelet" type="nodelet" name="register_depth"
             args="load depth_image_proc/register $(arg manager) $(arg bond)" respawn="$(arg respawn)">
-        <remap from="rgb/camera_info"             to="$(arg rgb)/camera_info" />
-        <remap from="depth/camera_info"           to="$(arg depth)/camera_info" />
-        <remap from="depth/image_rect"            to="$(arg depth)/image_rect_raw" />
-        <remap from="depth_registered/image_rect" to="$(arg depth_registered)/sw_registered/image_rect_raw" />
       </node>
 
       <!-- Publish registered XYZRGB point cloud with software registered input -->
       <node pkg="nodelet" type="nodelet" name="points_xyzrgb_sw_registered"
             args="load depth_image_proc/point_cloud_xyzrgb $(arg manager) $(arg bond)" respawn="$(arg respawn)">
-        <remap from="rgb/image_rect_color"        to="image_color_rect" />
-        <remap from="rgb/camera_info"             to="camera_info" />
-        <remap from="depth_registered/image_rect" to="image_depth_rect" />
-        <remap from="depth_registered/points"     to="points" />
       </node>
     </group>
 
@@ -350,10 +358,6 @@
       <!-- Publish registered XYZRGB point cloud with hardware registered input (ROS Realsense depth alignment) -->
       <node pkg="nodelet" type="nodelet" name="points_xyzrgb_hw_registered"
             args="load depth_image_proc/point_cloud_xyzrgb $(arg manager) $(arg bond)" respawn="$(arg respawn)">
-        <remap from="rgb/image_rect_color"        to="image_color_rect" />
-        <remap from="rgb/camera_info"             to="camera_info" />
-        <remap from="depth_registered/image_rect" to="image_depth_rect" />
-        <remap from="depth_registered/points"     to="points" />
       </node>
     </group>
   </group>
