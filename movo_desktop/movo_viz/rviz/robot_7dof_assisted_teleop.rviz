@@ -76,16 +76,6 @@ Visualization Manager:
           Value: false
         front_laser_link:
           Value: false
-        kinect2_ir_link:
-          Value: false
-        kinect2_ir_optical_frame:
-          Value: false
-        kinect2_link:
-          Value: false
-        kinect2_rgb_link:
-          Value: false
-        kinect2_rgb_optical_frame:
-          Value: false
         left_base_link:
           Value: false
         left_gripper_base_link:
@@ -312,7 +302,7 @@ Visualization Manager:
           Size (Pixels): 3
           Size (m): 0.01
           Style: Flat Squares
-          Topic: /kinect2/sd/points
+          Topic: /movo_camera/point_cloud/points
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
