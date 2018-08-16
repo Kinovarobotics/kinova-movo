@@ -40,7 +40,7 @@ import rospy
 import sys
 import tf
 
-from moveit_msgs.msg import Constraints, OrientationConstraint
+from moveit_msgs.msg import Constraints, OrientationConstraint, Grasp
 
 from moveit_python import (MoveGroupInterface,
                            PlanningSceneInterface,
@@ -52,7 +52,7 @@ from movo_action_clients.move_base_action_client import MoveBaseActionClient
 from movo_action_clients.torso_action_client import TorsoActionClient
 
 from control_msgs.msg import PointHeadAction, PointHeadGoal
-from grasp_msgs.msg import FindGraspableObjectsAction, FindGraspableObjectsGoal
+from grasp_msgs.msg import FindGraspableObjectsAction, FindGraspableObjectsGoal, GraspPlanningAction, GraspPlanningGoal
 from shape_msgs.msg import SolidPrimitive as sp
 from geometry_msgs.msg import Pose2D,PoseStamped
 from moveit_msgs.msg import PlaceLocation, MoveItErrorCodes
@@ -92,9 +92,11 @@ class GraspingClient(object):
         self.move_group = MoveGroupInterface("upper_body", "base_link")
         self.lmove_group = MoveGroupInterface("left_arm", "base_link")
         self.rmove_group = MoveGroupInterface("right_arm", "base_link")
-        self.move_group.setPlannerId("LBKPIECEkConfigDefault")
-        self.lmove_group.setPlannerId("LBKPIECEkConfigDefault")
-        self.rmove_group.setPlannerId("LBKPIECEkConfigDefault")
+
+        planner_id = "RRTConnectkConfigDefault"
+        self.move_group.setPlannerId(planner_id)
+        self.lmove_group.setPlannerId(planner_id)
+        self.rmove_group.setPlannerId(planner_id)
 
         self.objects_heights = [0.122, 0.240]
         self.objects_heights_tolerances = [0.02, 0.03]
@@ -178,9 +180,9 @@ class GraspingClient(object):
         
         self.pickplace = [None]*2
         self.pickplace[0] = PickPlaceInterface("left_side", "left_gripper", verbose=True)
-        self.pickplace[0].planner_id = "LBKPIECEkConfigDefault"
+        self.pickplace[0].planner_id = planner_id
         self.pickplace[1] = PickPlaceInterface("right_side", "right_gripper", verbose=True)
-        self.pickplace[1].planner_id = "LBKPIECEkConfigDefault"
+        self.pickplace[1].planner_id = planner_id
         self.pick_result = [None]*2
         self._last_gripper_picked = 0
         self.place_result = [None]*2
@@ -193,10 +195,15 @@ class GraspingClient(object):
         self._lgripper = GripperActionClient('left')
         self._rgripper = GripperActionClient('right')
         
-        find_topic = "basic_grasping_perception/find_objects"
-        rospy.loginfo("Waiting for %s..." % find_topic)
-        self.find_client = actionlib.SimpleActionClient(find_topic, FindGraspableObjectsAction)
-        self.find_client.wait_for_server()
+        find_perception_topic = "basic_grasping_perception/find_objects"
+        rospy.loginfo("Waiting for %s..." % find_perception_topic)
+        self.find_perception_client = actionlib.SimpleActionClient(find_perception_topic, FindGraspableObjectsAction)
+        self.find_perception_client.wait_for_server()
+
+        find_grasp_planning_topic = "grasp_planner/plan"
+        rospy.loginfo("Waiting for %s..." % find_grasp_planning_topic)
+        self.find_grasp_planning_client = actionlib.SimpleActionClient(find_grasp_planning_topic, GraspPlanningAction)
+        self.find_grasp_planning_client.wait_for_server()
         
         self.scene.clear()
         
@@ -214,64 +221,80 @@ class GraspingClient(object):
     def clearScene(self):
         self.scene.clear()
 
-    def getPickCoordinates(self, gripper, plan):
+    def getPickCoordinates(self, gripper=0, plan=False):
 
         # Update scene for desired gripper
-        self.updateScene(gripper, plan)
+        self.populateScene(gripper, plan)
 
-        # Find the objects we want
-        found_objects, found_objects_grasps = self.getGraspableObjects(2, self.objects_heights, self.objects_heights_tolerances, False)
-
-        # beer and pringles it is
-        beer,beer_grasps = found_objects[0], found_objects_grasps[0]
-        pringles,pringles_grasps = found_objects[1], found_objects_grasps[1]
-        move_base_coords = Pose2D()
+        # Find the objects we want in the scene
+        wanted_objects, wanted_objects_grasps = self.findDesiredObjectsInScene(2, self.objects_heights, self.objects_heights_tolerances, False)
         
-        # No beer = pringles is left and rightmost 
-        if beer is None:
-            leftmost, leftmost_grasps = pringles, pringles_grasps
-            rightmost, rightmost_grasps = pringles, pringles_grasps
-            move_base_coords = None
-
-        # No pringles = beer is left and rightmost
-        elif pringles is None:
-            leftmost, leftmost_grasps = beer, beer_grasps
-            rightmost, rightmost_grasps = beer, beer_grasps
-            move_base_coords = None
-
-        # If beer's y is larger
-        elif beer.primitive_poses[0].position.y > pringles.primitive_poses[0].position.y:
-            leftmost, leftmost_grasps = beer, beer_grasps
-            rightmost, rightmost_grasps = pringles, pringles_grasps
-        # If pringles'y is larger
-        elif beer.primitive_poses[0].position.y < pringles.primitive_poses[0].position.y:
-            leftmost, leftmost_grasps = pringles, pringles_grasps
-            rightmost, rightmost_grasps = beer, beer_grasps
-
         # Get the center and find the coords where we're moving the base
-        if move_base_coords is not None:
+        if None not in wanted_objects:
+            # TODO this should also be able to take an N-element list
+            beer, pringles = wanted_objects[0], wanted_objects[1]
+
             center_objects = (beer.primitive_poses[0].position.y + pringles.primitive_poses[0].position.y)/2
-            surface = self.getSupportSurface(beer.support_surface)
-            tmp1 = surface.primitive_poses[0].position.x-surface.primitives[0].dimensions[0]/2
-            surface = self.getSupportSurface(pringles.support_surface)
-            tmp2 = surface.primitive_poses[0].position.x-surface.primitives[0].dimensions[0]/2
+            
+            surface1 = self.getSupportSurface(beer.support_surface)
+            tmp1 = surface1.primitive_poses[0].position.x-surface1.primitives[0].dimensions[0]/2
+            
+            surface2 = self.getSupportSurface(pringles.support_surface)
+            tmp2 = surface2.primitive_poses[0].position.x-surface2.primitives[0].dimensions[0]/2
+            
             front_edge = (tmp1+tmp2)/2
+            if beer.support_surface == pringles.support_surface:
+                front_edge = surface1.primitive_poses[0].position.x-surface1.primitives[0].dimensions[0]/2
             move_base_coords = Pose2D(x=(front_edge-self.tableDist),y=center_objects,theta=0.0)
+            rospy.loginfo("front edge of table is at x=%f"%front_edge)
 
-        if gripper == 0:
-            return move_base_coords, leftmost, leftmost_grasps
+        else:
+            move_base_coords = None
 
-        elif gripper == 1:
-            return move_base_coords, rightmost, rightmost_grasps
+        wanted_objects_names = list()
+        for obj in wanted_objects:
+            wanted_objects_names.append(obj.name)
 
-    def updateScene(self,gripper=0,plan=True):
+        return move_base_coords, wanted_objects_names
+
+    def orderObjectsHorizontally(self, objects):
+        return sorted(objects, key=lambda obj:obj.primitive_poses[0].position.y, reverse=True)
+
+    def updateSceneAfterBaseMovement(self, x_translation, y_translation):
+        # Change self.objects and self.surfaces to translate the primitive poses
+        rospy.loginfo("Updating scene after base movement...")
+        for obj in self.objects:
+            obj.object.primitive_poses[0].position.x -= x_translation
+            obj.object.primitive_poses[0].position.y -= y_translation
+        for surface in self.surfaces:
+            surface.primitive_poses[0].position.x -= x_translation
+            surface.primitive_poses[0].position.y -= y_translation
+
+        # Clear scene
+        self.scene.clear()
+
+        # Add modified objects to scene
+        for obj in self.objects:
+            self.scene.addSolidPrimitive(obj.object.name,
+                                         obj.object.primitives[0],
+                                         obj.object.primitive_poses[0],
+                                         wait = True)
+        for surface in self.surfaces:
+            self.scene.addSolidPrimitive(surface.name,
+                                         surface.primitives[0],
+                                         surface.primitive_poses[0],
+                                         wait = True)
+        self.scene.waitForSync()
+        rospy.loginfo("Finished updating.")
+
+    def populateScene(self,gripper=0,plan=False):
         # find objects
         goal = FindGraspableObjectsGoal()
         goal.plan_grasps = plan
         goal.gripper = gripper
-        self.find_client.send_goal(goal)
-        self.find_client.wait_for_result(rospy.Duration(5.0))
-        find_result = self.find_client.get_result()
+        self.find_perception_client.send_goal(goal)
+        self.find_perception_client.wait_for_result(rospy.Duration(5.0))
+        find_result = self.find_perception_client.get_result()
 
         # remove previous objects
         for name in self.scene.getKnownCollisionObjects():
@@ -280,11 +303,11 @@ class GraspingClient(object):
         # insert objects to scene
         idx = -1
         for obj in find_result.objects:
-            # CHANGE
+            # TODO change those hardcoded values
             if obj.object.primitive_poses[0].position.z < 0.5 or obj.object.primitive_poses[0].position.x > 2.0 or obj.object.primitive_poses[0].position.y > 0.5:
                 continue
             idx += 1
-            obj.object.name = "object%d_%d"%(idx,gripper)
+            obj.object.name = "object%d"%(idx)
             self.scene.addSolidPrimitive(obj.object.name,
                                          obj.object.primitives[0],
                                          obj.object.primitive_poses[0],
@@ -313,12 +336,22 @@ class GraspingClient(object):
         self.objects = find_result.objects
         self.surfaces = find_result.support_surfaces
 
-    def getGraspableObjects(self, number_of_objects_to_grasp, height, precision, planned=True):
+    def calculateGraspForObject(self, object_to_grasp, gripper):
+        goal = GraspPlanningGoal()
+        goal.object = object_to_grasp
+        goal.gripper = gripper
+        self.find_grasp_planning_client.send_goal(goal)
+        self.find_grasp_planning_client.wait_for_result(rospy.Duration(5.0))
+
+        return self.find_grasp_planning_client.get_result().grasps #moveit_msgs/Grasp[]
+        
+
+    def findDesiredObjectsInScene(self, number_of_objects_to_grasp, height, precision, planned=False):
         """
         Find in the actual scene (self.objects and self.surfaces) which correspond to given height and precision lists
         Only supports number_of_objects_to_grasp = 2 for now
         """
-        
+
         found_objects = [None] * number_of_objects_to_grasp
         found_grasps = [None] * number_of_objects_to_grasp
         n = 0
@@ -329,7 +362,7 @@ class GraspingClient(object):
                     continue
 
                 # has to be on the table
-                # CHANGE
+                # TODO change hardcoded values
                 if obj.object.primitive_poses[0].position.z < 0.5 or \
                 obj.object.primitive_poses[0].position.z > 1.0 or \
                 obj.object.primitive_poses[0].position.x > 2.0:
@@ -361,61 +394,11 @@ class GraspingClient(object):
         # Those set to None have not been found
         return found_objects, found_grasps
 
-    # def getGraspableBeer(self,planned=True):
-    #     for obj in self.objects:
-            
-    #         # need grasps
-    #         if len(obj.grasps) < 1 and planned:
-    #             continue
-
-    #         # has to be on table
-    #         if obj.object.primitive_poses[0].position.z < 0.5 or \
-    #            obj.object.primitive_poses[0].position.z > 1.0 or \
-    #            obj.object.primitive_poses[0].position.x > 2.0:
-    #             continue
-    #         elif (obj.object.primitives[0].type == sp.CYLINDER):
-    #             if obj.object.primitives[0].dimensions[sp.CYLINDER_HEIGHT] < 0.102 or \
-    #                obj.object.primitives[0].dimensions[sp.CYLINDER_HEIGHT] > 0.142:
-    #                 continue
-    #         elif (obj.object.primitives[0].type == sp.BOX):
-    #             if obj.object.primitives[0].dimensions[sp.BOX_Z] < 0.102 or \
-    #                obj.object.primitives[0].dimensions[sp.BOX_Z] > 0.142:
-    #                 continue
-    #         else:
-    #             continue
-            
-    #         print "beer:   ",obj.object.primitive_poses[0]
-           
-
-    #         return obj.object, obj.grasps
-    #     # nothing detected
-    #     return None, None
-
-    # def getGraspablePringles(self,planned=True):
-    #     for obj in self.objects:
-    #         # need grasps
-    #         if len(obj.grasps) < 1 and planned:
-    #             continue
-
-    #         # has to be on table
-    #         if obj.object.primitive_poses[0].position.z < 0.5 or \
-    #            obj.object.primitive_poses[0].position.z > 1.0 or \
-    #            obj.object.primitive_poses[0].position.x > 2.0:
-    #             continue
-    #         elif (obj.object.primitives[0].type == sp.CYLINDER):
-    #             if obj.object.primitives[0].dimensions[sp.CYLINDER_HEIGHT] < 0.21 or \
-    #                obj.object.primitives[0].dimensions[sp.CYLINDER_HEIGHT] > 0.28:
-    #                 continue
-    #         elif (obj.object.primitives[0].type == sp.BOX):
-    #             if obj.object.primitives[0].dimensions[sp.BOX_Z] < 0.21 or \
-    #                obj.object.primitives[0].dimensions[sp.BOX_Z] > 0.28:
-    #                 continue
-    #         else:
-    #             continue
-
-    #         return obj.object, obj.grasps
-    #     # nothing detected
-    #     return None, None
+    def getObj(self, name):
+        for obj in self.objects:
+            if obj.object.name == name:
+                return obj.object
+        return None
 
     def getSupportSurface(self, name):
         for surface in self.surfaces:
@@ -426,7 +409,7 @@ class GraspingClient(object):
     def getPlaceLocation(self):
         pass
 
-    def pick(self, block, grasps, gripper=0):
+    def pick(self, block, grasps, gripper):
 
         success, pick_result = self.pickplace[gripper].pick_with_retry(block.name,
                                                               grasps,
@@ -437,7 +420,7 @@ class GraspingClient(object):
         self._last_gripper_picked = gripper
         return success
 
-    def place(self, block, pose_stamped,gripper=0):
+    def place(self, block, pose_stamped,gripper):
         places = list()
         l = PlaceLocation()
         l.place_pose.pose = pose_stamped.pose
@@ -554,88 +537,63 @@ if __name__ == "__main__":
     head_action.look_at(1.8, 0, table_height+.1, "base_link")
     
     while not rospy.is_shutdown():
-        base_coords, objects, grasps = grasping_client.getPickCoordinates(0, False)
+        base_coords, wanted_objects_names = grasping_client.getPickCoordinates(0, False)
         if base_coords is None:
             rospy.logwarn("Perception failed.")
             continue         
         break
 
+
     rospy.loginfo("Moving to table...")
     move_base.goto(base_coords)
     
+    # Update the scene considering that the base moved
+    grasping_client.updateSceneAfterBaseMovement(base_coords.x, base_coords.y)
+
+    # Go get the wanted objects in the updated scene and sort them from left to right
+    wanted_objects = list()
+    for name in wanted_objects_names:
+        wanted_objects.append(grasping_client.getObj(name))
+    wanted_sorted_objects = grasping_client.orderObjectsHorizontally(wanted_objects)
+
+    #TODO Remove or do something funnier
     head_action.look_at(0.9, 0, table_height+.1, "base_link")
 
-    # find stuff to pick
-    while not rospy.is_shutdown():
-        rospy.loginfo("Picking object...")
-        base_coords, leftmost, leftmost_grasps = grasping_client.getPickCoordinates(0, True)
-        if (leftmost is None) or (leftmost_grasps is None):
-            rospy.logwarn("Perception failed.")
-            continue 
+    for gripperwanted in range(2):
+        found_grasp = grasping_client.calculateGraspForObject(wanted_sorted_objects[gripperwanted], gripperwanted)
 
-        # Pick the leftmost item
-        if grasping_client.pick(leftmost, leftmost_grasps, 0):
-            break
-        rospy.logwarn("Grasping failed.")
-
-    # Goto grasping position
-    grasping_client.goto_plan_grasp()
+        # Plan the gripper pick
+        while not rospy.is_shutdown():
+            rospy.loginfo("Picking object with gripper %d..."%gripperwanted)
     
-    # # Point the head at the stuff we want to pick
-    # head_action.look_at(0.9, -0.1, table_height+.1, "base_link")
+            # Pick it
+            if grasping_client.pick(wanted_sorted_objects[gripperwanted], found_grasp, gripperwanted):
+                break
+            rospy.logwarn("Grasping failed. Sleeping for 10s.")
 
-    # while not rospy.is_shutdown():
-    #     rospy.loginfo("Picking object...")
-    #     grasping_client.updateScene(1)
-    #     pringles, grasps = grasping_client.getGraspablePringles()
-    #     if pringles == None:
-    #         rospy.logwarn("Perception failed.")
-    #         continue
+            rospy.sleep(10.)
 
-    #     # Pick the beer
-    #     if grasping_client.pick(pringles, grasps,1):
-    #         break
-    #     rospy.logwarn("Grasping failed.")
-        
+        # Goto grasping position
+        grasping_client.goto_plan_grasp()
+    grasping_client.open_gripper()
 
-    # # Goto grasping position
-    # grasping_client.goto_plan_grasp()
     
-    # # Point the head at the stuff we want to pick
-    # head_action.look_at(0.9, 0.1, table_height+.1, "base_link")
-    
-    # # Place the block
-    # while not rospy.is_shutdown():
-    #     rospy.loginfo("Placing object...")
-    #     pose = PoseStamped()
-    #     pose.pose = beer.primitive_poses[0]
-    #     pose.pose.position.z += 0.01
-    #     pose.header.frame_id = beer.header.frame_id
-    #     if grasping_client.place(beer, pose, gripper=0):
-    #         break
-    #     rospy.logwarn("Placing failed.")
-        
-    # grasping_client.goto_plan_grasp()
-
-
-    # # Point the head at the stuff we want to pick
-    # head_action.look_at(0.9, -0.1, table_height+.1, "base_link")
-    
-    # # Place the block
-    # while not rospy.is_shutdown():
-    #     rospy.loginfo("Placing object...")
-    #     pose = PoseStamped()
-    #     pose.pose = pringles.primitive_poses[0]
-    #     pose.pose.position.z += 0.01
-    #     pose.header.frame_id = pringles.header.frame_id
-    #     if grasping_client.place(pringles, pose, gripper=1):
-    #         break
-    #     rospy.logwarn("Placing failed.")
-        
-    # grasping_client.goto_plan_grasp()
-    
+    # for gripperwanted in range(2):
+    #     # Place the block
+    #     while not rospy.is_shutdown():
+    #         rospy.loginfo("Placing object...")
+    #         pose = PoseStamped()
+    #         pose.pose = wanted_sorted_objects[gripperwanted].primitive_poses[0]
+    #         pose.pose.position.z += 0.01
+    #         pose.header.frame_id = wanted_sorted_objects[gripperwanted].header.frame_id
+    #         if grasping_client.place(wanted_sorted_objects[gripperwanted], pose, gripper=gripperwanted):
+    #             break
+    #         rospy.logwarn("Placing failed.")
+            
+    #     grasping_client.goto_plan_grasp()
+            
     # Demo finished return to tuck
-    grasping_client.close_gripper()
+    # grasping_client.close_gripper()
     grasping_client.goto_tuck()
 
     # rospy.loginfo("Moving to start...")

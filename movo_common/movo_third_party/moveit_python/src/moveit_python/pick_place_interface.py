@@ -154,6 +154,7 @@ class PickPlaceInterface(object):
         rospy.loginfo("--------------goal sent to moveit START---------------")
         rospy.loginfo("g.target_name = {}".format(g.target_name))
         rospy.loginfo("g.group_name = {}".format(g.group_name))
+        rospy.loginfo("g.end_effector = {}".format(g.end_effector))
         rospy.loginfo("g.support_surface_name = {}".format(g.support_surface_name))
         rospy.loginfo("g.allow_gripper_support_collision = {}".format(g.allow_gripper_support_collision))
         rospy.loginfo("g.attached_object_touch_links = {}".format(g.attached_object_touch_links))

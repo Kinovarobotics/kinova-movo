@@ -12,12 +12,21 @@
 		<arg name="sim" value="$(arg sim)"/>
 	</include>
 	
-	<!-- Start Perception -->
+	<!-- Start Perception node -->
     <node name="basic_grasping_perception" pkg="simple_grasping" type="basic_grasping_perception" output="screen">
     	<remap from="/head_camera/depth_registered/points" to="/movo_camera/point_cloud/points"/>
     	<!--remap unless="$(arg sim)" from="/head_camera/depth_registered/points" to="/movo_camera/points"/-->
     	<param name="simulated_kinova" value="$(arg sim)"/>
     	<param name="use_debug" value="true"/>
+        <rosparam command="load" file="$(find movo_demos)/config/simple_grasping.yaml"/>
+        
+        <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" command="load" file="$(find movo_moveit_config)/config/kinematics.yaml"/>
+        <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" command="load" file="$(find movo_7dof_moveit_config)/config/kinematics.yaml"/>
+    </node>
+
+	<!-- Start Grasp Planning node -->
+    <node name="grasp_planner" pkg="simple_grasping" type="grasp_planner_node" output="screen">
+    	<param name="simulated_kinova" value="$(arg sim)"/>
         <rosparam command="load" file="$(find movo_demos)/config/simple_grasping.yaml"/>
         
         <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" command="load" file="$(find movo_moveit_config)/config/kinematics.yaml"/>

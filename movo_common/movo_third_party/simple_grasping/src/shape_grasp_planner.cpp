@@ -338,12 +338,12 @@ ShapeGraspPlanner::makeGraspPosture(double pose, int g)
 {
   trajectory_msgs::JointTrajectory trajectory;
   trajectory.joint_names.push_back(left_joint_[g]);
-  //trajectory.joint_names.push_back(right_joint_[g]);
+  trajectory.joint_names.push_back(right_joint_[g]);
   trajectory_msgs::JointTrajectoryPoint point;
   point.positions.push_back(pose);
-  //point.positions.push_back(pose);
+  point.positions.push_back(pose);
   point.effort.push_back(max_effort_[g]);
-  //point.effort.push_back(max_effort_[g]);
+  point.effort.push_back(max_effort_[g]);
   point.time_from_start = ros::Duration(grasp_duration_[g]);
   trajectory.points.push_back(point);
   return trajectory;
