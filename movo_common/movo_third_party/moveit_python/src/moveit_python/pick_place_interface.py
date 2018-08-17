@@ -151,17 +151,6 @@ class PickPlaceInterface(object):
             g.planning_options.planning_scene_diff.robot_state.is_diff = True
         g.planning_options.plan_only = self._plan_only
 
-        rospy.loginfo("--------------goal sent to moveit START---------------")
-        rospy.loginfo("g.target_name = {}".format(g.target_name))
-        rospy.loginfo("g.group_name = {}".format(g.group_name))
-        rospy.loginfo("g.end_effector = {}".format(g.end_effector))
-        rospy.loginfo("g.support_surface_name = {}".format(g.support_surface_name))
-        rospy.loginfo("g.allow_gripper_support_collision = {}".format(g.allow_gripper_support_collision))
-        rospy.loginfo("g.attached_object_touch_links = {}".format(g.attached_object_touch_links))
-        rospy.loginfo("g.planner_id = {}".format(g.planner_id))
-        rospy.loginfo("g.allowed_touch_objects = {}".format(g.allowed_touch_objects))
-        rospy.loginfo("g.allowed_planning_time = {}".format(g.allowed_planning_time))
-        rospy.loginfo("------------goal sent to moveit END-------------")
         self._pick_action.send_goal(g)
         if wait:
             self._pick_action.wait_for_result()

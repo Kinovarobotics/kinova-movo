@@ -175,7 +175,7 @@ int ShapeGraspPlanner::createGrasp(const geometry_msgs::PoseStamped& pose,
                                    double x_offset,
                                    double z_offset,
                                    double quality,
-								   int g)
+								                   int g)
 {
   moveit_msgs::Grasp grasp;
   grasp.grasp_pose = pose;
@@ -189,11 +189,13 @@ int ShapeGraspPlanner::createGrasp(const geometry_msgs::PoseStamped& pose,
     grasp.grasp_posture = makeGraspPosture(gripper_opening,g);
   }    
    
-    
   grasp.pre_grasp_approach = makeGripperTranslation(approach_frame_[g],
                                                     approach_min_translation_[g],
                                                     approach_desired_translation_[g],
-													1.0,0.0,0.0);
+													                          0.0,0.0,-1.0);
+
+  // TODO Change vector?
+  // TODO Change translation for object height
   grasp.post_grasp_retreat = makeGripperTranslation(retreat_frame_[g],
                                                     retreat_min_translation_[g],
                                                     retreat_desired_translation_[g],
@@ -247,14 +249,15 @@ int ShapeGraspPlanner::createGraspSeries(
   double closed = std::max(width - gripper_tolerance_[g], 0.0);
   
   // Grasp horizontally along side of box
+  // TODO Change z offset so we start higher than table height (the step argument)
   for (double step = 0.0; step < (height/2.0 - finger_depth_[g]); step += 0.01)
   {
     count += createGrasp(pose, closed, 0.0, 0.0, step, 0.8 - 0.1*step, g);  // horizontal
     count += createGrasp(pose, closed, 0.1, 0.0, step, 0.7 - 0.1*step, g);  // angled
     count += createGrasp(pose, closed, 0.2, 0.0, step, 0.6 - 0.1*step, g);  // angled_more
-    count += createGrasp(pose, closed, 0.0, 0.0, -step, 0.5 - 0.1*step, g);  // horizontal
-    count += createGrasp(pose, closed, 0.1, 0.0, -step, 0.4 - 0.1*step, g);  // angled
-    count += createGrasp(pose, closed, 0.2, 0.0, -step, 0.3 - 0.1*step, g);  // angled_more
+    // count += createGrasp(pose, closed, 0.0, 0.0, -step, 0.5 - 0.1*step, g);  // horizontal
+    // count += createGrasp(pose, closed, 0.1, 0.0, -step, 0.4 - 0.1*step, g);  // angled
+    // count += createGrasp(pose, closed, 0.2, 0.0, -step, 0.3 - 0.1*step, g);  // angled_more
 
   }
 

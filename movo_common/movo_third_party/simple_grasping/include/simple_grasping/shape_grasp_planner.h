@@ -71,7 +71,7 @@ private:
                   double x_offset,
                   double z_offset,
                   double quality,
-				  int g);
+				          int g);
 
   /**
    *  @brief Generate a series of grasps around the edge of a shape
