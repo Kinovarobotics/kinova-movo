@@ -20,28 +20,29 @@ echo "$USER ALL=(ALL) NOPASSWD:ALL" | (sudo su -c 'EDITOR="tee -a" visudo') >> /
 #sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 #sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
 sudo apt-get purge ros-indigo*
+sudo apt-get purge libopenni*
 sudo apt autoremove
 #change the .bashrc file in home for sourcing kinetic instead of indigo
 
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
 sudo apt-get update && sudo apt-get upgrade
-sudo apt-get install ros-kinetic-desktop-full
+sudo apt-get install -y ros-kinetic-desktop-full
 source /opt/ros/kinetic/setup.bash
 sudo rm -f /etc/ros/rosdep/sources.list.d/20-default.list
 sudo rosdep init
 rosdep update
 source /opt/ros/kinetic/setup.bash
-sudo apt-get install python-rosinstall
+sudo apt-get install -y python-rosinstall
 sudo apt-get update && sudo apt-get upgrade
-sudo apt-get install xdotool wmctrl iperf chrony htop bridge-utils ros-kinetic-navigation ros-kinetic-gmapping ros-kinetic-robot-localization ros-kinetic-yocs-cmd-vel-mux ros-kinetic-joy ros-kinetic-urg-node ros-kinetic-sick-tim ros-kinetic-cmake-modules daemontools openssh-server libpcap0.8-dev ros-kinetic-um7 ros-kinetic-imu-tools ros-kinetic-jsk-recognition ros-kinetic-ros-controllers ros-kinetic-scan-tools ros-kinetic-gazebo-ros ros-kinetic-gazebo-plugins ros-kinetic-moveit ros-kinetic-gazebo-ros-control ros-kinetic-hector-gazebo-plugins ros-kinetic-trac-ik ros-kinetic-moveit-msgs ros-kinetic-costmap-2d ros-kinetic-control-toolbox libbullet-dev ros-kinetic-base-local-planner ros-kinetic-move-base-msgs ros-kinetic-controller-interface ros-kinetic-controller-manager libproj-dev
+sudo apt-get install -y xdotool wmctrl iperf chrony htop bridge-utils ros-kinetic-navigation ros-kinetic-gmapping ros-kinetic-robot-localization ros-kinetic-yocs-cmd-vel-mux ros-kinetic-joy ros-kinetic-urg-node ros-kinetic-sick-tim ros-kinetic-cmake-modules daemontools openssh-server libpcap0.8-dev ros-kinetic-um7 ros-kinetic-imu-tools ros-kinetic-jsk-recognition ros-kinetic-ros-controllers ros-kinetic-scan-tools ros-kinetic-gazebo-ros ros-kinetic-gazebo-plugins ros-kinetic-moveit ros-kinetic-gazebo-ros-control ros-kinetic-hector-gazebo-plugins
 source /opt/ros/kinetic/setup.bash
 sed -i -e 's/indigo/kinetic/g' ~/.bashrc ~/env.sh
 
 # KINECT RELATED
 
 # install beignet
-sudo apt-get install cmake pkg-config python ocl-icd-dev libegl1-mesa-dev ocl-icd-opencl-dev libdrm-dev libxfixes-dev libxext-dev llvm-3.6-dev clang-3.6 libclang-3.6-dev libtinfo-dev libedit-dev zlib1g-dev
+sudo apt-get install -y cmake pkg-config python ocl-icd-dev libegl1-mesa-dev ocl-icd-opencl-dev libdrm-dev libxfixes-dev libxext-dev llvm-3.6-dev clang-3.6 libclang-3.6-dev libtinfo-dev libedit-dev zlib1g-dev
 git clone https://github.com/intel/beignet.git
 cd beignet/
 mkdir build 
@@ -55,13 +56,13 @@ rm -rf beignet
 # install lib freenect
 git clone https://github.com/OpenKinect/libfreenect2.git
 cd libfreenect2
-sudo apt-get install build-essential cmake pkg-config
+sudo apt-get install -y build-essential cmake pkg-config
 sudo dpkg -i debs/libusb*deb
-sudo apt-get install libturbojpeg libjpeg-turbo8-dev
+sudo apt-get install -y libturbojpeg libjpeg-turbo8-dev
 sudo dpkg -i debs/libglfw3*deb; sudo apt-get install -f
-sudo apt-get install libgl1-mesa-dri-lts-vivid
+sudo apt-get install -y libgl1-mesa-dri-lts-vivid
 sudo apt-add-repository ppa:deb-rob/ros-xenial && sudo apt-get update
-sudo apt-get install libopenni2-dev
+sudo apt-get install -y libopenni2-dev
 mkdir build && cd build
 cmake .. -DENABLE_CXX11=ON
 make
@@ -73,9 +74,11 @@ rm -rf libfreenect2
 echo 'deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo xenial main' | sudo tee /etc/apt/sources.list.d/realsense-public.list
 sudo apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE
 sudo apt-get update
-sudo apt-get install librealsense2-dkms librealsense2-utils librealsense2-dev librealsense2-dbg
+sudo apt-get install -y librealsense2-dkms librealsense2-utils librealsense2-dev librealsense2-dbg
 
-source ~/.bashrc
+# Packages that need be installed now
+sudo apt-get install -y ros-kinetic-moveit-msgs ros-kinetic-costmap-2d ros-kinetic-trac-ik ros-kinetic-control-toolbox libbullet-dev ros-kinetic-base-local-planner ros-kinetic-move-base-msgs ros-kinetic-controller-interface ros-kinetic-controller-manager libproj-dev
+
 echo -e "\nScript has finished updating the computer.\n\nPress any key to exit....\n"
 read -n 1 -s
 exit 1
