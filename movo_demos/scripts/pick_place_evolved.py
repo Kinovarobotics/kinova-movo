@@ -384,17 +384,21 @@ class GraspingClient(object):
         return self.find_grasp_planning_client.get_result().grasps #moveit_msgs/Grasp[]
         
 
-    def findDesiredObjectsInScene(self, number_of_objects_to_grasp, height, precision):
+    def findDesiredObjectsInScene(self, number_of_objects_to_grasp, height, precision, planned=False):
         """
         Find in the actual scene (self.objects and self.surfaces) which correspond to given height and precision lists
         Only supports number_of_objects_to_grasp = 2 for now
         """
 
-        found_objects_lists = [list()] * number_of_objects_to_grasp
         found_objects = [None] * number_of_objects_to_grasp
+        found_grasps = [None] * number_of_objects_to_grasp
         n = 0
         for i in range(number_of_objects_to_grasp):
             for obj in self.objects:
+                # needs grasps
+                if len(obj.grasps) < 1 and planned:
+                    continue
+
                 # has to be on the table
                 # TODO change hardcoded values
                 if obj.object.primitive_poses[0].position.z < 0.5 or \
@@ -415,31 +419,31 @@ class GraspingClient(object):
                 else: 
                     continue
 
-                found_objects_lists[i].append(obj.object)
+                found_objects = obj.object
+                found_grasps = obj.grasps 
 
+        # TODO
+        # If we found only one corresponding object for a given index
+            # return this object
+
+        # If we found many objects for a given index
+            # If they are close enough
+                # Merge them into a new object
+                # Remove them from the scene
+                # Add the new object to the scene and return the new object
+            # If they are far away from one another
+                # return None because we didn't find a single corresponding object
+
+        # If we found no object for a given index
+            # return None
+
+        
+        # len() will not be useful anymore here
         for i in range(number_of_objects_to_grasp):
-            # If we found only one corresponding object
-            if len(found_objects_lists[i]) == 1:
-                rospy.loginfo("Object was found for height {} with precision {}".format(height[i], precision[i], i))
-                found_objects[i] = found_objects_lists[0]
-
-            # If we found many objects
-            elif len(found_objects_lists[i]) > 1:
-                # If they are close enough
-                if () and () and ():
-                #TODO
-                    # Merge them into a new object
-                    # Remove them from the scene
-                    # Add the new object to the scene and return the new object
-                # If they are far away from one another
-                else:
-                    rospy.loginfo("Too many faraway corresponding objects were found for height {} with precision {}".format(height[i], precision[i], i))
-                    found_objects[i] = None
-                    # return None because we didn't find a single corresponding object
-
-            elif len(found_objects_lists[i]) == 0:
+            if found_objects is not None:
+                rospy.loginfo("Object was found for height {} with precision {}".format(height[i], precision[i], i))                   
+            else:
                 rospy.loginfo("Object was NOT found for height {} with precision {}".format(height[i], precision[i], i))
-                found_objects[i] = None
 
         # Return found objects with the desired characteristics                  
         # Those set to None have not been found
@@ -580,8 +584,8 @@ if __name__ == "__main__":
     grasping_client.clearScene()
     
     # set the robot pos to the planning pose
-    # grasping_client.goto_tuck()
-    # grasping_client.close_gripper()
+    grasping_client.goto_tuck()
+    grasping_client.close_gripper()
 
     grasping_client.goto_plan_grasp()
     grasping_client.open_gripper()
@@ -589,7 +593,7 @@ if __name__ == "__main__":
     head_action.look_at(1.8, 0, table_height+.1, "base_link")
 
     while not rospy.is_shutdown():
-        base_coords, wanted_objects_names = grasping_client.getPickCoordinates()
+        base_coords, wanted_objects_names = grasping_client.getPickCoordinates(0, False)
         if base_coords is None:
             rospy.logwarn("Perception failed.")
             continue         
@@ -608,9 +612,9 @@ if __name__ == "__main__":
         wanted_objects.append(grasping_client.getObj(name))
     wanted_sorted_objects = grasping_client.orderObjectsHorizontally(wanted_objects)
 
-    #TODO Remove or do something funnier
-    head_action.look_at(0.9, 0, table_height+.1, "base_link")
     max_tries = 8
+    pick_has_succeeded = [False] * 2
+
     for gripperwanted in range(2):
         found_grasp = grasping_client.calculateGraspForObject(wanted_sorted_objects[gripperwanted], gripperwanted)
         tries = 0
@@ -620,30 +624,35 @@ if __name__ == "__main__":
     
             # Pick it
             if grasping_client.pick(wanted_sorted_objects[gripperwanted], found_grasp, gripperwanted):
+                pick_has_succeeded[i] = True
                 break
             rospy.logwarn("Grasping failed at try %d."%tries)
             tries += 1
         
         # Goto grasping position
         grasping_client.goto_plan_grasp()
-
-    # Drop it like it's hot
-    grasping_client.open_gripper()
-
     
-    # for gripperwanted in range(2):
-    #     # Place the block
-    #     while not rospy.is_shutdown():
-    #         rospy.loginfo("Placing object...")
-    #         pose = PoseStamped()
-    #         pose.pose = wanted_sorted_objects[gripperwanted].primitive_poses[0]
-    #         pose.pose.position.z += 0.01
-    #         pose.header.frame_id = wanted_sorted_objects[gripperwanted].header.frame_id
-    #         if grasping_client.place(wanted_sorted_objects[gripperwanted], pose, gripper=gripperwanted):
-    #             break
-    #         rospy.logwarn("Placing failed.")
+    for gripperwanted in range(2):
+        
+        tries = 0
+        # If the pick failed we can't place it back
+        if not pick_has_succeeded[i]
+            rospy.loginfo("Can't place object because it wasn't picked in the first place.")
+            break
+
+        # Place the block
+        while not rospy.is_shutdown() and tries < max_tries:
+            rospy.loginfo("Placing object...")
+            pose = PoseStamped()
+            pose.pose = wanted_sorted_objects[gripperwanted].primitive_poses[0]
+            pose.pose.position.z += 0.01
+            pose.header.frame_id = wanted_sorted_objects[gripperwanted].header.frame_id
+            if grasping_client.place(wanted_sorted_objects[gripperwanted], pose, gripper=gripperwanted):
+                break
+            rospy.logwarn("Placing failed.")
+            tries += 1
             
-    #     grasping_client.goto_plan_grasp()
+        grasping_client.goto_plan_grasp()
 
     # Return to origin before tuck
     rospy.loginfo("Moving to start...")
@@ -652,7 +661,7 @@ if __name__ == "__main__":
     move_base.goto(base_coords)
             
     # Demo finished return to tuck
-    # grasping_client.open_gripper()
-    # grasping_client.goto_tuck()
+    grasping_client.open_gripper()
+    grasping_client.goto_tuck()
 
     rospy.loginfo("Demo is complete.")
