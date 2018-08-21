@@ -35,6 +35,7 @@ rosdep update
 source /opt/ros/kinetic/setup.bash
 sudo apt-get install -y python-rosinstall
 sudo apt-get update && sudo apt-get upgrade
+sudo apt-get install -y libfcl0.5=0.5.0-3osrf1~xenial3
 sudo apt-get install -y xdotool wmctrl iperf chrony htop bridge-utils ros-kinetic-navigation ros-kinetic-gmapping ros-kinetic-robot-localization ros-kinetic-yocs-cmd-vel-mux ros-kinetic-joy ros-kinetic-urg-node ros-kinetic-sick-tim ros-kinetic-cmake-modules daemontools openssh-server libpcap0.8-dev ros-kinetic-um7 ros-kinetic-imu-tools ros-kinetic-jsk-recognition ros-kinetic-ros-controllers ros-kinetic-scan-tools ros-kinetic-gazebo-ros ros-kinetic-gazebo-plugins ros-kinetic-moveit ros-kinetic-gazebo-ros-control ros-kinetic-hector-gazebo-plugins
 source /opt/ros/kinetic/setup.bash
 sed -i -e 's/indigo/kinetic/g' ~/.bashrc ~/env.sh
