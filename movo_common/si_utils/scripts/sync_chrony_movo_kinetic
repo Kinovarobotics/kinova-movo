@@ -50,6 +50,6 @@ else
     sudo systemctl restart chrony.service
     sleep 1
 
-    #echo "Setting MOVO1 as time sync client..."
-    #ssh -t movo@movo1 "bash -ic +m 'if grep -Fx "server 10.66.171.1 iburst" /etc/chrony/chrony.conf; then; echo "MOVO1 already configured as time client in chrony.conf file so nothing to do"; else; echo "server 10.66.171.1 iburst" | sudo tee --append /etc/chrony/chrony.conf; fi; sudo systemctl restart chrony.service; sleep 1'"
+    echo "Setting MOVO1 as time sync client..."
+    ssh -t movo@movo1 "bash -ic +m 'if grep -Fx \"server 10.66.171.1 iburst\" /etc/chrony/chrony.conf; then echo \"MOVO1 already configured as time client in chrony.conf file so nothing to do\"; else echo \"server 10.66.171.1 iburst\" | sudo tee --append /etc/chrony/chrony.conf; fi; if grep -F \"#pool 2.debian\" /etc/chrony/chrony.conf > /dev/null; then echo \"Default NTP server already disabled, so nothing to do\"; else sudo sed -i -e \"s/pond 2.debian/#pond 2.debian/g\" /etc/chrony/chrony.conf > /dev/null; fi; sudo systemctl restart chrony.service; sleep 1'"
 fi
