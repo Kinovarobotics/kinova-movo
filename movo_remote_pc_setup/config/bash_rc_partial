@@ -1,7 +1,7 @@
 
 # MOVO REMOTE PC START
 
-source /opt/ros/indigo/setup.bash
+source /opt/ros/kinetic/setup.bash
 source /home/$USER/movo_ws/devel/setup.bash
 
 function movo2_cmd()
