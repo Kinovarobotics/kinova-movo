@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from time import sleep
+import re
 
 import pyaudio
 import wave
@@ -34,20 +35,22 @@ class AudioMessage(object):
         sleep(2)
 
         p=pyaudio.PyAudio()
-    
-        # microphone = None
-        # for i in range(p.get_device_count()):
-        #     dev = p.get_device_info_by_index(i)
-        #     if "Xbox" in dev["name"] :
-        #         microphone = dev
-        # if microphone is None:
-        #     rospy.logerr("Microphone could not be found.")
-        #     return
-        # print ("microphone is : {}".format(microphone))
 
         # Params
         self._input = "~input"
         _rate_bool = False
+
+        # Find microphone index
+        mic_name = rospy.get_param(self._input)
+        microphone_plughw_index = None
+        for i in range(p.get_device_count()):
+            dev = p.get_device_info_by_index(i)
+            if mic_name in dev["name"] :
+                microphone_plughw_index = re.search("hw:(.*),", dev["name"]).group(1)
+        if microphone_plughw_index is None:
+            rospy.logerr("Microphone could not be found.")
+            return
+        rospy.loginfo("Microphone %s is : %s" % (mic_name, microphone_plughw_index))
 
         # This is the required audio input config (required by Pocketsphinx)
         FORMAT = pyaudio.paInt16
@@ -57,7 +60,7 @@ class AudioMessage(object):
 
         # Checking if audio file given or system microphone is needed
         if rospy.has_param(self._input):
-            cmd = 'arecord -D %s -r %d -f S16_LE -c %d' % (rospy.get_param(self._input), RATE, N_CHANNELS)
+            cmd = 'arecord -D plughw:%s -r %d -f S16_LE -c %d' % (microphone_plughw_index, RATE, N_CHANNELS)
             print ("COMMAND IS : {}".format(cmd))
             record_process = subprocess.Popen(cmd.split(' '), stdout = subprocess.PIPE, stderr = subprocess.PIPE)
             wav_file = wave.open(record_process.stdout, 'rb')

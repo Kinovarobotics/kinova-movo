@@ -1,6 +1,6 @@
 <launch>
 
-	<arg name="input" default="plughw:2"/>
+	<arg name="input" default="Xbox"/>
 	<arg name="hmm" default="$(find movo_demos)/launch/voice_control/en-us"/>
 	<arg name="dict" default="$(find movo_demos)/launch/voice_control/movo_voice_ctl.dic"/>
 	<arg name="lm" default="$(find movo_demos)/launch/voice_control/movo_voice_ctl.lm"/>
