@@ -1,6 +1,6 @@
 movo:
     head_controller:
-        type: position_controllers/JointTrajectoryController
+        type: effort_controllers/JointTrajectoryController
         joints:
             - pan_joint
             - tilt_joint
@@ -12,3 +12,6 @@ movo:
             stop_trajectory_duration: 0.5
         state_publish_rate:  100
         action_monitor_rate: 100
+        gains:
+            pan_joint: {p: 200.0, i: 0.0, d: 2.0}
+            tilt_joint: {p: 300.0, i: 0.0, d: 1.0}

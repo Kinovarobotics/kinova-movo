@@ -1,6 +1,6 @@
 movo:
     torso_controller:
-        type: position_controllers/JointTrajectoryController
+        type: effort_controllers/JointTrajectoryController
         joints:
             - linear_joint
         constraints:
@@ -11,4 +11,4 @@ movo:
         state_publish_rate:  100
         action_monitor_rate: 100
         gains:
-            linear_joint: {p: 100.0, i: 0.01, d: 10.0} 
+            linear_joint: {p: 100000.0, i: 300.0, d: 1000.0, i_clamp_max: 1000.0} 
