@@ -12,7 +12,7 @@
 Setup scripts to get a remote PC interfaced with movo
 
 # Caution
-**Please read this carefully! This is provided for convenience only and will only work with a Movo robot. It is intended to be used with a remote PC that has ubuntu 14.04.5LTS cleanly installed and has native hardware capable of running Gazebo simulation. It will configure the system and install all necessary updates to interface with MoVo. This process may change the environment if there is one already setup. Be sure you read through setup_remote_pc in this directory if that is the case, and make sure you fully understand what it is doing. Kinova is not responsible in any way for the use of this script and potential loss of data if it is run on any other configuration.**
+**Please read this carefully! This is provided for convenience only and will only work with a MOVO robot. It is intended to be used with a remote PC that has ubuntu 14.04.5 LTS cleanly installed and has native hardware capable of running Gazebo simulation. It will configure the system and install all necessary updates to interface with MOVO. This process may change the environment if there is one already setup. Be sure you read through setup_remote_pc in this directory if that is the case, and make sure you fully understand what it is doing. Kinova is not responsible in any way for the use of this script and potential loss of data if it is run on any other configuration.**
 
 # Installation
 To install and setup all the components on a remote PC you need to checkout the latest software, the location of the ws matters
