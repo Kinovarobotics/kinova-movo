@@ -5,7 +5,7 @@
     <include file="$(find movo_gazebo)/launch/movo.launch">
         <arg name="world" value="$(find movo_gazebo)/worlds/test_zone.sdf"/>
         <arg name="limited" default="false"/>
-        <arg name="paused" default="false"/>
+        <arg name="paused" default="true"/>
         <arg name="gui" default="true"/>
     </include>
 

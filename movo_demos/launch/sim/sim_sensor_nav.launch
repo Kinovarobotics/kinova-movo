@@ -31,7 +31,7 @@
     
     <!-- Bring up rviz -->
     <node pkg="si_utils" type="timed_roslaunch"
-        args="40 movo_viz view_robot.launch function:=mapless_nav"
+        args="40 movo_viz view_robot.launch function:=sensor_nav"
         name="viz_bringup" output="screen"/>
 
 </launch>
