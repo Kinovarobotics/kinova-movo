@@ -20,7 +20,7 @@ echo "$USER ALL=(ALL) NOPASSWD:ALL" | (sudo su -c 'EDITOR="tee -a" visudo') >> /
 #sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 #sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
 sudo apt-get purge -y ros-indigo*
-sudo apt-get purge -y libopenni*
+sudo apt-get purge -y libopenni* librealsense2*
 sudo apt autoremove
 #change the .bashrc file in home for sourcing kinetic instead of indigo
 
@@ -36,7 +36,7 @@ source /opt/ros/kinetic/setup.bash
 sudo apt-get install -y python-rosinstall
 sudo apt-get update && sudo apt-get upgrade
 sudo apt-get install -y libfcl0.5=0.5.0-3osrf1~xenial3
-sudo apt-get install -y xdotool wmctrl iperf chrony htop bridge-utils ros-kinetic-navigation ros-kinetic-gmapping ros-kinetic-robot-localization ros-kinetic-yocs-cmd-vel-mux ros-kinetic-joy ros-kinetic-urg-node ros-kinetic-sick-tim ros-kinetic-cmake-modules daemontools openssh-server libpcap0.8-dev ros-kinetic-um7 ros-kinetic-imu-tools ros-kinetic-jsk-recognition ros-kinetic-ros-controllers ros-kinetic-scan-tools ros-kinetic-gazebo-ros ros-kinetic-gazebo-plugins ros-kinetic-moveit ros-kinetic-gazebo-ros-control ros-kinetic-hector-gazebo-plugins syslinux-utils ros-kinetic-moveit-msgs ros-kinetic-costmap-2d ros-kinetic-trac-ik ros-kinetic-control-toolbox libbullet-dev ros-kinetic-base-local-planner ros-kinetic-move-base-msgs ros-kinetic-controller-interface ros-kinetic-controller-manager libproj-dev 
+sudo apt-get install -y xdotool wmctrl iperf chrony htop bridge-utils ros-kinetic-navigation ros-kinetic-gmapping ros-kinetic-robot-localization ros-kinetic-yocs-cmd-vel-mux ros-kinetic-joy ros-kinetic-urg-node ros-kinetic-sick-tim ros-kinetic-cmake-modules daemontools openssh-server libpcap0.8-dev ros-kinetic-um7 ros-kinetic-imu-tools ros-kinetic-jsk-recognition ros-kinetic-ros-controllers ros-kinetic-scan-tools ros-kinetic-gazebo-ros ros-kinetic-gazebo-plugins ros-kinetic-moveit ros-kinetic-gazebo-ros-control ros-kinetic-hector-gazebo-plugins syslinux-utils ros-kinetic-moveit-msgs ros-kinetic-costmap-2d ros-kinetic-trac-ik ros-kinetic-control-toolbox libbullet-dev ros-kinetic-base-local-planner ros-kinetic-move-base-msgs ros-kinetic-controller-interface ros-kinetic-controller-manager libproj-dev libgtk-3-dev 
 sudo apt-get install -y python-pyaudio python-pip 
 sudo -H pip install --upgrade pip
 sudo -H pip install --upgrade pocketsphinx
@@ -45,6 +45,11 @@ sed -i -e 's/indigo/kinetic/g' ~/.bashrc ~/env.sh
 
 # Without this, the log is polluted with permission errors in /tmp
 sudo chmod -R 777 /tmp/
+
+# Add x86 lib to LD_LIBRARY_PATH so ROS can find PCL
+sudo touch /etc/ld.so.conf.d/usr-lib-x86.conf
+echo "/usr/lib/x86_64-linux-gnu/" | sudo tee /etc/ld.so.conf.d/usr-lib-x86.conf
+sudo ldconfig
 
 # install AssImp from source
 git clone https://github.com/assimp/assimp.git -b v3.3.1
@@ -86,18 +91,23 @@ mkdir build && cd build
 cmake .. -DENABLE_CXX11=ON
 make
 sudo make install
-cp ../platform/linux/udev/90-kinect2.rules /etc/udev/rules.d/
+sudo cp ../platform/linux/udev/90-kinect2.rules /etc/udev/rules.d/
 cd ../../
 rm -rf libfreenect2
 
 # REALSENSE RELATED
-echo 'deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo xenial main' | sudo tee /etc/apt/sources.list.d/realsense-public.list
-sudo apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE
-sudo apt-get update
-sudo apt-get install -y librealsense2-dkms librealsense2-utils librealsense2-dev librealsense2-dbg
+git clone https://github.com/IntelRealSense/librealsense.git
+cd librealsense
+git checkout v2.15.0
+mkdir build && cd build
+cmake ..
+make
+sudo make install
+cd ../../
+rm -rf librealsense
 
 # Change the upstart bash aliases for the systemd bash aliases in MOVO1 and MOVO2
-sed -i -e "s/alias movostop='sudo service movo-core stop'/alias movostop='sudo systemctl stop movo-core'/g'" ~/.bashrc
+sed -i -e "s/alias movostop='sudo service movo-core stop'/alias movostop='sudo systemctl stop movo-core'/g" ~/.bashrc
 sed -i -e "s/alias movostart='sudo service movo-core start'/alias movostart='sudo systemctl start movo-core'/g" ~/.bashrc
 sed -i -e "s/alias movochk='sudo tail /var/log/upstart/movo-core.log -n 30'/alias movochk='journalctl -b -u movo-core.service -n 30 -f'/g" ~/.bashrc
 
