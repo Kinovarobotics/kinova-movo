@@ -24,10 +24,10 @@ movo:
         state_publish_rate:  100
         action_monitor_rate: 100
         gains:
-            right_shoulder_pan_joint: {p: 1.0, i: 1.0, d: 1.0}
-            right_shoulder_lift_joint: {p: 1.0, i: 1.0, d: 1.0}
-            right_arm_half_joint: {p: 1.0, i: 1.0, d: 1.0}
-            right_elbow_joint: {p: 1.0, i: 1.0, d: 1.0}
-            right_wrist_spherical_1_joint: {p: 1.0, i: 1.0, d: 1.0}
-            right_wrist_spherical_2_joint: {p: 1.0, i: 1.0, d: 1.0}
-            right_wrist_3_joint: {p: 1.0, i: 1.0, d: 1.0}
+            right_shoulder_pan_joint: {p: 5000.0, i: 0.0, d: 0.0}
+            right_shoulder_lift_joint: {p: 5000.0, i: 0.0, d: 0.0}
+            right_arm_half_joint: {p: 5000.0, i: 0.0, d: 0.0}
+            right_elbow_joint: {p: 1000.0, i: 0.0, d: 0.0}
+            right_wrist_spherical_1_joint: {p: 1000.0, i: 0.0, d: 0.0}
+            right_wrist_spherical_2_joint: {p: 500.0, i: 0.0, d: 0.0}
+            right_wrist_3_joint: {p: 500.0, i: 0.0, d: 0.0}
