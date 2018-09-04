@@ -29,7 +29,10 @@ cd ~/movo_ws/src/movo_remote_pc_setup && ./setup_remote_pc
 **Important note for users of MOVO with 6 DOF arms** 
 If you decide to update your code base on your movo robot (if you answer 'yes' to the question "Do you want to update the robot now?\nIf not the code from movo2 will overwrite the src directory....\n" when running the setup_remote_pc script), do not forget to change the movo configuration file (movo_config.bash) located in movo_common/movo_config/movo_config.bash. 
 Set MOVO_HAS_KINOVA_ARM_7DOF=false and MOVO_HAS_KINOVA_ARM_6DOF=true instead of MOVO_HAS_KINOVA_ARM_7DOF=true and MOVO_HAS_KINOVA_ARM_6DOF=false. 
-The config file MUST be set that way on all three computers: your remote computer, movo1, and movo2.
+The config file MUST be set that way on all three computers: 
+- your remote computer
+- movo1, and 
+- movo2.
 
 # Using installed components
 Now that you have run the setup script you can take advantage of convenient functions for running demos and updates on the robot. The section below defines the bash aliases and functions added by the setup script. To run one open a terminal and type the command.
