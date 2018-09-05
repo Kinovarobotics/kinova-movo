@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo -e "This script assumes that you have ubuntu 16.04 LTS installed."
+echo -e "This script assumes that you have Ubuntu 16.04 LTS installed."
 echo -e "It will install all the dependencies to build and run the MOVO ROS Kinetic packages on a MOVO Computer."
 
 read -r -p "Are you absolutely sure you want to continue? [y/N] " response
@@ -17,13 +17,12 @@ export MOVO_SETUP_DIR=$PWD
 echo -e "\nNeed sudo permission to do the configuration and setup\nPlease enter your password if prompted....\n"
 echo "$USER ALL=(ALL) NOPASSWD:ALL" | (sudo su -c 'EDITOR="tee -a" visudo') >> /dev/null
 
-#sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-#sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
+# Remove the Indigo stuff
 sudo apt-get purge -y ros-indigo*
 sudo apt-get purge -y libopenni* librealsense2*
 sudo apt autoremove
-#change the .bashrc file in home for sourcing kinetic instead of indigo
 
+# Install ROS Kinetic
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
 sudo apt-get update && sudo apt-get upgrade
@@ -33,6 +32,8 @@ sudo rm -f /etc/ros/rosdep/sources.list.d/20-default.list
 sudo rosdep init
 rosdep update
 source /opt/ros/kinetic/setup.bash
+
+# Install third parties and additionnal libraries
 sudo apt-get install -y python-rosinstall
 sudo apt-get update && sudo apt-get upgrade
 sudo apt-get install -y libfcl0.5=0.5.0-3osrf1~xenial3
@@ -41,17 +42,16 @@ sudo apt-get install -y python-pyaudio python-pip
 sudo -H pip install --upgrade pip
 sudo -H pip install --upgrade pocketsphinx
 source /opt/ros/kinetic/setup.bash
-sed -i -e 's/indigo/kinetic/g' ~/.bashrc ~/env.sh
 
-# Without this, the log is polluted with permission errors in /tmp
-sudo chmod -R 777 /tmp/
+#Change the .bashrc file to source Kinetic instead of Indigo
+sed -i -e 's/indigo/kinetic/g' ~/.bashrc ~/env.sh
 
 # Add x86 lib to LD_LIBRARY_PATH so ROS can find PCL
 sudo touch /etc/ld.so.conf.d/usr-lib-x86.conf
 echo "/usr/lib/x86_64-linux-gnu/" | sudo tee /etc/ld.so.conf.d/usr-lib-x86.conf
 sudo ldconfig
 
-# install AssImp from source
+# Install AssImp from source because we need v3.6 and not v3.5 (official Debian release)
 git clone https://github.com/assimp/assimp.git -b v3.3.1
 cd assimp
 mkdir build && cd build
@@ -63,9 +63,9 @@ sudo python setup.py install
 cd ../../..
 sudo rm -rf assimp
 
-# KINECT RELATED
+# Kinect-related
 
-# install beignet
+# Install Beignet from source
 sudo apt-get install -y cmake pkg-config python ocl-icd-dev libegl1-mesa-dev ocl-icd-opencl-dev libdrm-dev libxfixes-dev libxext-dev llvm-3.6-dev clang-3.6 libclang-3.6-dev libtinfo-dev libedit-dev zlib1g-dev
 git clone https://github.com/intel/beignet.git
 cd beignet/
@@ -77,7 +77,7 @@ sudo make install
 cd ../../
 rm -rf beignet
 
-# install lib freenect
+# Install libfreenect2 from source
 git clone https://github.com/OpenKinect/libfreenect2.git
 cd libfreenect2
 sudo apt-get install -y build-essential cmake pkg-config
@@ -95,7 +95,7 @@ sudo cp ../platform/linux/udev/90-kinect2.rules /etc/udev/rules.d/
 cd ../../
 rm -rf libfreenect2
 
-# REALSENSE RELATED
+# Realsense-related
 git clone https://github.com/IntelRealSense/librealsense.git
 cd librealsense
 git checkout v2.15.0

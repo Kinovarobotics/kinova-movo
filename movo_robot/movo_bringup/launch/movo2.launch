@@ -19,7 +19,7 @@
     <node pkg="movo_ros" type="movo_voice" name="movo_voice" output="screen"/>
     
 	<!-- Time synchonization for sibot2 -->
-	<node pkg="si_utils" type="sync_chrony_movo_kinetic" 
+	<node pkg="si_utils" type="sync_chrony" 
 		name="time_sync" output="screen"/>
 
     <!-- Platform specific robot state publisher and parameters -->
