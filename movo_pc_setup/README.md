@@ -15,7 +15,7 @@
 Setup scripts to get a remote PC interfaced with MOVO
 
 # Caution
-**Please read this carefully! This is provided for convenience only and will only work with a Movo robot. It is intended to be used with a remote PC that has ubuntu 14.04.5LTS cleanly installed and has native hardware capable of running Gazebo simulation. It will configure the system and install all necessary updates to interface with MoVo. This process may change the environment if there is one already setup. Be sure you read through setup_remote_pc in this directory if that is the case, and make sure you fully understand what it is doing. Kinova is not responsible in any way for the use of this script and potential loss of data if it is run on any other configuration.**
+**Please read this carefully! This is provided for convenience only and will only work with a Movo robot. It is intended to be used with a remote PC that has ubuntu 16.04 LTS cleanly installed and has native hardware capable of running Gazebo simulation. It will configure the system and install all necessary updates to interface with MoVo. This process may change the environment if there is one already setup. Be sure you read through setup_remote_pc in this directory if that is the case, and make sure you fully understand what it is doing. Kinova is not responsible in any way for the use of this script and potential loss of data if it is run on any other configuration.**
 
 # Installation and Use
 
@@ -23,18 +23,7 @@ Setup scripts to get a remote PC interfaced with MOVO
 
 The normal automated setup process requires connection with MovoWifi of Movo Robot. If you don't have a robot, you can set up for simulation of MOVO.
 
-1. Install ROS
-```
-sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
-sudo apt-get update
-sudo apt-get install ros-indigo-desktop-full
-sudo rosdep init
-rosdep update
-sudo apt-get install python-rosinstall
-```
-
-2. Setup Kinova-movo
+1. Install ROS and setup Kinova-movo
 ```
 sudo apt-get install git
 mkdir /movo_ws && git clone https://github.com/Kinovarobotics/kinova-movo.git src/
@@ -48,7 +37,7 @@ chmod +x setup_remote_pc
 exit
 ```
 
-3. Run simulation demo
+2. Run simulation demo
 **Before you begin:** copy sim_demo_VM.launch to the same location of sim_demo.launch. Open a new terminal and launch the demo.
 
 Open a new terminal and launch the demo.
@@ -85,39 +74,7 @@ Now that you have run the setup script you can take advantage of convenient func
 #### Bash commands
 This section defines the bash aliases and functions that are added to help users more easily work with Movo
 
-##### Functions for starting demos
-```
-sim_demo
-```
-Starts the simulation of the pick and place demo. It takes about 45 seconds to fully launch due to the complexity of the gazebo simulation **(BE PATIENT)**. Once the demo is up and running it is identical to the 
-real demo.
-
-###### Demo Outline
-* A table is placed ~2m infront of movo
-* A standard can of pringles is placed near the edge to the right of center
-* A standard 12oz can (beer or soda can) is placed near the edge to the left of center
-* Robot initializes into the plan grasp pose
-* Robot finds the table and the objects
-* Robot uses the navigation stack to navigate to the optimal picking position
-* Robot identifies the beer can using PCL segmentation and object primatives
-* Robot plans valid grasping poses
-* Robot plans the pick operation for the beer can 
-* Robot picks up the beer can
-* Robot returns to the plan grasp pose
-* Robot identifies the pringles can using PCL segmentation and object primatives
-* Robot plans valid grasping poses
-* Robot plans the pick operation for the pringles can 
-* Robot picks up the pringles can
-* Robot returns to the plan grasp pose
-* Robot plans the place operation for the beer can 
-* Robot places the beer can back in its original position
-* Robot returns to the plan grasp pose
-* Robot plans the place operation for the pringles can 
-* Robot places the pringles can back in its original position
-* Robot returns to the plan grasp pose
-* Robot moves to tucked position
-* Robot uses navigation stack to return to original start location
-    
+##### Functions for starting demos    
 ```
 sim_teleop
 ```
@@ -162,49 +119,6 @@ sim_assisted_teleop
 This function simulates assisted teleop for the mobile base. Assisted teleop uses 2D costmap and base_local_planner to avoid collision while using teleop. It basically converts the requested teleop command into a trajectory and then checksthe trajectory for collisions and replans as close to the commanded trajectory as possible while avoiding collisions with things the laser can see. 
 
 **Important note: The robot footprint only accounts for the tucked position. It does not dynamically adjust if the arms are extended. It is recommended to always tuck the arms when using navigation**
-
-```
-robot_demo
-```
-Starts the pick and place demo on the actual robot. To get this setup you need:
-
-###### Required items for demo
-1. A folding table like the one used to develop the demo, [Lifetime 4' Utility Table](https://www.amazon.com/Lifetime-22950-Folding-Utility-Granite/dp/B0002U3V8Q/ref=sr_1_1_sspa?ie=UTF8&qid=1516207875&sr=8-1-spons&keywords=lifetime+4%27+table&psc=1)
-2. A standard 5.68oz pringles can [Pringles](https://www.pringles.com/us/products/favorites/the-original.html)
-3. A standard 12oz soda or beer can [Standard 12oz can dimensions](http://www.cask.com/files/pdf/techspecs/12oz-can-drawing.pdf)
-
-###### Setup notes
-1. The table selected should have a light colored top or a light colored table cloth. The Kinect is a TOF IR sensor so is sensitive to very dark or reflective surfaces.
-2. The table should be spaced off of the wall ~2ft. The demo determines the size of the table or optimal pick positioning and segmentation works best if table is no right against the wall
-3. Cans should be placed within 4-20cm of center with the beer can on the left and pringles can on the right
-4. Robot should start facing the table, roughly centered, and ~2m from the center of the table to the center of the robot.
-
-###### Demo Outline    
-* A table is placed ~2m infront of movo
-* A standard can of pringles is placed near the edge to the right of center
-* A standard 12oz can (beer or soda can) is placed near the edge to the left of center
-* Robot initializes into the plan grasop pose
-* Robot finds the table and the objects
-* Robot uses the navigation stack to navigate to the optimal picking position
-* Robot identifies the beer can using PCL segmentation and object primatives
-* Robot plans valid grasping poses
-* Robot plans the pick operation for the beer can 
-* Robot picks up the beer can
-* Robot returns to the plan grasp pose
-* Robot identifies the pringles can using PCL segmentation and object primatives
-* Robot plans valid grasping poses
-* Robot plans the pick operation for the pringles can 
-* Robot picks up the pringles can
-* Robot returns to the plan grasp pose
-* Robot plans the place operation for the beer can 
-* Robot places the beer can back in its original position
-* Robot returns to the plan grasp pose
-* Robot plans the place operation for the pringles can 
-* Robot places the pringles can back in its original position
-* Robot returns to the plan grasp pose
-* Robot moves to tucked position
-* Robot uses navigation stack to return to original start location
-
 ```
 robot_teleop
 ```
@@ -336,17 +250,17 @@ Alias for SSH into movo2. Equivalent to ssh -X movo@movo1
 ```
 movostop
 ```
-Stops the upstart service on movo2 that runs the ROS software on the robot at startup
+Stops the systemd service on movo2 that runs the ROS software on the robot at startup
 
 ```
 movostart
 ```
-Starts the upstart service on movo2 that runs the ROS software on the robot
+Starts the systemd service on movo2 that runs the ROS software on the robot
 
 ```
 movochk
 ```
-Tails the last 30 lines of the upstart logfile to print out what you would normally see from launching a file
+Tails the journalctl log of the movo-core service. It shows the log as if you would have launched it in the foreground from a terminal.
 
 ```
 sws
@@ -397,5 +311,3 @@ Fixes an STL file containing the string solid, which ASSIMP does not like
 fix_perm
 ```
 Fixes permissions on executable files in a ROS workspace. It is useful when copying code from a USB stick where the permissions were not preserved.
-
-
