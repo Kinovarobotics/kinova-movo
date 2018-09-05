@@ -1,119 +1,6 @@
 #!/bin/bash
 
-echo -e "This script assumes that you have ubuntu 16.04 LTS installed.\n\n It is OK to have already installed ROS this will add any missing components.\n\n Please understand that this script modifies the environment and sets simulation requirement for Movo Robot. It is not adequant to use this setup to connect to a Movo robot\n"
-
-read -r -p "Are you absolutely sure you want to continue? [y/N] " response
-if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
-then
-    echo "Starting setup......"
-    sleep 1
-else
-    exit 1
-fi
-
-export MOVO_SETUP_DIR=$PWD
-
-echo -e "\nNeed sudo persmission to do the configuration and setup\nPlease enter your password if prompted....\n"
-echo "$USER ALL=(ALL) NOPASSWD:ALL" | (sudo su -c 'EDITOR="tee -a" visudo') >> /dev/null
-
-#sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-#sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
-sudo apt-get purge ros-indigo*
-#change the .bashrc file in home for sourcing kinetic instead of indigo
-
-sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
-sudo apt-get update
-sudo apt-get install ros-kinetic-desktop-full
-source /opt/ros/kinetic/setup.bash
-sudo rm -f /etc/ros/rosdep/sources.list.d/20-default.list
-sudo rosdep init
-rosdep update
-source /opt/ros/kinetic/setup.bash
-sudo apt-get install python-rosinstall
-sudo apt-get update && sudo apt-get upgrade
-sudo apt-get install xdotool wmctrl iperf chrony htop bridge-utils ros-kinetic-navigation ros-kinetic-gmapping ros-kinetic-robot-localization ros-kinetic-yocs-cmd-vel-mux ros-kinetic-joy ros-kinetic-urg-node ros-kinetic-sick-tim ros-kinetic-cmake-modules daemontools openssh-server libpcap0.8-dev ros-kinetic-um7 ros-kinetic-imu-tools ros-kinetic-jsk-recognition ros-kinetic-ros-controllers ros-kinetic-scan-tools ros-kinetic-gazebo-ros ros-kinetic-gazebo-plugins ros-kinetic-moveit ros-kinetic-gazebo-ros-control ros-kinetic-hector-gazebo-plugins ros-kinetic-trac-ik ros-kinetic-moveit-msgs ros-kinetic-costmap-2d ros-kinetic-control-toolbox libbullet-dev ros-kinetic-base-local-planner ros-kinetic-move-base-msgs ros-kinetic-controller-interface ros-kinetic-controller-manager python-pyaudio python3-pyaudio python-pip
-sudo -H pip install --upgrade pocketsphinx
-# more things to add : 
-sudo apt-get install libproj-dev
-source /opt/ros/kinetic/setup.bash
-
-sed -i -e 's/indigo/kinetic/g' ~/.bashrc ~/env.sh
-
-
-# KINECT RELATED
-echo -e "\niai_kinect2 prerequisites must be installed!!!!!\nIf you have a PC with Intel integrated graphics answering Y will install\neverything. If you have a PC with a dedicated NVIDIA graphics card\nand want to be able to use CUDA follow the instructions\non https://github.com/code-iai/iai_kinect2 and then enter N here\n"
-read -r -p "Do you want to install iai_kinect2 prerequisites for Intel CPU now? [y/N]" response
-if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
-then
-    # install beignet
-    sudo apt-get install cmake pkg-config python ocl-icd-dev libegl1-mesa-dev ocl-icd-opencl-dev libdrm-dev libxfixes-dev libxext-dev llvm-3.6-dev clang-3.6 libclang-3.6-dev libtinfo-dev libedit-dev zlib1g-dev
-    git clone https://github.com/intel/beignet.git
-    cd beignet/
-    mkdir build 
-    cd build/
-    cmake ../
-    make
-    sudo make install
-    cd ../../
-    rm -rf beignet
-
-    # install lib freenect
-    git clone https://github.com/OpenKinect/libfreenect2.git
-    cd libfreenect2
-    sudo apt-get install build-essential cmake pkg-config
-    sudo dpkg -i debs/libusb*deb
-    sudo apt-get install libturbojpeg libjpeg-turbo8-dev
-    sudo dpkg -i debs/libglfw3*deb; sudo apt-get install -f
-    sudo apt-get install libgl1-mesa-dri-lts-vivid
-    sudo apt-add-repository ppa:deb-rob/ros-xenial && sudo apt-get update
-    sudo apt-get install libopenni2-dev
-    mkdir build && cd build
-    cmake .. -DENABLE_CXX11=ON
-    make
-    sudo make install
-    cd ../../
-    rm -rf libfreenect2
-fi
-
-# REALSENSE RELATED
-echo 'deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo xenial main' | sudo tee /etc/apt/sources.list.d/realsense-public.list
-sudo apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE
-sudo apt-get update
-sudo apt-get install librealsense2-dkms librealsense2-utils librealsense2-dev librealsense2-dbg
-
-# Uninstall Gazebo7 and install Gazebo9 and the packages for compatibility with ROS Kinetic
-# sudo apt-get remove gazebo*
-# sudo apt-get remove ros-kinetic-gazebo*
-# sudo apt-get remove libgazebo*
-# sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
-# wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
-# sudo apt-get update
-# sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
-# wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
-# sudo apt-get update
-# sudo apt-add-repository ppa:dartsim
-# sudo apt-get update
-# sudo apt-get install libdart6-dev xsltproc ruby-ronn robot-player-dev*
-# hg clone https://bitbucket.org/osrf/gazebo /tmp/gazebo -r gazebo9
-# cd /tmp/gazebo
-# sed -i 's/const bool preserveWorldVelocity_=false/const bool preserveWorldVelocity_=true/g' ./gazebo/physics/Joint.hh ./gazebo/physics/ode/ODEJoint.hhmkdir ./gazebo/physics/bullet/BulletJoint.hh
-# cd build/
-# cmake ../
-# make -j4
-# sudo make install
-# echo '/usr/local/lib' | sudo tee /etc/ld.so.conf.d/gazebo.conf
-# sudo ldconfig
-# rm -rf /tmp/gazebo/
-# sudo apt-get install --download-only ros-kinetic-gazebo9-*
-# cd /var/cache/apt/archives/
-
-# sudo dpkg --force-depends -i ros-kinetic-gazebo9-dev_2.5.15-0xenial_amd64.deb
-# sudo dpkg --force-depends -i ros-kinetic-gazebo9-msgs_2.5.15-0xenial_amd64.deb
-# sudo dpkg --force-depends -i ros-kinetic-gazebo9-plugins_2.5.15-0xenial_amd64.deb
-# sudo dpkg --force-depends -i ros-kinetic-gazebo9-ros_2.5.15-0xenial_amd64.deb
-# sudo dpkg --force-depends -i ros-kinetic-gazebo9-ros-pkgs_2.5.15-0xenial_amd64.deb
-# sudo dpkg --force-depends -i ros-kinetic-gazebo9-ros-control_2.5.15-0xenial_amd64.deb
+~/movo_ws/src/movo_common/si_utils/scripts/setup_movo_pc_migration
 
 if grep -q "MOVO REMOTE PC START" ~/.bashrc
 then
@@ -122,11 +9,11 @@ else
     cat config/bash_rc_partial >> ~/.bashrc
 fi
 
-read -r -p "Do you want to setup only for simulation, in case you do not have a Movo Robot available [y/N]" response
+read -r -p "Do you want to setup only for simulation, in case you do not have a Movo Robot available? [y/n]" response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
 then
     source ~/.bashrc
-    echo -e "\nScript has finished configuring the remote PC for simulation.\n\nPress any key to continue....\n"
+    echo -e "\nScript has finished configuring the remote PC for simulation.\n\nPress any key to continue...\n"
     read -n 1 -s
     exit 1
 fi
@@ -134,7 +21,7 @@ fi
 temp2=1
 cnts=0
 while [ $cnts -lt 10 ]; do
-    echo -e "\nPlease connect to the robot via ethernet cable\nand to the internet another interface\n\nPress any key to continue....\n"
+    echo -e "\nPlease connect to the robot Wifi network (MoovoWifi, password is Welcome00)\nand to the internet another interface\n\nPress any key to continue....\n"
     read -n 1 -s
     ping -q -c 1 -W 1 10.66.171.1 >/dev/null
     temp=$?
@@ -223,7 +110,7 @@ temp=1
 temp1=1
 cnts=0
 while [ $cnts -lt 10 ]; do
-    echo -e "\nPlease connect to the robot over Ethernet or WiFi \n\nPress any key to continue....\n"
+    echo -e "\nPlease connect to the robot's WiFi network (MovoWifi, password is Welcome00) \n\nPress any key to continue....\n"
     read -n 1 -s
     ping -q -c 1 -W 1 10.66.171.1 >/dev/null
     temp=$?
@@ -282,21 +169,21 @@ then
     scp config/env.sh movo@movo2:/home/movo/
     echo "RE-BUILDING WORKSPACE ON movo1"
     sleep 1        
-    ssh -t movo@movo1 "bash -ic +m 'cd ~; ./env.sh; cd ~/movo_ws/src; catkin_init_workspace; cd ~/movo_ws; catkin_make'"
+    ssh -t movo@movo1 "bash -ic +m 'cd ~; ./env.sh; cd ~/movo_ws; catkin_make'"
     echo "RE-BUILDING WORKSPACE ON movo2"
     sleep 1
-    ssh -t movo@movo2 "bash -ic +m 'cd ~; ./env.sh; cd ~/movo_ws/src; catkin_init_workspace; cd ~/movo_ws; catkin_make'"
+    ssh -t movo@movo2 "bash -ic +m 'cd ~; ./env.sh; cd ~/movo_ws; catkin_make'"
     echo "INSTALLING THE ROBOT SERVICE.........."
     ssh -t movo@movo2 "bash -ic +m 'cd ~; ./env.sh; rosrun movo_bringup install_movo_core'"
-    echo -e "The robot needs to restart the service!!!\nMovo will home the arms, make sure it is in a safe position?\nIf not answer N, power it off and restart it.\n\n"
-    read -r -p "Do you want to restart the robot serive now? [y/N]" response1
+    echo -e "The robot needs to restart the servic.\nMovo will home the arms, make sure it is in a safe position.\nIf not answer N, power it off and restart it.\n\n"
+    read -r -p "Do you want to restart the robot service now? [y/n]" response1
     if [[ "$response1" =~ ^([yY][eE][sS]|[yY])+$ ]]
     then
         ssh -t movo@movo2 "bash -ic +m 'cd ~; ./env.sh; movostart'"
     else
         ssh -t movo@movo1 "bash -ic +m 'cd ~; ./env.sh; sudo shutdown -h now'"
         ssh -t movo@movo2 "bash -ic +m 'cd ~; ./env.sh; sudo shutdown -h now'"
-        echo -e "\nPlease power the robot off, move it to a safe starting position and restart it\n\nPress any key to continue....\n"
+        echo -e "\nPlease power the robot off, move it to a safe starting position and restart it\n\nPress any key to continue...\n"
         read -n 1 -s            
     fi
 else
