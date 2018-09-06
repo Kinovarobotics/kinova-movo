@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  \Author Longfei Zhao
 
- \Platform: Linux/ROS Indigo
+ \Platform: Ubuntu 16.04 LTS / ROS Kinetic
 --------------------------------------------------------------------"""
 import numpy as np
 import rospy

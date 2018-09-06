@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  \brief  JTAS client for the torso joint (linear actuator)
 
- \Platform: Linux/ROS Indigo
+ \Platform: Ubuntu 16.04 LTS / ROS Kinetic
 --------------------------------------------------------------------"""
 import sys
 from copy import copy

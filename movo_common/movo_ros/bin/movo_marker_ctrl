@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  \brief  Interactive marker node for Stanley Innovation Vector platform
 
- \Platform: Linux/ROS Indigo
+ \Platform: Ubuntu 16.04 LTS / ROS Kinetic
 --------------------------------------------------------------------"""
 from movo.movo_control_marker import MovoMarkerControl
 import rospy

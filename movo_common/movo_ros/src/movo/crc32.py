@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  \brief  This module contains a collection of functions for calculating
          a CRC-32.
 
- \Platform: Linux/ROS Indigo
+ \Platform: Ubuntu 16.04 LTS / ROS Kinetic
 --------------------------------------------------------------------"""
 
 from ctypes import *

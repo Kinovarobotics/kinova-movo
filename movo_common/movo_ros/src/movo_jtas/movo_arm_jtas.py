@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  \brief  This module offer an interface to control the movo arms
 
- \Platform: Linux/ROS Indigo
+ \Platform: Ubuntu 16.04 LTS / ROS Kinetic
 --------------------------------------------------------------------"""
 from movo_joint_interface.jaco_joint_controller import SIArmController
 from trajectory_smoother import TrajectorySmoother

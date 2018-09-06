@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 \Author Longfei Zhao
 \brief  Demo prepared for IROS 2017 in Vancouver
-\Platform: Linux/ROS Indigo
+\Platform: Ubuntu 16.04 LTS / ROS Kinetic
 --------------------------------------------------------------------"""
 
 import rospy

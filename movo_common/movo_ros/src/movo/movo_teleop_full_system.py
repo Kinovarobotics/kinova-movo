@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          platform DOF with a joystick controller; only works with logitech
          extreme 3d
 
- \Platform: Linux/ROS Indigo
+ \Platform: Ubuntu 16.04 LTS / ROS Kinetic
 
 Edited 7/25/2016: Vivian Chu, vchu@gatech - included support for simulation
 Edited 11/07/2016: David Kent, dekent@gatech - integrated arm commands with wpi_jaco

@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  \brief  Driver for Robotiq 85 communication
 
- \Platform: Linux/ROS Indigo
+ \Platform: Ubuntu 16.04 LTS / ROS Kinetic
 --------------------------------------------------------------------"""
 from robotiq_85_gripper import Robotiq85Gripper
 from movo_msgs.msg import GripperCmd, GripperStat

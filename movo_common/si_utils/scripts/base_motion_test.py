@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 \Author Longfei Zhao
 \brief  Interface to drive Movo base with certain speed during given time
-\Platform: Linux/ROS Indigo
+\Platform: Ubuntu 16.04 LTS / ROS Kinetic
 --------------------------------------------------------------------"""
 
 

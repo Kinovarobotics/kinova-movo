@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  \brief  This module contains a collection of functions low level interface
          to the Kinova API in order to control an arm.
 
- \Platform: Linux/ROS Indigo
+ \Platform: Ubuntu 16.04 LTS / ROS Kinetic
 --------------------------------------------------------------------"""
 from ctypes import *
 from helpers import dottedQuadToNum,get_ip_address
