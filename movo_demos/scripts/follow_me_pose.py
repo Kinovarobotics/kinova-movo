@@ -91,9 +91,8 @@ if __name__ == "__main__":
                                  "left_wrist_spherical_1_joint",
                                  "left_wrist_spherical_2_joint",
                                  "left_wrist_3_joint"]
-        larm_pick = [2.6, -2.0, 0.0, -2.0, 0.0, 0.0, 1.0]
-        rarm_pick = [-2.6, 2.0, 0.0, 2.0, 0.0, 0.0, -1.0]
-        rospy.logwarn("follow_me pose for 7dof is not defined yet.")
+        larm_pick = [1.6, 1.5, 0.0, 2.7, 0.0, -0.5, 1.7]
+        rarm_pick = [np.radians(x) for x in [-75.0, 0.0, -45.0, -84.0, 0.0, -120.0, 30.0]]
     else:
         rospy.logerr("DoF needs to be set 6 or 7, aborting demo")
         sys.exit()
