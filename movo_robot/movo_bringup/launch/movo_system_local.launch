@@ -22,7 +22,7 @@
         args="12 movo_bringup movo_manipulation.launch"
         name="manipulation_bringup" output="screen"/> 
         
-    <!-- Platform Manipulation -->
+    <!-- Platform Perception -->
     <node pkg="si_utils" type="timed_roslaunch"
         args="14 movo_bringup movo_perception.launch"
         name="perception_bringup" output="screen" if="$(arg use_kinect)"/> 
