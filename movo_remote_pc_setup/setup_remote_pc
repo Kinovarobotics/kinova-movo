@@ -140,7 +140,8 @@ read -n 1 -s
 ssh-copy-id movo@movo2
 
 echo -e "\nDo you want to update the robot now?\nIf not the code from movo2 will overwrite the src directory....\n"
-read -r -p "*PLEASE ANSWER NO UNLESS SPECIFICALLY INSTRUCTED BY KNOVA, or unless you are absolutely sure this is what you want to do.\nInstall latest software on Movo now? [y/N]" response
+echo -e "*PLEASE ANSWER NO UNLESS SPECIFICALLY INSTRUCTED BY KNOVA, or unless you are absolutely sure this is what you want to do.\nInstall latest software on Movo now? [y/N]" 
+read -r -p response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
 then
     cd ~/movo_ws/src
