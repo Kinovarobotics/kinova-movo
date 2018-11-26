@@ -1,0 +1,16 @@
+<package>
+    <name>si_utils</name>
+    <version>1.0.0</version>
+    <description>System launch file and environment hooks for various utilities</description>
+    <maintainer email="ros@kinovarobotics.com">Martine Blouin</maintainer>
+    <author></author>
+    <url type="repository">https://github.com/Kinovarobotics</url>
+    <license>BSD</license>
+    
+    <buildtool_depend>catkin</buildtool_depend>
+    
+    <build_depend>roslaunch</build_depend>
+
+	<export>
+	</export>
+</package>

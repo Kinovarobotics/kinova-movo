@@ -1,0 +1,18 @@
+ <launch>
+        
+    <!-- Tuck the robot -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="1 movo_demos tuck_robot.launch local:=false"
+        name="tuck_robot" output="screen"/>
+        
+    <!-- Bring up mapping -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="10 movo_demos assisted_teleop.launch local:=false"
+        name="mapping_bringup" output="screen"/> 
+    
+    <!-- Bring up rviz -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="15 movo_viz view_robot.launch function:=assisted_teleop"
+        name="viz_bringup" output="screen"/>
+
+</launch>

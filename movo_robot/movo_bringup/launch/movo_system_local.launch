@@ -1,0 +1,44 @@
+<!-- Launch file for Stanley Innovation enabled Movo1 PC startup -->
+
+<launch>
+    <arg name="use_kinect" default="true"/>
+    
+    <!-- joystick USB port is attached to this PC -->    
+    <node pkg="joy" type="joy_node" name="joy_node" if="$(optenv MOVO_JOY_IS_ATTACHED false)">
+        <param name="dev" type="string" value="$(optenv MOVO_JOY_DEV /dev/input/js0)" />
+        <param name="deadzone" type="double" value="0.1" />
+        <param name="autorepeat_rate" type="double" value="50" />
+    </node>
+    
+    <!-- Sound modules -->    
+    <node pkg="sound_play" type="soundplay_node.py" name="sound_play" output="screen"/>
+    <node pkg="movo_ros" type="movo_voice" name="movo_voice" output="screen"/>
+    
+    <!-- Platform specific robot state publisher and parameters -->
+    <include file="$(find movo_description)/launch/movo_upload.launch"/>
+          
+    <!-- Platform Manipulation -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="12 movo_bringup movo_manipulation.launch"
+        name="manipulation_bringup" output="screen"/> 
+        
+    <!-- Platform Manipulation -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="14 movo_bringup movo_perception.launch"
+        name="perception_bringup" output="screen" if="$(arg use_kinect)"/> 
+
+    <!-- ROS Driver, Robot State Publisher, and sensors -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="5 movo_bringup movo.launch"
+        name="platform_bringup" output="screen"/>
+
+    <!-- Sensor bringup for platforms that contain sensors-->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="8 movo_bringup movo_sensors.launch"
+        name="sensors_bringup" output="screen"/>
+        
+    <!-- Platform Teleoperation -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="14 movo_bringup movo_teleop.launch"
+        name="teleop_bringup" output="screen"/>
+</launch>

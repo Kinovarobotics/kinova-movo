@@ -1,0 +1,19 @@
+#Machine Configuration
+x_vel_limit_mps:                      0.5
+y_vel_limit_mps:                      0.5
+accel_limit_mps2:                     1.0
+decel_limit_mps2:                     1.0
+dtz_decel_limit_mps2:                 1.0
+yaw_rate_limit_rps:                   1.0
+yaw_accel_limit_rps2:                 1.0
+wheel_diameter_m:                     0.1524
+wheel_base_length_m:                  0.50173
+wheel_track_width_m:                  0.42835
+gear_ratio:                           5.0
+motion_while_charging:                0
+motion_ctl_input_filter:              0
+
+
+#Correction factors
+strafe_correction_factor:             0.0
+yaw_correction_factor:                0.0

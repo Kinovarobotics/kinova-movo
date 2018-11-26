@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+<!--
+Software License Agreement (BSD)
+\file      gzplugin_grasp_fix.urdf.xacro
+\authors   Patrick Hussey
+\copyright Copyright (c) 2017, Kinova Robotics inc. All rights reserved.
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+    * Neither the name of the copyright holder nor the names of its contributors
+      may be used to endorse or promote products derived from this software
+      without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<robot name="movo_gripper_fix" xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:macro name="gzplugin_grasp_fix">
+        <xacro:if value="$(optenv MOVO_HAS_KINOVA_ARM false)">
+            <xacro:if value="$(optenv MOVO_HAS_RIGHT_ROBOTIQ_GRIPPER false)">
+                <gazebo>
+                    <plugin name="gazebo_right_grasp_fix" filename="libgazebo_grasp_fix.so">
+                        <arm>
+                            <arm_name>right_arm</arm_name>
+                            <palm_link> right_wrist_3_link </palm_link>
+                            <gripper_link> right_gripper_finger1_knuckle_link </gripper_link>
+                            <gripper_link> right_gripper_finger1_finger_link </gripper_link>
+                            <gripper_link> right_gripper_finger1_inner_knuckle_link </gripper_link>
+                            <gripper_link> right_gripper_finger1_finger_tip_link </gripper_link>
+                            <gripper_link> right_gripper_finger2_knuckle_link </gripper_link>
+                            <gripper_link> right_gripper_finger2_finger_link </gripper_link>
+                            <gripper_link> right_gripper_finger2_inner_knuckle_link </gripper_link>
+                            <gripper_link> right_gripper_finger2_finger_tip_link </gripper_link>
+                        </arm>
+                        <forces_angle_tolerance>90</forces_angle_tolerance>
+                        <update_rate>20</update_rate>
+                        <grip_count_threshold>1</grip_count_threshold>
+                        <max_grip_count>2</max_grip_count>
+                        <release_tolerance>0.005</release_tolerance>
+                        <disable_collisions_on_attach>true</disable_collisions_on_attach>
+                        <contact_topic>right_gripper/contacts</contact_topic>
+                    </plugin>
+                </gazebo>
+            </xacro:if>
+
+            <xacro:if value="$(optenv MOVO_HAS_LEFT_ROBOTIQ_GRIPPER false)">
+                <gazebo>
+                    <plugin name="gazebo_left_grasp_fix" filename="libgazebo_grasp_fix.so">
+                        <arm>
+                            <arm_name>left_arm</arm_name>
+                            <palm_link> left_wrist_3_link </palm_link>
+                            <gripper_link> left_gripper_finger1_knuckle_link </gripper_link>
+                            <gripper_link> left_gripper_finger1_finger_link </gripper_link>
+                            <gripper_link> left_gripper_finger1_inner_knuckle_link </gripper_link>
+                            <gripper_link> left_gripper_finger1_finger_tip_link </gripper_link>
+                            <gripper_link> left_gripper_finger2_knuckle_link </gripper_link>
+                            <gripper_link> left_gripper_finger2_finger_link </gripper_link>
+                            <gripper_link> left_gripper_finger2_inner_knuckle_link </gripper_link>
+                            <gripper_link> left_gripper_finger2_finger_tip_link </gripper_link>
+                        </arm>
+                        <forces_angle_tolerance>90</forces_angle_tolerance>
+                        <update_rate>100</update_rate>
+                        <grip_count_threshold>1</grip_count_threshold>
+                        <max_grip_count>2</max_grip_count>
+                        <release_tolerance>0.005</release_tolerance>
+                        <disable_collisions_on_attach>true</disable_collisions_on_attach>
+                        <contact_topic>left_gripper/contacts</contact_topic>
+                    </plugin>
+                </gazebo>
+            </xacro:if>
+            
+            <xacro:if value="$(optenv MOVO_HAS_RIGHT_KG2_GRIPPER false)">
+                        
+                <gazebo>
+                    <plugin name="gazebo_right_grasp_fix" filename="libgazebo_grasp_fix.so">
+                        <arm>
+                            <arm_name>right_arm</arm_name>
+                            <palm_link>right_wrist_3_link</palm_link>
+                            <gripper_link>right_gripper_finger1_knuckle_link</gripper_link>
+                            <gripper_link>right_gripper_finger2_knuckle_link</gripper_link>
+                        </arm>
+                        <forces_angle_tolerance>100</forces_angle_tolerance>
+                        <update_rate>50</update_rate>
+                        <grip_count_threshold>1</grip_count_threshold>
+                        <max_grip_count>2</max_grip_count>
+                        <release_tolerance>0.006</release_tolerance>
+                        <disable_collisions_on_attach>true</disable_collisions_on_attach>
+                        <contact_topic>right_gripper/contacts</contact_topic>
+                    </plugin>
+                </gazebo>
+            </xacro:if>
+
+            <xacro:if value="$(optenv MOVO_HAS_LEFT_KG2_GRIPPER false)">
+            
+                <gazebo>
+                    <plugin name="gazebo_left_grasp_fix" filename="libgazebo_grasp_fix.so">
+                        <arm>
+                            <arm_name>left_arm</arm_name>
+                            <palm_link>left_wrist_3_link</palm_link>
+                            <gripper_link>left_gripper_finger1_knuckle_link</gripper_link>
+                            <gripper_link>left_gripper_finger2_knuckle_link</gripper_link>
+                        </arm>
+                        <forces_angle_tolerance>100</forces_angle_tolerance>
+                        <update_rate>50</update_rate>
+                        <grip_count_threshold>1</grip_count_threshold>
+                        <max_grip_count>2</max_grip_count>
+                        <release_tolerance>0.006</release_tolerance>
+                        <disable_collisions_on_attach>true</disable_collisions_on_attach>
+                        <contact_topic>left_gripper/contacts</contact_topic>
+                    </plugin>
+                </gazebo>
+            </xacro:if>
+            
+            <xacro:if value="$(optenv MOVO_HAS_RIGHT_KG3_GRIPPER false)">
+                <gazebo>
+                    <plugin name="gazebo_right_grasp_fix" filename="libgazebo_grasp_fix.so">
+                        <arm>
+                            <arm_name>right_arm</arm_name>
+                            <palm_link> right_wrist_3_link </palm_link>
+                            <gripper_link> right_gripper_finger1_knuckle_link </gripper_link>
+                            <gripper_link> right_gripper_finger2_knuckle_link </gripper_link>
+                            <gripper_link> right_gripper_finger3_knuckle_link </gripper_link>
+                        </arm>
+                        <forces_angle_tolerance>100</forces_angle_tolerance>
+                        <update_rate>50</update_rate>
+                        <grip_count_threshold>1</grip_count_threshold>
+                        <max_grip_count>8</max_grip_count>
+                        <release_tolerance>0.006</release_tolerance>
+                        <disable_collisions_on_attach>true</disable_collisions_on_attach>
+                        <contact_topic>right_gripper/contacts</contact_topic>
+                    </plugin>
+                </gazebo>
+            </xacro:if>
+
+            <xacro:if value="$(optenv MOVO_HAS_LEFT_KG3_GRIPPER false)">
+                <gazebo>
+                    <plugin name="gazebo_left_grasp_fix" filename="libgazebo_grasp_fix.so">
+                        <arm>
+                            <arm_name>left_arm</arm_name>
+                            <palm_link> left_wrist_3_link </palm_link>
+                            <gripper_link> left_gripper_finger1_knuckle_link </gripper_link>
+                            <gripper_link> left_gripper_finger2_knuckle_link </gripper_link>
+                            <gripper_link> left_gripper_finger3_knuckle_link </gripper_link>
+                        </arm>
+                        <forces_angle_tolerance>100</forces_angle_tolerance>
+                        <update_rate>50</update_rate>
+                        <grip_count_threshold>1</grip_count_threshold>
+                        <max_grip_count>8</max_grip_count>
+                        <release_tolerance>0.006</release_tolerance>
+                        <disable_collisions_on_attach>true</disable_collisions_on_attach>
+                        <contact_topic>left_gripper/contacts</contact_topic>
+                    </plugin>
+                </gazebo>
+            </xacro:if>
+        </xacro:if>            
+    </xacro:macro>
+</robot>

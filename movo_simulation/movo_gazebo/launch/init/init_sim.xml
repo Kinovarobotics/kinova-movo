@@ -1,0 +1,8 @@
+<launch>
+    <node pkg="movo_gazebo" type="init_sim" name="init_sim" output="log">
+		<param if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" name="jaco_dof" value="6dof" />
+		<param if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" name="jaco_dof" value="7dof" />
+    </node>
+</launch>
+
+

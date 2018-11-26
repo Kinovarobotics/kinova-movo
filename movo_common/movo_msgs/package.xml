@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package>
+    <name>movo_msgs</name>
+    <version>1.0.0</version>
+
+    <description>Drivers and nodes related to Movo Plaform</description>
+    <maintainer email="ros@kinovarobotics.com">Martine Blouin</maintainer>
+    <author></author>
+    <url type="repository">https://github.com/Kinovarobotics</url>
+    <license>BSD</license>
+
+    <buildtool_depend>catkin</buildtool_depend>
+
+    <build_depend>roslaunch</build_depend>
+    <build_depend>message_generation</build_depend>
+    <run_depend>message_runtime</run_depend>  
+    <build_depend>std_msgs</build_depend>
+    <build_depend>geometry_msgs</build_depend>
+    <run_depend>std_msgs</run_depend>
+    <run_depend>geometry_msgs</run_depend>
+	<export>
+	</export>
+</package>

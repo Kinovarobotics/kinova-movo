@@ -1,0 +1,41 @@
+<!-- Launch file for Stanley Innovation enabled Movo1 PC startup -->
+
+<launch>
+        
+    <!--System watchdog-->
+    <node pkg="movo_ros" type="movo_wd" name="movo2_wd" output="screen">
+        <param name="pc_name" value="movo2"/>
+    </node>
+    
+    <!-- joystick USB port is attached to movo2 -->    
+    <node pkg="joy" type="joy_node" name="joy_node" if="$(optenv MOVO_JOY_IS_ATTACHED false)">
+        <param name="dev" type="string" value="$(optenv MOVO_JOY_DEV /dev/input/js0)" />
+        <param name="deadzone" type="double" value="0.1" />
+        <param name="autorepeat_rate" type="double" value="50" />
+    </node>
+    
+    <!-- Sound modules -->    
+    <node pkg="sound_play" type="soundplay_node.py" name="sound_play" output="screen"/>
+    <node pkg="movo_ros" type="movo_voice" name="movo_voice" output="screen"/>
+    
+	<!-- Time synchonization for sibot2 -->
+	<node pkg="si_utils" type="sync_chrony" 
+		args="10.66.171.2"
+		name="time_sync" output="screen"/>
+
+    <!-- Platform specific robot state publisher and parameters -->
+    <include file="$(find movo_description)/launch/movo_upload.launch"/>
+        
+    <!-- Platform Perception -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="14 movo_bringup movo_perception.launch"
+        name="perception_bringup" output="screen"/>
+
+
+    <!-- Moveit bringup-->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="20 movo_bringup movo_moveit.launch local:=true"
+        name="movo_moveit_bringup" output="screen"/> 
+
+
+</launch>

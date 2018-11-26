@@ -1,0 +1,11 @@
+start_location: {x: 0.0, y: 0.0, theta: 0.0}
+table1_setup_location: {x: 2.0, y: 3.2, theta: 0.0}
+table1_grasp1_location: {x: 3.0, y: 3.2, theta: 0.0}
+table1_grasp2_location: {x: 3.0, y: 2.7, theta: 0.0}
+table2_setup_location: {x: 2.0, y: 2.7, theta: 3.14}
+table2_grasp1_location: {x: 3.0, y: -1.8, theta: 0.0}
+table2_grasp2_location: {x: 3.0, y: -2.25, theta: 0.0}
+table1_return_setup_location: {x: 2.0, y: -1.8, theta: 3.14}
+
+table1_height: 0.7366
+table2_height: 0.7366

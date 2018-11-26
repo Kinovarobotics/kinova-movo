@@ -1,0 +1,122 @@
+#!/usr/bin/env python
+"""--------------------------------------------------------------------
+Copyright (c) 2017, Kinova Robotics inc.
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+    * Neither the name of the copyright holder nor the names of its contributors
+      may be used to endorse or promote products derived from this software
+      without specific prior written permission.
+      
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ 
+ \file   sim_odometry
+
+ \brief  Simulates odometry based on ground truth
+
+ \Platform: Linux/ROS Indigo
+--------------------------------------------------------------------"""
+from nav_msgs.msg import Odometry
+import tf
+import rospy
+
+class SimOdometry:
+    def __init__(self):
+        self._OdomData = Odometry()
+        self._OdomPub = rospy.Publisher("/movo/odometry/local_filtered", Odometry, queue_size=1)
+        
+        self._OdomData.header.frame_id = 'odom'
+        self._OdomData.child_frame_id  = 'base_link'
+        
+        
+        self._OdomData.pose.covariance = [0.00017,0.0,0.0,0.0,0.0,0.0,
+                                          0.0,0.00017,0.0,0.0,0.0,0.0,
+                                          0.0,0.0,0.00017,0.0,0.0,0.0,
+                                          0.0,0.0,0.0,0.00000,0.0,0.0,
+                                          0.0,0.0,0.0,0.0,0.00000,0.0,
+                                          0.0,0.0,0.0,0.0,0.0,0.00017]
+             
+        self._OdomData.twist.covariance = [0.00017,0.0,0.0,0.0,0.0,0.0,
+                                           0.0,0.00017,0.0,0.0,0.0,0.0,
+                                           0.0,0.0,0.00017,0.0,0.0,0.0,
+                                           0.0,0.0,0.0,0.00000,0.0,0.0,
+                                           0.0,0.0,0.0,0.0,0.00000,0.0,
+                                           0.0,0.0,0.0,0.0,0.0,0.00017]
+                                           
+        rospy.Subscriber("/ground_truth_odom",Odometry,self._publish_odom_tf)
+    
+    def _publish_odom_tf(self,msg):
+    
+        (r, p, y) = tf.transformations.euler_from_quaternion([msg.pose.pose.orientation.x,
+                                                              msg.pose.pose.orientation.y,
+                                                              msg.pose.pose.orientation.z,
+                                                              msg.pose.pose.orientation.w])
+        rot = tf.transformations.quaternion_from_euler(0, 0, y)
+        
+        
+        self._OdomData.pose.pose.orientation.x=rot[0]
+        self._OdomData.pose.pose.orientation.y=rot[1]
+        self._OdomData.pose.pose.orientation.z=rot[2]
+        self._OdomData.pose.pose.orientation.w=rot[3]
+        
+        self._OdomData.pose.pose.position.x = msg.pose.pose.position.x
+        self._OdomData.pose.pose.position.y = msg.pose.pose.position.y
+        self._OdomData.pose.pose.position.z = 0.0
+        
+        self._OdomData.header.stamp = msg.header.stamp
+        self._OdomData.header.seq = msg.header.seq
+        
+        self._OdomData.twist.twist.linear.x = msg.twist.twist.linear.x
+        self._OdomData.twist.twist.linear.y = msg.twist.twist.linear.y
+        self._OdomData.twist.twist.linear.z = 0.0
+        self._OdomData.twist.twist.angular.x = 0.0
+        self._OdomData.twist.twist.angular.y = 0.0
+        self._OdomData.twist.twist.angular.z = msg.twist.twist.angular.z
+        
+        x = self._OdomData.pose.pose.position.x
+        y = self._OdomData.pose.pose.position.y
+        z = self._OdomData.pose.pose.position.z
+        
+        rot[0] = msg.pose.pose.orientation.x
+        rot[1] = msg.pose.pose.orientation.y
+        rot[2] = msg.pose.pose.orientation.z
+        rot[3] = msg.pose.pose.orientation.w
+        
+        
+        self._OdomPub.publish(self._OdomData)
+        
+        br = tf.TransformBroadcaster()
+        br.sendTransform((x, y, z),
+                          rot,
+                          msg.header.stamp,
+                          "base_link",
+                          "odom")
+        
+
+if __name__ == "__main__":
+    """
+    Initialize the node
+    """
+    rospy.init_node('sim_odometry')
+    SimOdometry()
+    rospy.spin()
+    

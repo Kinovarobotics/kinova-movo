@@ -1,0 +1,10 @@
+<library path="lib/librange_sensor_filters">
+  <class name="range_sensor_filters/LaserScanFootprintFilter" type="range_sensor_filters::LaserScanFootprintFilter"  
+         base_class_type="filters::FilterBase<sensor_msgs::LaserScan>">
+    <description> Remove points from the laser scan inside the robot base.</description> 
+  </class>
+  <class name="range_sensor_filters/PointCloudFootprintFilter" type="range_sensor_filters::PointCloudFootprintFilter"  
+         base_class_type="filters::FilterBase<sensor_msgs::PointCloud2>">
+    <description> Remove points from the pointcloud inside the robot base.</description> 
+  </class>
+</library>

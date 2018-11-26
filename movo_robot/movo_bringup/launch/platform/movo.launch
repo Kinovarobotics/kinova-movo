@@ -1,0 +1,62 @@
+<!-- Launch file for Movo startup -->
+<launch>
+
+    <arg name="local" default="true"/>
+
+    <machine name="movo1" address="movo1" user="movo" 
+                 env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+         
+    <!--System watchdog-->
+    <node pkg="movo_ros" type="movo_wd" name="movo1_wd" output="screen" unless="$(arg local)">
+        <param name="pc_name" value="movo1"/>
+    </node>
+    
+    
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
+        <param name="publish_frequency" value="100.0" />
+        <param name="tf_prefix" value=""/>
+        <param name="use_tf_static" value="false"/>
+    </node>
+  
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+        <rosparam param="source_list">[movo/linear_actuator/joint_states,
+                                       movo/body/joint_states,
+                                       movo/head/joint_states,
+                                       movo/right_arm/joint_states,
+                                       movo/left_arm/joint_states,
+                                       movo/right_gripper/joint_states,
+                                       movo/left_gripper/joint_states]</rosparam>
+        <param name="rate" value="100"/>
+    </node>
+        
+    <!-- Vector Base platform ROS Driver -->
+    <node pkg="movo_ros" ns="movo" type="movo_driver" name="movo_driver" respawn="true" output="screen">
+        <param name="use_platform_odometry" value="$(optenv MOVO_USE_PLATFORM_ODOMETRY false)" />
+        <param name="use_lsm_for_odom" value="$(optenv MOVO_USE_LSM_TO_CORRECT_ODOMETRY false)" />
+        <param name="movo_ip" value="$(optenv MOVO_IP_ADDRESS 10.66.171.1)"/>
+    </node>
+    
+    <node pkg="movo_ros" type="movo_pan_tilt" name="movo_pan_tilt_driver" respawn="true" output="screen">
+        <param name="movo_ip" value="$(optenv MOVO_IP_ADDRESS 10.66.171.1)"/>
+    </node>
+    
+    <node pkg="movo_ros" type="movo_head_ctl" name="movo_head_ctl" output="screen"/>
+    <node pkg="movo_ros" type="movo_torso_ctl" name="movo_torso_ctl" output="screen"/>
+    
+    <group ns="movo/head_controller">
+        <node name="point_head_action" pkg="head_action" type="head_action" output="screen" >
+
+            <!-- Necessary params --> 
+            <rosparam>
+                success_angle_threshold: 0.01
+                pan_link: pan_link
+                default_pointing_frame: kinect2_link
+            </rosparam>
+        </node>
+    </group>
+
+    <!-- Platform specific configuration -->
+    <node name="dynamic_reconfigure_load" pkg="dynamic_reconfigure" type="dynparam"
+        args="load /movo/movo_driver $(find movo_bringup)/launch/platform/config/movo_params.yaml" />
+
+</launch>

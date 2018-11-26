@@ -1,0 +1,192 @@
+#!/bin/bash
+
+echo -e "This script assumes that you have ubuntu 14.04.5LTS installed.\n\n It is OK to have already installed ROS this will add any missing components.\n\n Please understand that this script modifies the environment and sets everything up to connect to a Movo robot\n"
+
+read -r -p "Are you absolutely sure you want to continue? [y/N] " response
+if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
+then
+    echo "Starting setup......"
+    sleep 1
+else
+    exit 1
+fi
+
+export MOVO_SETUP_DIR=$PWD
+
+echo -e "\nNeed sudo persmission to do the configuration and setup\nPlease enter your password if prompted....\n"
+echo "$USER ALL=(ALL) NOPASSWD:ALL" | (sudo su -c 'EDITOR="tee -a" visudo') >> /dev/null
+
+temp=1
+temp1=1
+cnts=0
+while [ $cnts -lt 10 ]; do
+    echo -e "\nPlease connect to the robot via ethernet cable\nand to the internet another interface\n\nPress any key to continue....\n"
+    read -n 1 -s
+    ping -q -c 1 -W 1 10.66.171.1 >/dev/null
+    temp=$?
+    ping -q -c 1 -W 1 10.66.171.2 >/dev/null
+    temp1=$?
+    ping -q -c 1 -W 1 8.8.8.8 >/dev/null
+    temp2=$?
+    cnts=$[$cnts+1]
+    echo "$temp $temp1 $temp2"
+    if [ $temp -eq 0 ] && [ $temp1 -eq 0 ] && [ $temp2 -eq 0 ]; then
+      cnts=10
+      echo "Success"
+      break
+    fi
+
+    if [ $temp -ne 0 ]; then
+      echo "Unable to ping movo2, no robot connection....trying again."
+    fi
+    if [ $temp1 -ne 0 ]; then
+      echo "Unable to ping movo1, no robot connection....trying again."
+    fi    
+    if [ $temp2 -ne 0 ]; then
+      echo "Unable to ping Google DNS, no internet connection....trying again."
+    fi
+done 
+
+if [ $temp -ne 0 ] || [ $temp1 -ne 0 ]; then
+  echo "Robot Connection timed out, try again....exiting"
+  sleep 2
+  exit 1
+fi
+if [ $temp2 -ne 0 ]; then
+  echo "Internet Connection timed out, try again....exiting"
+  sleep 2
+  exit 1
+fi
+
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
+sudo apt-get update
+sudo apt-get install ros-indigo-desktop-full
+sudo rosdep init
+rosdep update
+source /opt/ros/indigo/setup.bash
+sudo apt-get install python-rosinstall
+sudo apt-get update && sudo apt-get upgrade
+sudo apt-get install xdotool wmctrl iperf chrony htop bridge-utils ros-indigo-navigation ros-indigo-gmapping ros-indigo-robot-localization ros-indigo-yocs-cmd-vel-mux ros-indigo-joy ros-indigo-urg-node ros-indigo-sick-tim ros-indigo-cmake-modules daemontools openssh-server libpcap0.8-dev ros-indigo-um7 ros-indigo-imu-tools ros-indigo-jsk-recognition ros-indigo-ros-controllers ros-indigo-scan-tools ros-indigo-gazebo-ros ros-indigo-gazebo-plugins ros-indigo-moveit ros-indigo-gazebo-ros-control ros-indigo-hector-gazebo-plugins ros-indigo-trac-ik
+
+echo -e "\niai_kinect2 prerequisites must be installed!!!!!\nIf you have a PC with Intel integrated graphics answering Y will install\neverything. If you have a PC with a dedicated NVIDIA graphics card\nand want to be able to use CUDA follow the instructions\non https://github.com/code-iai/iai_kinect2 and then enter N here\n"
+read -r -p "Do you want to install iai_kinect2 prerequisites for Intel CPU now? [y/N] " response
+if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
+then
+    sudo add-apt-repository ppa:floe/beignet && sudo apt-get update
+    sudo apt-get install beignet beignet-dev opencl-headers
+    git clone https://github.com/OpenKinect/libfreenect2.git
+    cd libfreenect2
+    cd depends
+    ./download_debs_trusty.sh
+    sudo apt-get install build-essential cmake pkg-config
+    sudo dpkg -i debs/libusb*deb
+    sudo apt-get install libturbojpeg libjpeg-turbo8-dev
+    sudo dpkg -i debs/libglfw3*deb; sudo apt-get install -f
+    sudo apt-get install libgl1-mesa-dri-lts-vivid
+    sudo apt-add-repository ppa:floe/beignet
+    sudo apt-get update
+    sudo apt-get install beignet-dev
+    sudo dpkg -i debs/ocl-icd*deb
+    sudo apt-add-repository ppa:deb-rob/ros-trusty && sudo apt-get update
+    sudo apt-get install libopenni2-dev
+    cd ..
+    mkdir build && cd build
+    cmake .. -DENABLE_CXX11=ON
+    make
+    sudo make install
+    cd ../../
+    rm -rf libfreenect2
+fi
+
+if grep -q "movo1" /etc/hosts
+then
+    echo "movo1 and movo2 are already defined in /etc/hosts"
+else
+    sudo sed -i "/127.0.1.1/a 10.66.171.2 movo1" /etc/hosts 
+    sudo sed -i "/10.66.171.2 movo1/a 10.66.171.1 movo2" /etc/hosts
+fi
+if grep -q "MOVO REMOTE PC START" ~/.bashrc
+then
+    echo ".bashrc is already updated for movo remote"
+else
+    cat config/bash_rc_partial >> ~/.bashrc
+fi
+
+if [ ! -f ~/.ssh/id_rsa.pub ]; then
+    echo "Generating a new ssh key for the user..."
+    read -r -p "Do you want to proceed? [y/N] " response
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
+    then
+        echo "Please press enter for each step,this will configure a default ssh key\nIf you decide to do something different than that its assumed you know what you're doing\n\nPress any key to continue......"
+        read -n 1 -s    
+        ssh-keygen -t rsa
+    else
+        exit 1
+    fi
+fi
+
+echo 'Connecting to movo1 (password is Welcome00)......Press any key to continue'
+read -n 1 -s
+ssh -oHostKeyAlgorithms='ssh-rsa' movo@movo1 "sleep 1; exit"
+echo -e "Copying ssh key to movo1 (password is Welcome00)\n\nPress any key to continue...."
+read -n 1 -s
+ssh-copy-id movo@movo1
+echo 'Connecting to movo2 (password is Welcome00)......Press any key to continue'
+read -n 1 -s
+ssh -oHostKeyAlgorithms='ssh-rsa' movo@movo2 "sleep 1; exit"
+echo -e "Copying ssh key to movo2 (password is Welcome00)\n\nPress any key to continue...."
+read -n 1 -s
+ssh-copy-id movo@movo2
+
+echo -e "\nDo you want to update the robot now?\nIf not the code from movo2 will overwrite the src directory....\n"
+read -r -p "*PLEASE ANSWER NO UNLESS SPECIFICALLY INSTRUCTED BY KNOVA, or unless you are absolutely sure this is what you want to do.\nInstall latest software on Movo now? [y/N]" response
+if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
+then
+    cd ~/movo_ws/src
+    catkin_init_workspace
+    cd ~/movo_ws  
+    catkin_make
+    echo "STOPPING THE ROBOT SERVICE AND UNINSTALLING IT.........."
+    sleep 1
+    ssh -t movo@movo2 "bash -ic +m 'cd ~; ./env.sh; movostop; rosrun movo_bringup uninstall_movo_core; rm -rf ~/movo_ws; mkdir -p ~/movo_ws/src;'"
+    rsync -avzhe ssh --delete --exclude '*~' --progress /home/$USER/movo_ws/src movo@movo1:/home/movo/movo_ws/
+    rsync -avzhe ssh --delete --exclude '*~' --progress /home/$USER/movo_ws/src movo@movo2:/home/movo/movo_ws/
+    scp config/env.sh movo@movo1:/home/movo/
+    scp config/env.sh movo@movo2:/home/movo/
+    echo "RE-BUILDING WORKSPACE ON movo1"
+    sleep 1        
+    ssh -t movo@movo1 "bash -ic +m 'cd ~; ./env.sh; cd ~/movo_ws/src; catkin_init_workspace; cd ~/movo_ws; catkin_make'"
+    echo "RE-BUILDING WORKSPACE ON movo2"
+    sleep 1
+    ssh -t movo@movo2 "bash -ic +m 'cd ~; ./env.sh; cd ~/movo_ws/src; catkin_init_workspace; cd ~/movo_ws; catkin_make'"
+    echo "INSTALLING THE ROBOT SERVICE.........."
+    ssh -t movo@movo2 "bash -ic +m 'cd ~; ./env.sh; rosrun movo_bringup install_movo_core'"
+    echo -e "The robot needs to restart the service!!!\nMovo will home the arms, make sure it is in a safe position?\nIf not answer N, power it off and restart it.\n\n"
+    read -r -p "Do you want to restart the robot serive now? [y/N]" response1
+    if [[ "$response1" =~ ^([yY][eE][sS]|[yY])+$ ]]
+    then
+        ssh -t movo@movo2 "bash -ic +m 'cd ~; ./env.sh; movostart'"
+    else
+        ssh -t movo@movo1 "bash -ic +m 'cd ~; ./env.sh; sudo shutdown -h now'"
+        ssh -t movo@movo2 "bash -ic +m 'cd ~; ./env.sh; sudo shutdown -h now'"
+        echo -e "\nPlease power the robot off, move it to a safe starting position and restart it\n\nPress any key to continue....\n"
+        read -n 1 -s            
+    fi
+else
+    rsync -avzhe ssh --delete --exclude '*~' --progress movo@movo2:/home/movo/movo_ws/src /home/$USER/movo_ws/
+    cd ~/movo_ws/src
+    rm -f CMakeLists.txt
+    catkin_init_workspace
+    cd ~/movo_ws  
+    catkin_make
+    cd $MOVO_SETUP_DIR
+    yes | cp -rf config/network_config.bash /home/$USER/movo_ws/src/movo_network/movo_network_config.bash 
+    
+fi
+source ~/.bashrc
+echo -e "\nScript has finished configuring the remote PC\n\nPress any key to continue....\n"
+read -n 1 -s
+exit 1
+
+

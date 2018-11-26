@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<!--
+Software License Agreement (BSD)
+\file      omni_structure.urdf.xacro
+\authors   Patrick Hussey
+\copyright Copyright (c) 2017, Kinova Robotics inc. All rights reserved.
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+    * Neither the name of the copyright holder nor the names of its contributors
+      may be used to endorse or promote products derived from this software
+      without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<robot name="movo_body" xmlns:xacro="http://ros.org/wiki/xacro">
+    
+    <!-- Wheel Mounting Positions and Properties-->
+    <xacro:property name="wheel_radius" value="0.0762" />
+    <xacro:property name="M_PI" value="3.14159"/>
+	<xacro:macro name="movo_body">
+
+        <joint name="lower_body_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="base_chassis_link" />
+            <child link="lower_body_link" />
+        </joint>
+        
+        <link name="lower_body_link">
+			<inertial>
+				<mass value="7.753378" />
+				<origin xyz="0.000143 0.000727 0.188079" />
+				<inertia ixx="0.339365"  ixy="0.000325" ixz="0.000146"
+                         iyx="0.000325"  iyy="0.590290" iyz="-0.001078"
+                         izx="0.000146" izy="-0.001078" izz="0.588946" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+					<mesh filename="package://movo_description/meshes/movo_body/movo_lower_body.dae" />
+				</geometry>
+			</visual>
+		</link>
+
+        <joint name="upper_body_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="linear_actuator_link" />
+            <child link="upper_body_link" />
+        </joint>
+        
+        <link name="upper_body_link">
+			<inertial>
+				<mass value="6.246912" />
+				<origin xyz="-0.080608 0.000290 0.286026" />
+				<inertia ixx="0.425973"  ixy="0.000022" ixz="-0.015916"
+                         iyx="0.000022"  iyy="0.439921" iyz="-0.000555"
+                         izx="-0.015916" izy="-0.000555" izz="0.305785" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+					<mesh filename="package://movo_description/meshes/movo_body/movo_upper_body.dae" />
+				</geometry>
+			</visual>
+		</link>
+		
+        <joint name="mid_body_joint" type="prismatic">
+            <parent link="base_chassis_link" />
+            <child link = "mid_body_link" />
+            <origin xyz="0.0771402 0 0.3938763" rpy="0 0 0" />
+            <axis xyz="0 0 1" />
+            <limit lower="0.0" upper="0.2545608" effort="1000" velocity="0.20"/>
+            <dynamics damping="0.0" friction="0.0"/>
+            <mimic joint="linear_joint" multiplier="0.5" offset="0.0" />
+        </joint>
+        
+        <link name="mid_body_link">
+			<inertial>
+				<mass value="2.246837" />
+				<origin xyz="-0.077140 0.000000 0.026602" />
+				<inertia ixx="0.067276"  ixy="0.000000" ixz="0.000000"
+                         iyx="0.000000"  iyy="0.073946" iyz="0.000000"
+                         izx="0.000000"  izy="0.000000" izz="0.102656" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+					<mesh filename="package://movo_description/meshes/movo_body/movo_mid_body.dae" />
+				</geometry>
+			</visual>
+		</link>
+        <gazebo reference="mid_body_link">
+            <gravity>0</gravity>
+        </gazebo>
+		
+        <gazebo>
+            <!-- loading plugin: mimic joints works in gazebo now -->
+            <plugin filename="libroboticsgroup_gazebo_mimic_joint_plugin.so" name="mid_body_mimic">
+                <joint>linear_joint</joint>
+                <mimicJoint>mid_body_joint</mimicJoint>
+                <multiplier>0.5</multiplier>
+                <offset>0.0</offset>
+                <maxEffort>100000.0</maxEffort>
+            </plugin>
+        </gazebo>
+		
+    </xacro:macro>
+</robot>

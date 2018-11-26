@@ -1,0 +1,13 @@
+global_costmap:
+   global_frame: odom
+   static_map: false
+   rolling_window: true
+   width: 8.0
+   height: 8.0
+   resolution: 0.05
+   footprint_padding: 0.0
+  
+
+
+
+

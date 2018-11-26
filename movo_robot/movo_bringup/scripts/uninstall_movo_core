@@ -1,0 +1,7 @@
+#!/usr/bin/env python
+import movo_upstart
+import os
+
+
+j = movo_upstart.Job(name="movo-core", user='movo', interface=os.environ.get('ROBOT_NETWORK'), master_uri=os.environ.get('ROS_MASTER_URI'), job_start_file='job-start-movo.em')
+j.uninstall()

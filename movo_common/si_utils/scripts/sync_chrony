@@ -1,0 +1,43 @@
+#!/bin/bash          
+#
+# Script to synchronize time in ros
+# 
+# Patrick Hussey
+# Tues 25 Apr 2017 
+#
+# Use: ./sync_chrony [server]
+#
+
+function showHelp(){
+    echo 
+    echo "This function is used to time synchonize a computer with another computer in a ros network"
+    echo "Place it in the 'scripts' folder of your catkin package"
+    echo "and make sure that the file is executable (chmod +x sync_chrony.sh)"
+    echo "also make sure that chrony is running on the server you are syncing to and that the chronyd.conf"
+    echo "on the machine you are syncing has the server listed as a time source"
+    echo "e.g. add "server 10.66.171.4 minpoll 0 maxpoll 5 maxdelay .05" to /etc/chronyd/chrony.conf;"
+    echo "where c1 is the server you are syncing to"
+    echo
+    echo "Run it from command line:"
+    echo 
+    echo "Use: ./sync_chrony [server]"
+    echo
+    echo "Or run it from another roslaunch file:"
+    echo 
+    echo '<launch>'
+    echo '  <arg name="server" default="10.66.171.4" />'
+    echo '  <node pkg="si_utils" type="sync_chrony"'
+    echo '    args="$(arg server)"'
+    echo '    name="time_sync" output="screen">'
+    echo '  </node>'
+    echo '</launch>'
+}
+
+if [ "$1" = "-h" ]; then
+    showHelp
+else 
+    echo "Synchronizing time with server at $1"
+    sudo service chrony stop
+    sudo ntpdate $1
+    sudo service chrony start
+fi

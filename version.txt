@@ -1,0 +1,58 @@
+1.1.0
+-----
+
+2018-03-13
+----------
+
+Description
+-----------
+- Removed movo_embedded_firmware directory.
+- Examples and demos are now all under /movo_demos. 
+  The directory /movo_simulation/movo_gazebo_demo has been removed.
+
+Features
+--------
+- Added support of JACO 7 DOF arms. Now both 6 and 7 DOF are arm configuration supported,
+  they are selected by setting environment variable and re-building the code base.
+- Added /movo_remote_pc_setup directory which provides scripts and documentation to prepare
+  the development PC.
+
+Bug Fixes
+---------
+- Issue #4: move_base_action_client.py: `movo_move_base`, instead of `move_base`
+- Issue #5: Node `spawner` in movo.launch fails to spawn
+- Issue #7: sim_demo.launch is failing
+
+Known Issues
+------------
+- Pick and place demo still need tweek to be working at every attempt.
+- The fingers must closed before issuing the arms homing 
+  commands (with button #8 on the USB joystick), otherwise they could hit something
+  on the homing path.
+- The arms must not be laying on the ground when the MOVO is powered up. As part of
+  the start-up process, the fingers open and could be damaged if they are in contact with
+  a rigid suface.
+
+================================================================================
+1.0.0
+-----
+
+2017-12-11
+----------
+
+Description
+-----------
+- First beta version
+
+Features
+--------
+- Includes "Pick and Place demo"
+
+Bug Fixes
+---------
+- N/A
+
+Known Issues
+------------
+
+================================================================================

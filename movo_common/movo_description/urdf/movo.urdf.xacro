@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+<!--
+Software License Agreement (BSD)
+\file      movo.urdf.xacro
+\authors   Patrick Hussey
+\copyright Copyright (c) 2017, Kinova Robotics inc. All rights reserved.
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+    * Neither the name of the copyright holder nor the names of its contributors
+      may be used to endorse or promote products derived from this software
+      without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<robot name="movo" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <!-- Included URDF/XACRO Files -->    
+
+    <xacro:include filename="$(find movo_description)/urdf/movo_components/movo_base.urdf.xacro" />
+    <xacro:include filename="$(find movo_description)/urdf/movo_components/movo_pan_tilt.urdf.xacro" />
+    <xacro:include filename="$(find movo_description)/urdf/movo_components/movo_body.urdf.xacro" />
+    <xacro:include filename="$(find movo_description)/urdf/manipulation/robotiq/robotiq_85_gripper.urdf.xacro" />
+    <xacro:include filename="$(find movo_description)/urdf/manipulation/kinova_grippers/kg3_gripper.urdf.xacro" />
+    <xacro:include filename="$(find movo_description)/urdf/manipulation/kinova_grippers/kg2_gripper.urdf.xacro" />
+    <xacro:include filename="$(find movo_description)/urdf/gzplugin_grasp_fix.urdf.xacro" />  
+
+    <xacro:property name="M_PI" value="3.14159"/>
+    <gazebo>
+        <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so"> 
+			<robotNamespace>/</robotNamespace>
+        </plugin> 
+        <plugin name="object_controller" filename="libgazebo_ros_force_based_move.so">
+        	<robotNamespace>/</robotNamespace>
+            <commandTopic>/movo/cmd_vel</commandTopic>
+            <odometryTopic>/movo/odometry/wheel_odometry</odometryTopic>
+            <odometryFrame>odom</odometryFrame>
+            <odometryRate>100.0</odometryRate>
+            <cmdVelTimeOut>0.2</cmdVelTimeOut>
+            <robotBaseFrame>base_link</robotBaseFrame>
+            <publishOdometryTf>0</publishOdometryTf>
+            <yaw_velocity_p_gain>500.0</yaw_velocity_p_gain>
+            <x_velocity_p_gain>10000.0</x_velocity_p_gain>
+            <y_velocity_p_gain>10000.0</y_velocity_p_gain>
+        </plugin>
+        <plugin filename="libgazebo_ros_p3d.so" name="gazebo_ros_p3d">
+          <bodyName>base_link</bodyName>
+          <topicName>ground_truth_odom</topicName>
+          <alwaysOn>true</alwaysOn>
+          <updateRate>100.0</updateRate>
+        </plugin>
+    </gazebo>
+
+    <xacro:movo_base/>
+    
+    
+    <xacro:movo_pan_tilt rgbd_prefix="kinect2" parent="linear_actuator_link">
+        <origin xyz="0.19735 0 0.3449888" rpy="0 0 0"/>
+    </xacro:movo_pan_tilt>
+    
+    <xacro:if value="$(optenv MOVO_HAS_BODY false)">
+        <xacro:movo_body/>
+    </xacro:if>     
+    
+    <!-- Arms -->
+    <xacro:if value="$(optenv MOVO_HAS_KINOVA_ARM false)"> 
+    	<xacro:if value="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)">
+    		<xacro:include filename="$(find movo_description)/urdf/manipulation/jaco/jaco_7dof.urdf.xacro" />
+            <xacro:jaco_robot_7dof prefix="right_" parent="linear_actuator_link">
+            <origin xyz="0.0261046 -0.13335 0.2799937" rpy="${-M_PI/2} 0 ${-M_PI/2}"/>
+            </xacro:jaco_robot_7dof>
+            <xacro:jaco_robot_7dof prefix="left_" parent="linear_actuator_link">
+                <origin xyz="0.0261046 0.13335 0.2799937" rpy="${-M_PI/2} 0 ${-M_PI/2}"/>
+            </xacro:jaco_robot_7dof>
+        </xacro:if>
+        
+        <xacro:if value="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)">
+        	<xacro:include filename="$(find movo_description)/urdf/manipulation/jaco/jaco.urdf.xacro" />
+            <xacro:jaco_robot prefix="right_" parent="linear_actuator_link">
+		        <origin xyz="0.0261046 -0.13335 0.2799937" rpy="${-M_PI/2} 0 ${-M_PI/2}"/>
+		    </xacro:jaco_robot>
+
+		    <xacro:if value="$(optenv MOVO_HAS_TWO_KINOVA_ARMS false)"> 
+		        <xacro:jaco_robot prefix="left_" parent="linear_actuator_link">
+		            <origin xyz="0.0261046 0.13335 0.2799937" rpy="${-M_PI/2} 0 ${-M_PI/2}"/>
+		        </xacro:jaco_robot>
+		    </xacro:if>
+        </xacro:if>
+       
+        <xacro:if value="$(optenv MOVO_HAS_RIGHT_ROBOTIQ_GRIPPER false)">
+            <xacro:robotiq_85_gripper prefix="right_" parent="right_ee_link" >
+                <origin xyz="-0.16 0 0" rpy="${-M_PI} ${M_PI/2} 0"/>
+            </xacro:robotiq_85_gripper>
+        </xacro:if>
+
+        <xacro:if value="$(optenv MOVO_HAS_LEFT_ROBOTIQ_GRIPPER false)">
+            <xacro:robotiq_85_gripper prefix="left_" parent="left_ee_link" >
+                    <origin xyz="-0.16 0 0" rpy="${-M_PI} ${M_PI/2} 0"/>
+            </xacro:robotiq_85_gripper>
+        </xacro:if>
+        
+        <xacro:if value="$(optenv MOVO_HAS_RIGHT_KG2_GRIPPER false)">
+            <xacro:kg2_gripper prefix="right_" parent="right_ee_link" >
+                <origin xyz="-0.16 0 0" rpy="${-M_PI} ${M_PI/2} 0"/>
+            </xacro:kg2_gripper>
+        </xacro:if>
+
+        <xacro:if value="$(optenv MOVO_HAS_LEFT_KG2_GRIPPER false)">
+            <xacro:kg2_gripper prefix="left_" parent="left_ee_link" >
+                    <origin xyz="-0.16 0 0" rpy="${-M_PI} ${M_PI/2} 0"/>
+            </xacro:kg2_gripper>
+        </xacro:if>
+        
+        
+        <xacro:if value="$(optenv MOVO_HAS_RIGHT_KG3_GRIPPER false)">
+            <xacro:kg3_gripper prefix="right_" parent="right_ee_link" >
+                <origin xyz="-0.16 0 0" rpy="${-M_PI} ${M_PI/2} 0"/>
+            </xacro:kg3_gripper>
+        </xacro:if>
+
+        <xacro:if value="$(optenv MOVO_HAS_LEFT_KG3_GRIPPER false)">
+            <xacro:kg3_gripper prefix="left_" parent="left_ee_link" >
+                    <origin xyz="-0.16 0 0" rpy="${-M_PI} ${M_PI/2} 0"/>
+            </xacro:kg3_gripper>
+        </xacro:if>        
+    
+    </xacro:if>
+    
+    
+    <xacro:gzplugin_grasp_fix/>
+</robot>

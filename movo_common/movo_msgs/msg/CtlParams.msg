@@ -1,0 +1,15 @@
+Header header
+float32 p_gain_rps_per_rps
+float32 i_gain_rps_per_rad
+float32 d_gain_rps_per_rps2
+float32 fdfwd_gain_rps_per_motor_rps
+float32 p_error_limit_rps
+float32 i_error_limit_rad
+float32 d_error_limit_rps2
+float32 i_error_drain_rate_rad_per_frame
+float32 output_limit_rps
+float32 input_target_limit_rps
+bool control_tuning_unlocked
+
+
+

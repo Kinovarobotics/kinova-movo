@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+    <name>movo_remote_teleop</name>
+    <version>0.0.1</version>
+    <description>Remote teleop configuration for Stanley Innovation Vector platforms</description>
+    
+    <maintainer email="ros@kinovarobotics.com">Martine Blouin</maintainer>
+    <author></author>
+    <url type="repository">https://github.com/Kinovarobotics</url>
+    <license>BSD</license>
+
+    <buildtool_depend>catkin</buildtool_depend>
+
+    <build_depend>roslaunch</build_depend>
+    <run_depend>joy</run_depend>
+
+  <export>
+  </export>
+</package>

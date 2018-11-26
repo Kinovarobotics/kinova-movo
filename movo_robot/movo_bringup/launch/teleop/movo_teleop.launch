@@ -1,0 +1,42 @@
+<!-- Launch file for Movo teleop startup -->
+
+<launch>
+
+    <arg name="local" default="true"/>
+
+    <machine name="movo1" address="movo1" user="movo" 
+                 env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+                 
+    <arg name="sim" default="false"/>
+    <arg name="sim_teleop_vel_limit_mps" default="0.5"/>
+    <arg name="sim_teleop_yaw_rate_limit_rps" default="0.5"/>
+    <arg name="sim_teleop_accel_lim" default="0.5"/>
+    <arg name="sim_teleop_yaw_accel_lim" default="0.5"/>
+    
+    <node pkg="movo_ros" type="movo_teleop" name="movo_teleop" output="screen" unless="$(optenv RUN_FULL_SYSTEM_TELEOP false)">
+        <param name="sim" value="$(arg sim)"/>
+        <param name="sim_teleop_vel_limit_mps" value="$(arg sim_teleop_vel_limit_mps)"/>
+        <param name="sim_teleop_yaw_rate_limit_rps" value="$(arg sim_teleop_yaw_rate_limit_rps)"/>
+        <param name="sim_teleop_accel_lim" value="$(arg sim_teleop_accel_lim)"/>
+        <param name="sim_teleop_yaw_accel_lim" value="$(arg sim_teleop_yaw_accel_lim)"/>
+    </node>
+    
+    <node pkg="movo_ros" type="movo_teleop_full_system" name="movo_teleop" output="screen" if="$(optenv RUN_FULL_SYSTEM_TELEOP false)">
+        <param name="sim" value="$(arg sim)"/>
+        <param name="sim_teleop_vel_limit_mps" value="$(arg sim_teleop_vel_limit_mps)"/>
+        <param name="sim_teleop_yaw_rate_limit_rps" value="$(arg sim_teleop_yaw_rate_limit_rps)"/>
+        <param name="sim_teleop_accel_lim" value="$(arg sim_teleop_accel_lim)"/>
+        <param name="sim_teleop_yaw_accel_lim" value="$(arg sim_teleop_yaw_accel_lim)"/>
+    </node>
+    
+    <node pkg="movo_ros" type="movo_marker_ctrl" name="movo_marker_ctrl" output="screen">
+        <param name="sim" value="$(arg sim)"/>
+    </node>
+    
+    <group ns="movo">
+        <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager"/>
+        <node pkg="nodelet" type="nodelet" name="cmd_vel_mux" args="load yocs_cmd_vel_mux/CmdVelMuxNodelet nodelet_manager">
+            <param name="yaml_cfg_file" value="$(find movo_bringup)/launch/teleop/config/cmd_vel_mux.yaml"/>
+        </node>
+    </group>
+</launch> 

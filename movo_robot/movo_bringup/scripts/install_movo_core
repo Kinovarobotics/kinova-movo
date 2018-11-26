@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+
+import movo_upstart
+import os
+
+
+j = movo_upstart.Job(name="movo-core", user='movo', interface=os.environ.get('ROBOT_NETWORK'), master_uri=os.environ.get('ROS_MASTER_URI'), job_start_file='job-start-movo.em')
+
+# Stuff to launch on system startup.
+j.add(package="movo_bringup", filename="launch/movo_system.launch")
+
+j.install()
+
+

@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+<!--
+Software License Agreement (BSD)
+\file      omni_structure.urdf.xacro
+\authors   Patrick Hussey
+\copyright Copyright (c) 2017, Kinova Robotics inc. All rights reserved.
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+    * Neither the name of the copyright holder nor the names of its contributors
+      may be used to endorse or promote products derived from this software
+      without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<robot name="movo_base" xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:include filename="$(find movo_description)/urdf/sensors/sick_tim.urdf.xacro" />
+    
+    <!-- Wheel Mounting Positions and Properties-->
+    <xacro:property name="wheel_radius" value="0.0762" />
+    <xacro:property name="M_PI" value="3.14159"/>
+	<xacro:macro name="movo_base">
+        <!-- Base link is the center of the robot's chassis between the motors projected on the ground -->
+        <link name="base_link"/>
+        
+        <gazebo reference="base_link">
+            <mu1>0.0</mu1>
+        </gazebo>
+		        
+        <joint name="base_chassis_joint" type="fixed">
+            <origin xyz="0 0 ${wheel_radius}" rpy="0 0 0" />
+            <parent link="base_link" />
+            <child link="base_chassis_link" />
+        </joint>
+        
+        <link name="base_chassis_link">
+			<inertial>
+				<mass value="44.2877" />
+				<origin xyz="-0.009506 -0.013039 0.032319" />
+				<inertia ixx="0.000165"  ixy="0" ixz="0"
+                         iyx="0"  iyy="0.000559" iyz="0"
+                         izx="0" izy="0" izz="0.000714" />
+			</inertial>
+            <collision>
+				<geometry>
+					<mesh filename="package://movo_description/meshes/movo_components/collision/vector_base_collision.stl" />
+				</geometry>
+			</collision>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+					<mesh filename="package://movo_description/meshes/movo_components/visual/vector_base.dae" />
+				</geometry>
+			</visual>
+		</link>
+		
+		<gazebo reference="base_chassis_link">
+            <laserRetro>0</laserRetro>
+        </gazebo>
+		
+        <gazebo reference="base_chassis_link">
+            <mu1>0.0</mu1>
+        </gazebo>
+
+        <joint name="linear_actuator_fixed_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="base_chassis_link" />
+            <child link="linear_actuator_fixed_link" />
+        </joint>
+        
+        <link name="linear_actuator_fixed_link">
+			<inertial>
+				<mass value="15.877331" />
+				<origin xyz="0.013724 0.000002 0.509500" />
+				<inertia ixx="0.962473"  ixy="0.000047" ixz="0.053722"
+                         iyx="0.000047"  iyy="0.968691" iyz="-0.000058"
+                         izx="0.053722" izy="-0.000058" izz="0.098853" />
+			</inertial>
+            <collision>
+				<geometry>
+					<mesh filename="package://movo_description/meshes/movo_components/collision/movo_fixed_body_collision.stl" />
+				</geometry>
+			</collision>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+					<mesh filename="package://movo_description/meshes/movo_components/visual/movo_fixed_payload.dae" />
+				</geometry>
+			</visual>
+		</link>
+		
+		<gazebo reference="linear_actuator_fixed_link">
+            <laserRetro>0</laserRetro>
+        </gazebo>
+
+        <joint name="linear_joint" type="prismatic">
+            <parent link="linear_actuator_fixed_link" />
+            <child link = "linear_actuator_link" />
+            <origin xyz="0.0771402 0 0.3938763" rpy="0 0 0" />
+            <axis xyz="0 0 1" />
+            <limit lower="0.0" upper="0.472" effort="1000" velocity="0.20"/>
+            <dynamics damping="0.0" friction="0.0"/>
+        </joint>
+
+        <link name="linear_actuator_link">
+		    <visual>
+			    <geometry>
+				    <mesh filename="package://movo_description/meshes/movo_components/visual/movo_moving_payload.dae" />
+			    </geometry>
+		    </visual>
+		    <collision>
+			    <geometry>
+				    <mesh filename="package://movo_description/meshes/movo_components/collision/movo_upper_body_collision.stl" />
+			    </geometry>
+		    </collision>
+	        <inertial>
+                <mass value="12.926242" />
+                <origin xyz="-0.075467 -0.004693 0.397754"/>
+				<inertia ixx="0.300410"  ixy="-0.010043" ixz="-0.054146"
+                         iyx="-0.010043"  iyy="0.296460" iyz="-0.024977"
+                         izx="-0.054146" izy="-0.024977" izz="0.294778" />
+	        </inertial>
+	    </link>
+	    
+	    <gazebo reference="linear_actuator_link">
+            <laserRetro>0</laserRetro>
+        </gazebo>
+
+        <transmission name="linear_trans">
+            <type>transmission_interface/SimpleTransmission</type>
+            <joint name="linear_joint">
+                <hardwareInterface>PositionJointInterface</hardwareInterface>
+            </joint>
+            <actuator name="linear_motor">
+                <mechanicalReduction>1</mechanicalReduction>
+            </actuator>
+        </transmission>  
+
+        <link name="sic_imu_frame"/>
+        <joint name="sic_imu_joint" type="fixed">
+            <origin xyz="0.0326421 0.0899448 0.0082008" rpy="${M_PI} 0 ${M_PI/2}" />
+            <parent link="$(optenv MOVO_PARENT_LINK base_chassis_link)" />
+            <child link="sic_imu_frame" />
+        </joint>
+        <gazebo>
+            <plugin name="sic_imu_controller" filename="libhector_gazebo_ros_imu.so">
+                <alwaysOn>1</alwaysOn>
+                <updateRate>50.0</updateRate>
+                <bodyName>sic_imu_frame</bodyName>
+                <topicName>/movo/feedback/sic_imu</topicName>
+                <accelDrift>0.0005 0.0005 0.0005</accelDrift>
+                <accelGaussianNoise>0.0005 0.0005 0.0005</accelGaussianNoise>
+                <rateDrift>0.0005 0.0005 0.0005</rateDrift>
+                <rateGaussianNoise>0.00005 0.00005 0.00005 </rateGaussianNoise>
+                <headingDrift>0.00005</headingDrift>
+                <headingGaussianNoise>0.00005</headingGaussianNoise>
+            </plugin>
+        </gazebo>
+        
+
+        <xacro:sick_tim laser_prefix="front" parent="base_chassis_link">
+            <origin xyz="0.3375 0 0.1439106" rpy="${M_PI} 0 0" />
+        </xacro:sick_tim>
+        
+        <xacro:sick_tim laser_prefix="rear" parent="base_chassis_link">
+            <origin xyz="-0.3375 0 0.1439106" rpy="${M_PI} 0 ${M_PI}" />
+        </xacro:sick_tim>
+
+    </xacro:macro>
+</robot>

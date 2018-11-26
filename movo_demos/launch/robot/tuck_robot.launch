@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<launch>
+    <arg name="local" default="true"/>
+
+    <machine name="movo1" address="movo1" user="movo" 
+                 env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+                 
+    <node if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" pkg="movo_demos" type="tuck_robot" name="tuck_robot" output="log" >
+        <param name="jaco_dof" value="6dof"/>
+    </node>
+    
+    <node if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" pkg="movo_demos" type="tuck_robot" name="tuck_robot" output="log" >
+        <param name="jaco_dof" value="7dof"/>
+    </node>
+</launch>

@@ -1,0 +1,26 @@
+<!-- Launch file for Stanley Innovation enabled Movo1 PC startup -->
+
+<launch>
+
+    <!-- ROS Driver, Robot State Publisher, and sensors -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="5 movo_bringup movo.launch local:=false"
+        name="platform_bringup" output="screen"/>
+
+    <!-- Sensor bringup for platforms that contain sensors-->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="8 movo_bringup movo_sensors.launch local:=false"
+        name="sensors_bringup" output="screen"/>
+        
+     <!-- Platform Manipulation -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="12 movo_bringup movo_manipulation.launch local:=false"
+        name="manipulation_bringup" output="screen"/> 
+
+    <!-- Platform Teleoperation -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="14 movo_bringup movo_teleop.launch local:=false"
+        name="teleop_bringup" output="screen"/>
+           
+        
+</launch>

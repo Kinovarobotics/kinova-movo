@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="limited" default="false"/>
+    <arg name="paused" default="false"/>
+    <arg name="gui" default="true"/>
+    <arg name="world" default="worlds/empty.world"/>
+    <arg name="x"   default="0.0"/>
+    <arg name="y"   default="0.0"/>
+    <arg name="z"   default="0.0"/>
+
+	<!-- send robot urdf to param server -->
+	<include file="$(find movo_description)/launch/movo_upload.launch"/>
+
+	<!-- Robot state publisher -->
+	<node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+		<param name="publish_frequency" type="double" value="100.0" />
+		<param name="tf_prefix" type="string" value="" />
+	</node>
+
+    <!-- startup simulated world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(arg world)"/>
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="gui" value="$(arg gui)"/>
+    </include>
+
+    <!-- push robot_description to factory and spawn robot in gazebo -->
+    <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param /robot_description -model movo -x $(arg x) -y $(arg y) -z $(arg z)" respawn="false" output="screen" />
+    
+    <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" file="$(find movo_gazebo)/controller/right_arm_controller.yaml" command="load"/>
+    <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" file="$(find movo_gazebo)/controller/right_arm_7dof_controller.yaml" command="load"/>
+    
+    <rosparam file="$(find movo_gazebo)/controller/right_gripper_controller.yaml" command="load"/>
+    
+    <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" file="$(find movo_gazebo)/controller/left_arm_controller.yaml" command="load"/>
+    <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" file="$(find movo_gazebo)/controller/left_arm_7dof_controller.yaml" command="load"/>
+    
+    <rosparam file="$(find movo_gazebo)/controller/left_gripper_controller.yaml" command="load"/>
+    <rosparam file="$(find movo_gazebo)/controller/head_controller.yaml" command="load"/>
+    <rosparam file="$(find movo_gazebo)/controller/torso_controller.yaml" command="load"/>
+    <rosparam file="$(find movo_gazebo)/controller/joint_state_controller.yaml" command="load"/>
+    <node name="default_controller_spawner" pkg="controller_manager"
+          type="controller_manager" args="spawn
+                               movo/right_arm_controller 
+                               movo/right_gripper_controller
+                               movo/left_arm_controller 
+                               movo/left_gripper_controller
+                               movo/torso_controller
+                               movo/head_controller
+                               joint_state_controller"/>
+
+    <include file="$(find movo_bringup)/launch/teleop/movo_teleop.launch">
+        <arg name="sim" value="true"/>
+    </include>
+    
+    <node pkg="movo_gazebo" name="sim_odometry" type="sim_odometry" output="screen"/>
+    
+    <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
+        <param name="destination_frame" value="base_link"/>
+        <param name="cloud_destination_topic" value="/movo/merged_cloud"/>
+        <param name="scan_destination_topic" value="/movo/scan_multi"/>
+        <param name="laserscan_topics" value ="/movo/$(optenv LASER1_PREFIX front)_scan /movo/$(optenv LASER2_PREFIX rear)_scan"/>
+    </node>
+    <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="movo_laser_filter" clear_params="true" respawn="true">
+        <remap from="scan" to="/movo/scan_multi" />
+        <remap from="scan_filtered" to="/movo/base_scan_filtered" />
+        <param name="target_frame" value="base_link" />
+        <param name="high_fidelity" value="true" />
+        <rosparam command="load" 
+            file="$(find movo_bringup)/launch/sensors/config/laser_scan_filter.yaml" />
+    </node>
+    
+    <group ns="movo/head_controller">
+        <node name="point_head_action" pkg="head_action" type="head_action" output="screen" >
+
+            <!-- Necessary params -->
+            <rosparam>
+                success_angle_threshold: 0.01
+                pan_link: pan_link
+                default_pointing_frame: kinect2_link
+            </rosparam>
+        </node>
+    </group>
+    
+
+
+    <!--node pkg="robot_self_filter"
+        type="self_filter" clear_params="true"
+        name="self_filter" respawn="true" output="screen">
+        <remap from="cloud_in" to="/kinect2/sd/points" />
+        <remap from="cloud_out" to="/movo/perception/points_filtered" />
+        <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" command="load" file="$(find movo_bringup)/launch/perception/config/robot_self_filter.yaml"/>
+        <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" command="load" file="$(find movo_bringup)/launch/perception/config/robot_7dof_self_filter.yaml"/>
+        <param name="use_rgb" value="true" />
+        <param name="keep_organized" value="true"/>
+        <param name="subsample_value" type="double" value="0.0"/>
+    </node-->
+
+</launch>

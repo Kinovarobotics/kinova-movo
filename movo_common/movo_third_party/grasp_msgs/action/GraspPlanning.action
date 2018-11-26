@@ -1,0 +1,15 @@
+###########################################################
+# This action is used when planning grasps for a single,
+#  already known object, one object at a time.
+
+# Object for which grasp planning is requested
+Object object
+
+# Name of group to plan with (optional)
+int32 gripper
+---
+# All grasps
+moveit_msgs/Grasp[] grasps
+---
+# Grasps found thus far
+moveit_msgs/Grasp[] grasps

@@ -1,0 +1,71 @@
+<!-- Launch file for MoVo sensor startup -->
+
+<launch>
+    <arg name="local" default="true"/>
+
+    <machine name="movo1" address="movo1" user="movo" 
+                 env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+                 
+    <node pkg="sick_tim" type="sick_tim551_2050001" name="$(optenv LASER1_PREFIX front)_laser_node" clear_params="true" respawn="true">
+        <remap from="scan" to="/movo/$(optenv LASER1_PREFIX base)_scan" />
+        <param name="max_ang" value="$(optenv LASER1_MAX_ANGLE 2.35619449019)"/>
+        <param name="min_ang" value="$(optenv LASER1_MIN_ANGLE -2.35619449019)"/>
+        <param name="intensity" type="bool" value="True" />
+        <param name="skip" type="int" value="0" />
+        <param name="frame_id" type="str" value="$(optenv LASER1_PREFIX base)_laser_link" />
+        <param name="time_offset" type="double" value="-0.001" />
+        <param name="publish_datagram" type="bool" value="False" />
+        <param name="subscribe_datagram" type="bool" value="false" />
+        <param name="range_min" type="double" value="$(optenv LASER1_MIN_RANGE 0.05)" />
+        <param name="range_max" type="double" value="$(optenv LASER1_MAX_RANGE 10.0)" />
+        <param name="hostname" type="string" value="$(optenv MOVO_LASER1_IP 10.66.171.8)" />
+        <param name="port" type="string" value="$(optenv MOVO_LASER1_PORT 2112)" />
+        <param name="timelimit" type="int" value="5" />
+    </node>
+        
+    <node pkg="sick_tim" type="sick_tim551_2050001" name="$(optenv LASER2_PREFIX rear)_laser_node" clear_params="true" respawn="true">
+        <remap from="scan" to="/movo/$(optenv LASER2_PREFIX rear)_scan" />
+        <param name="max_ang" value="$(optenv LASER2_MAX_ANGLE 2.35619449019)"/>
+        <param name="min_ang" value="$(optenv LASER2_MIN_ANGLE -2.35619449019)"/>
+        <param name="intensity" type="bool" value="True" />
+        <param name="skip" type="int" value="0" />
+        <param name="frame_id" type="str" value="$(optenv LASER2_PREFIX rear)_laser_link" />
+        <param name="time_offset" type="double" value="-0.001" />
+        <param name="publish_datagram" type="bool" value="False" />
+        <param name="subscribe_datagram" type="bool" value="false" />
+        <param name="range_min" type="double" value="$(optenv LASER2_MIN_RANGE 0.05)" />
+        <param name="range_max" type="double" value="$(optenv LASER2_MAX_RANGE 10.0)" />
+        <param name="hostname" type="string" value="$(optenv MOVO_LASER2_IP 10.66.171.9)" />
+        <param name="port" type="string" value="$(optenv MOVO_LASER2_PORT 2112)" />
+        <param name="timelimit" type="int" value="5" />
+    </node>
+        
+    <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
+        <param name="destination_frame" value="base_link"/>
+        <param name="cloud_destination_topic" value="/movo/merged_cloud"/>
+        <param name="scan_destination_topic" value="/movo/scan_multi"/>
+        <param name="laserscan_topics" value ="/movo/$(optenv LASER1_PREFIX front)_scan /movo/$(optenv LASER2_PREFIX rear)_scan"/>
+    </node>
+    
+    <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="movo_laser_filter" clear_params="true" respawn="true">
+        <remap from="scan" to="/movo/scan_multi" />
+        <remap from="scan_filtered" to="/movo/base_scan_filtered" />
+        <param name="target_frame" value="base_link" />
+        <param name="high_fidelity" value="true" />
+        <rosparam command="load" 
+            file="$(find movo_bringup)/launch/sensors/config/laser_scan_filter.yaml" />
+    </node>
+    
+    <node pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node" output="screen" if="$(optenv MOVO_ENABLE_LSM false)" >
+        <rosparam command="load" 
+                file="$(find movo_bringup)/launch/sensors/config/laser_scan_matcher.yaml" />
+
+        <remap from="/scan" to="/movo/base_scan_filtered"/>
+        <remap from="/imu" to="/movo/feedback/sic_imu"/>
+        <remap from="/odom" to="/movo/feedback/wheel_odometry"/>
+        <remap from="/pose_with_covariance_stamped" to="/movo/lsm/pose"/>
+    </node>
+    
+</launch> 
+    
+    
