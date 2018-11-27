@@ -6,21 +6,32 @@
   <arg name="robot_description" default="robot_description"/>
 
   <!-- Load universal robot description format (URDF) -->
-  <param if="$(arg load_robot_description)" name="$(arg robot_description)" command="$(find xacro)/xacro.py '$(find movo_description)/urdf/movo.urdf.xacro'"/>
+  <param if="$(arg load_robot_description)" name="$(arg robot_description)" command="$(find xacro)/xacro.py '$(find movo_description)/urdf/movo.urdf.xacro' --inorder"/>
 
   <!-- The semantic description that corresponds to the URDF -->
-  <param name="$(arg robot_description)_semantic" textfile="$(find movo_7dof_moveit_config)/config/movo_kg2.srdf" if="$(optenv USE_KG2_FOR_MOVEIT_CONFIG true)"/>
-  
-  <param name="$(arg robot_description)_semantic" textfile="$(find movo_7dof_moveit_config)/config/movo_kg3.srdf" if="$(optenv USE_KG3_FOR_MOVEIT_CONFIG false)"/>
-  
-  <param name="$(arg robot_description)_semantic" textfile="$(find movo_7dof_moveit_config)/config/movo_r85.srdf" if="$(optenv USE_R85_FOR_MOVEIT_CONFIG false)"/>
-  
-  <!-- Load updated joint limits (override information from URDF) -->
+  <group if="$(optenv MOVO_HAS_RIGHT_ARM_7DOF false)">
+	<group if="$(optenv MOVO_HAS_LEFT_ARM_7DOF false)">
+		<param name="$(arg robot_description)_semantic" textfile="$(find movo_7dof_moveit_config)/config/movo_kg2.srdf" if="$(optenv USE_KG2_FOR_MOVEIT_CONFIG true)"/>
+
+		<param name="$(arg robot_description)_semantic" textfile="$(find movo_7dof_moveit_config)/config/movo_kg3.srdf" if="$(optenv USE_KG3_FOR_MOVEIT_CONFIG false)"/>
+
+		<param name="$(arg robot_description)_semantic" textfile="$(find movo_7dof_moveit_config)/config/movo_r85.srdf" if="$(optenv USE_R85_FOR_MOVEIT_CONFIG false)"/>
+	</group>
+        <group unless="$(optenv MOVO_HAS_LEFT_ARM_7DOF false)">
+		<param name="$(arg robot_description)_semantic" textfile="$(find movo_7dof_moveit_config)/config/movo_kg2_right_only.srdf" if="$(optenv USE_KG2_FOR_MOVEIT_CONFIG true)"/>
+
+		<param name="$(arg robot_description)_semantic" textfile="$(find movo_7dof_moveit_config)/config/movo_kg3_right_only.srdf" if="$(optenv USE_KG3_FOR_MOVEIT_CONFIG false)"/>
+
+		<param name="$(arg robot_description)_semantic" textfile="$(find movo_7dof_moveit_config)/config/movo_r85_right_only.srdf" if="$(optenv USE_R85_FOR_MOVEIT_CONFIG false)"/>
+	</group>
+  </group>
+
+  <!-- Load updated joint limits (override information from URDF). Note: there will be useless parameters if only one arm, or no arm, is present-->
   <group ns="$(arg robot_description)_planning">
     <rosparam command="load" file="$(find movo_7dof_moveit_config)/config/joint_limits.yaml"/>
   </group>
 
-  <!-- Load default settings for kinematics; these settings are overridden by settings in a node's namespace -->
+  <!-- Load default settings for kinematics; these settings are overridden by settings in a node's namespace. Note: there will be useless parameters if only one arm, or no arm, is present-->
   <group ns="$(arg robot_description)_kinematics">
     <rosparam command="load" file="$(find movo_7dof_moveit_config)/config/kinematics.yaml"/>
   </group>

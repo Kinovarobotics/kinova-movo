@@ -12,16 +12,34 @@
 		<arg name="sim" value="$(arg sim)"/>
 	</include>
 
-    <node if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" name="demo_show_basic" pkg="movo_demos" type="demo_show_basic.py" output="screen">
+	<node if="$(optenv MOVO_HAS_TWO_6DOF_ARMS false)" name="demo" pkg="movo_demos" type="demo_show_basic.py" output="screen">
         <rosparam command="load" file="$(find movo_moveit_config)/config/kinematics.yaml"/>
     	<param name="sim" value="$(arg sim)"/>
-		<param name="jaco_dof" value="6dof"/>
+		<param name="jaco_dof_right_arm" value="6dof"/>
+		<param name="jaco_dof_left_arm" value="6dof"/>
 	</node>
+	<group unless="$(optenv MOVO_HAS_TWO_6DOF_ARMS false)">
+		<node if="$(optenv MOVO_HAS_RIGHT_ARM_6DOF false)" name="demo" pkg="movo_demos" type="demo_show_basic.py" output="screen">
+		<rosparam command="load" file="$(find movo_moveit_config)/config/kinematics_right_only.yaml"/>
+	    	<param name="sim" value="$(arg sim)"/>
+			<param name="jaco_dof_right_arm" value="6dof"/>
+			<param name="jaco_dof_left_arm" value="none"/>
+		</node>
+        </group>
 	
-	<node if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" name="demo_show_basic" pkg="movo_demos" type="demo_show_basic.py" output="screen">
+	<node if="$(optenv MOVO_HAS_TWO_7DOF_ARMS false)" name="demo" pkg="movo_demos" type="demo_show_basic.py" output="screen">
     	<rosparam command="load" file="$(find movo_7dof_moveit_config)/config/kinematics.yaml"/>
     	<param name="sim" value="$(arg sim)"/>
-		<param name="jaco_dof" value="7dof"/>
+		<param name="jaco_dof_right_arm" value="7dof"/>
+		<param name="jaco_dof_left_arm" value="7dof"/>
 	</node>
+	<group unless="$(optenv MOVO_HAS_TWO_7DOF_ARMS false)">
+		<node if="$(optenv MOVO_HAS_RIGHT_ARM_7DOF false)" name="demo" pkg="movo_demos" type="demo_show_basic.py" output="screen">
+		<rosparam command="load" file="$(find movo_7dof_moveit_config)/config/kinematics_right_only.yaml"/>
+	    	<param name="sim" value="$(arg sim)"/>
+			<param name="jaco_dof_right_arm" value="7dof"/>
+			<param name="jaco_dof_left_arm" value="none"/>
+		</node>
+        </group>
     
 </launch>
