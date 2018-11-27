@@ -76,29 +76,45 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </xacro:if>     
     
     <!-- Arms -->
-    <xacro:if value="$(optenv MOVO_HAS_KINOVA_ARM false)"> 
-    	<xacro:if value="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)">
-    		<xacro:include filename="$(find movo_description)/urdf/manipulation/jaco/jaco_7dof.urdf.xacro" />
-            <xacro:jaco_robot_7dof prefix="right_" parent="linear_actuator_link">
-            <origin xyz="0.0261046 -0.13335 0.2799937" rpy="${-M_PI/2} 0 ${-M_PI/2}"/>
-            </xacro:jaco_robot_7dof>
-            <xacro:jaco_robot_7dof prefix="left_" parent="linear_actuator_link">
-                <origin xyz="0.0261046 0.13335 0.2799937" rpy="${-M_PI/2} 0 ${-M_PI/2}"/>
-            </xacro:jaco_robot_7dof>
-        </xacro:if>
-        
-        <xacro:if value="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)">
-        	<xacro:include filename="$(find movo_description)/urdf/manipulation/jaco/jaco.urdf.xacro" />
-            <xacro:jaco_robot prefix="right_" parent="linear_actuator_link">
-		        <origin xyz="0.0261046 -0.13335 0.2799937" rpy="${-M_PI/2} 0 ${-M_PI/2}"/>
-		    </xacro:jaco_robot>
+	<xacro:if value="$(optenv MOVO_HAS_RIGHT_ARM_7DOF false)">  <!-- movo has a right arm of 7 dof type -->
+		<xacro:include filename="$(find movo_description)/urdf/manipulation/jaco/jaco_7dof.urdf.xacro" />
+		<xacro:jaco_robot_7dof prefix="right_" parent="linear_actuator_link">
+		   <origin xyz="0.0261046 -0.13335 0.2799937" rpy="${-M_PI/2} 0 ${-M_PI/2}"/>
+		</xacro:jaco_robot_7dof>
+		<xacro:if value="$(optenv MOVO_HAS_LEFT_ARM_7DOF false)"> <!-- movo has also a left arm of 7 dof type -->
+		    <xacro:jaco_robot_7dof prefix="left_" parent="linear_actuator_link">
+			<origin xyz="0.0261046 0.13335 0.2799937" rpy="${-M_PI/2} 0 ${-M_PI/2}"/>
+		    </xacro:jaco_robot_7dof>
+            	</xacro:if>
+	</xacro:if>
+        <xacro:unless value="$(optenv MOVO_HAS_RIGHT_ARM_7DOF false)" >  <!-- movo has no right arm-->
+		<xacro:if value="$(optenv MOVO_HAS_LEFT_ARM_7DOF false)"> <!-- but has a left arm of 7 dof type -->
+			<xacro:include filename="$(find movo_description)/urdf/manipulation/jaco/jaco_7dof.urdf.xacro" />
+		    	<xacro:jaco_robot_7dof prefix="left_" parent="linear_actuator_link">
+			   <origin xyz="0.0261046 0.13335 0.2799937" rpy="${-M_PI/2} 0 ${-M_PI/2}"/>
+		    	</xacro:jaco_robot_7dof>
+		</xacro:if>
+	</xacro:unless>
 
-		    <xacro:if value="$(optenv MOVO_HAS_TWO_KINOVA_ARMS false)"> 
-		        <xacro:jaco_robot prefix="left_" parent="linear_actuator_link">
-		            <origin xyz="0.0261046 0.13335 0.2799937" rpy="${-M_PI/2} 0 ${-M_PI/2}"/>
-		        </xacro:jaco_robot>
-		    </xacro:if>
-        </xacro:if>
+	<xacro:if value="$(optenv MOVO_HAS_RIGHT_ARM_6DOF false)">  <!-- movo has a right arm of 6 dof type -->
+		<xacro:include filename="$(find movo_description)/urdf/manipulation/jaco/jaco.urdf.xacro" />
+		<xacro:jaco_robot prefix="right_" parent="linear_actuator_link">
+		   <origin xyz="0.0261046 -0.13335 0.2799937" rpy="${-M_PI/2} 0 ${-M_PI/2}"/>
+		</xacro:jaco_robot>
+		<xacro:if value="$(optenv MOVO_HAS_LEFT_ARM_6DOF false)"> <!-- movo has also a left arm of 6 dof type -->
+		    <xacro:jaco_robot prefix="left_" parent="linear_actuator_link">
+			<origin xyz="0.0261046 0.13335 0.2799937" rpy="${-M_PI/2} 0 ${-M_PI/2}"/>
+		    </xacro:jaco_robot>
+            	</xacro:if>
+	</xacro:if>
+        <xacro:unless value="$(optenv MOVO_HAS_RIGHT_ARM_6DOF false)" >   <!-- movo has no right arm-->
+		<xacro:if value="$(optenv MOVO_HAS_LEFT_ARM_6DOF false)"> <!-- but has a left arm of 6 dof type --> 
+			<xacro:include filename="$(find movo_description)/urdf/manipulation/jaco/jaco.urdf.xacro" />
+		    	<xacro:jaco_robot prefix="left_" parent="linear_actuator_link">
+			   <origin xyz="0.0261046 0.13335 0.2799937" rpy="${-M_PI/2} 0 ${-M_PI/2}"/>
+		    	</xacro:jaco_robot>
+		</xacro:if>
+	</xacro:unless>
        
         <xacro:if value="$(optenv MOVO_HAS_RIGHT_ROBOTIQ_GRIPPER false)">
             <xacro:robotiq_85_gripper prefix="right_" parent="right_ee_link" >
@@ -137,7 +153,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             </xacro:kg3_gripper>
         </xacro:if>        
     
-    </xacro:if>
     
     
     <xacro:gzplugin_grasp_fix/>

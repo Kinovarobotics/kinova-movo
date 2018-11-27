@@ -27,22 +27,59 @@
     <!-- push robot_description to factory and spawn robot in gazebo -->
     <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param /robot_description -model movo -x $(arg x) -y $(arg y) -z $(arg z)" respawn="false" output="screen" />
     
-    <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" file="$(find movo_gazebo)/controller/right_arm_controller.yaml" command="load"/>
-    <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" file="$(find movo_gazebo)/controller/right_arm_7dof_controller.yaml" command="load"/>
+    <rosparam if="$(optenv MOVO_HAS_RIGHT_ARM_6DOF false)" file="$(find movo_gazebo)/controller/right_arm_controller.yaml" command="load"/>
+    <rosparam if="$(optenv MOVO_HAS_RIGHT_ARM_7DOF false)" file="$(find movo_gazebo)/controller/right_arm_7dof_controller.yaml" command="load"/>
     
-    <rosparam file="$(find movo_gazebo)/controller/right_gripper_controller.yaml" command="load"/>
+    <rosparam unless="$(optenv MOVO_HAS_NO_RIGHT_ARM false)" file="$(find movo_gazebo)/controller/right_gripper_controller.yaml" command="load"/>
     
-    <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" file="$(find movo_gazebo)/controller/left_arm_controller.yaml" command="load"/>
-    <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" file="$(find movo_gazebo)/controller/left_arm_7dof_controller.yaml" command="load"/>
+    <rosparam if="$(optenv MOVO_HAS_LEFT_ARM_6DOF false)" file="$(find movo_gazebo)/controller/left_arm_controller.yaml" command="load"/>
+    <rosparam if="$(optenv MOVO_HAS_LEFT_ARM_7DOF false)" file="$(find movo_gazebo)/controller/left_arm_7dof_controller.yaml" command="load"/>
     
-    <rosparam file="$(find movo_gazebo)/controller/left_gripper_controller.yaml" command="load"/>
+    <rosparam unless="$(optenv MOVO_HAS_NO_LEFT_ARM false)" file="$(find movo_gazebo)/controller/left_gripper_controller.yaml" command="load"/>
     <rosparam file="$(find movo_gazebo)/controller/head_controller.yaml" command="load"/>
     <rosparam file="$(find movo_gazebo)/controller/torso_controller.yaml" command="load"/>
     <rosparam file="$(find movo_gazebo)/controller/joint_state_controller.yaml" command="load"/>
-    <node name="default_controller_spawner" pkg="controller_manager"
+    <node if="$(optenv MOVO_HAS_TWO_7DOF_ARMS false)" name="default_controller_spawner" pkg="controller_manager"
           type="controller_manager" args="spawn
                                movo/right_arm_controller 
                                movo/right_gripper_controller
+                               movo/left_arm_controller 
+                               movo/left_gripper_controller
+                               movo/torso_controller
+                               movo/head_controller
+                               joint_state_controller"/>
+    <node if="$(optenv MOVO_HAS_TWO_6DOF_ARMS false)" name="default_controller_spawner" pkg="controller_manager"
+          type="controller_manager" args="spawn
+                               movo/right_arm_controller 
+                               movo/right_gripper_controller
+                               movo/left_arm_controller 
+                               movo/left_gripper_controller
+                               movo/torso_controller
+                               movo/head_controller
+                               joint_state_controller"/>
+    <node if="$(optenv MOVO_HAS_RIGHT_ARM_6DOF false)" name="default_controller_spawner" pkg="controller_manager"
+          type="controller_manager" args="spawn
+                               movo/right_arm_controller 
+                               movo/right_gripper_controller
+                               movo/torso_controller
+                               movo/head_controller
+                               joint_state_controller"/>
+    <node if="$(optenv MOVO_HAS_RIGHT_ARM_7DOF false)" name="default_controller_spawner" pkg="controller_manager"
+          type="controller_manager" args="spawn
+                               movo/right_arm_controller 
+                               movo/right_gripper_controller
+                               movo/torso_controller
+                               movo/head_controller
+                               joint_state_controller"/>
+    <node if="$(optenv MOVO_HAS_LEFT_ARM_6DOF false)" name="default_controller_spawner" pkg="controller_manager"
+          type="controller_manager" args="spawn
+                               movo/left_arm_controller 
+                               movo/left_gripper_controller
+                               movo/torso_controller
+                               movo/head_controller
+                               joint_state_controller"/>
+    <node if="$(optenv MOVO_HAS_LEFT_ARM_7DOF false)" name="default_controller_spawner" pkg="controller_manager"
+          type="controller_manager" args="spawn
                                movo/left_arm_controller 
                                movo/left_gripper_controller
                                movo/torso_controller
@@ -81,19 +118,5 @@
             </rosparam>
         </node>
     </group>
-    
-
-
-    <!--node pkg="robot_self_filter"
-        type="self_filter" clear_params="true"
-        name="self_filter" respawn="true" output="screen">
-        <remap from="cloud_in" to="/kinect2/sd/points" />
-        <remap from="cloud_out" to="/movo/perception/points_filtered" />
-        <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" command="load" file="$(find movo_bringup)/launch/perception/config/robot_self_filter.yaml"/>
-        <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" command="load" file="$(find movo_bringup)/launch/perception/config/robot_7dof_self_filter.yaml"/>
-        <param name="use_rgb" value="true" />
-        <param name="keep_organized" value="true"/>
-        <param name="subsample_value" type="double" value="0.0"/>
-    </node-->
 
 </launch>

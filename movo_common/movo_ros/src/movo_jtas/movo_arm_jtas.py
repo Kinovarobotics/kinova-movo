@@ -87,7 +87,7 @@ def calc_grip_angle(x):
     return (a)
 
 class MovoArmJTAS(object):
-    def __init__(self, prefix="", gripper="", interface='eth0', jaco_ip="10.66.171.15", dof="", rate=100.0):
+    def __init__(self, prefix="", gripper="", interface='eth0', jaco_ip="10.66.171.15", dof_r="none", dof_l="none", rate=100.0):
         self._alive = False
         self.init_success = True
 
@@ -106,13 +106,14 @@ class MovoArmJTAS(object):
         self._gripper_stall_to = 0.7
         self._gripper_pos_stall = False
         self._last_movement_time = rospy.get_time()
-        self.dof = dof
+        self.dof_r = dof_r
+        self.dof_l = dof_l
         self._planner_homing = False
 
         """
         Define the joint names
         """
-        if ("6dof" == dof):
+        if ("6dof" == dof_r and "6dof" == dof_l):
             self._joint_names = [self._prefix+'_shoulder_pan_joint',
                                  self._prefix+'_shoulder_lift_joint',
                                  self._prefix+'_elbow_joint',
@@ -137,7 +138,26 @@ class MovoArmJTAS(object):
                                  "tilt_joint"]
             self._homed = [-2.135, -0.227, -1.478, -2.083, 1.445, 1.321, 2.135, 0.227, 1.478, 2.083, -1.445, -1.321, 0.25, 0.0, 0.0]
 
-        elif ("7dof" == dof):
+        elif ("6dof" == dof_r and "none" == dof_l):
+            self._joint_names = [self._prefix+'_shoulder_pan_joint',
+                                 self._prefix+'_shoulder_lift_joint',
+                                 self._prefix+'_elbow_joint',
+                                 self._prefix+'_wrist_1_joint',
+                                 self._prefix+'_wrist_2_joint',
+                                 self._prefix+'_wrist_3_joint']
+
+            self._body_joints = ["right_elbow_joint",
+                                 "right_shoulder_lift_joint",
+                                 "right_shoulder_pan_joint",
+                                 "right_wrist_1_joint",
+                                 "right_wrist_2_joint",
+                                 "right_wrist_3_joint",
+                                 "linear_joint",
+                                 "pan_joint",
+                                 "tilt_joint"]
+            self._homed = [-2.135, -0.227, -1.478, -2.083, 1.445, 1.321, 0.25, 0.0, 0.0]
+
+        elif ("7dof" == dof_r and "7dof" == dof_l):
             self._joint_names = [self._prefix + '_shoulder_pan_joint',
                                  self._prefix + '_shoulder_lift_joint',
                                  self._prefix + '_arm_half_joint',
@@ -164,6 +184,27 @@ class MovoArmJTAS(object):
                                  "pan_joint",
                                  "tilt_joint"]
             self._homed = [-1.5, -0.2, -0.15, -2.0, 2.0, -1.24, -1.1, 1.5, 0.2, 0.15, 2.0, -2.0, 1.24, 1.1, 0.25, 0, 0]
+
+        elif ("7dof" == dof_r and "none" == dof_l):
+            self._joint_names = [self._prefix + '_shoulder_pan_joint',
+                                 self._prefix + '_shoulder_lift_joint',
+                                 self._prefix + '_arm_half_joint',
+                                 self._prefix + '_elbow_joint',
+                                 self._prefix + '_wrist_spherical_1_joint',
+                                 self._prefix + '_wrist_spherical_2_joint',
+                                 self._prefix + '_wrist_3_joint']
+
+            self._body_joints = ["right_shoulder_pan_joint",
+                                 "right_shoulder_lift_joint",
+                                 "right_arm_half_joint",
+                                 "right_elbow_joint",
+                                 "right_wrist_spherical_1_joint",
+                                 "right_wrist_spherical_2_joint",
+                                 "right_wrist_3_joint",
+                                 "linear_joint",
+                                 "pan_joint",
+                                 "tilt_joint"]
+            self._homed = [-1.5, -0.2, -0.15, -2.0, 2.0, -1.24, -1.1, 0.25, 0, 0]
 
         else:
             rospy.logerr("DoF needs to be set 6 or 7, cannot start MovoArmJTAS")

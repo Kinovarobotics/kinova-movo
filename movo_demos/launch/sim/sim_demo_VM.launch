@@ -12,13 +12,23 @@
         name="joy_bringup" output="screen"/>
 
     <!-- Bring up the moveit -->
-    <node if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" pkg="si_utils" type="timed_roslaunch"
-        args="125 movo_moveit_config movo_moveit_planning_execution.launch sim:=true info:=true"
+    <node if="$(optenv MOVO_HAS_RIGHT_ARM_6DOF false)" pkg="si_utils" type="timed_roslaunch"
+        args="10 movo_moveit_config movo_moveit_planning_execution.launch sim:=true info:=true"
         name="moveit_bringup" output="screen"/>
-        
-    <node if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" pkg="si_utils" type="timed_roslaunch"
-        args="125 movo_7dof_moveit_config movo_moveit_planning_execution.launch sim:=true info:=true"
+    <group unless="$(optenv MOVO_HAS_RIGHT_ARM_6DOF false)">
+    <node if="$(optenv MOVO_HAS_LEFT_ARM_6DOF false)" pkg="si_utils" type="timed_roslaunch"
+        args="10 movo_moveit_config movo_moveit_planning_execution.launch sim:=true info:=true"
         name="moveit_bringup" output="screen"/>
+    </group>
+
+    <node if="$(optenv MOVO_HAS_RIGHT_ARM_7DOF false)" pkg="si_utils" type="timed_roslaunch"
+        args="10 movo_7dof_moveit_config movo_moveit_planning_execution.launch sim:=true info:=true"
+        name="moveit_bringup" output="screen"/>
+    <group unless="$(optenv MOVO_HAS_RIGHT_ARM_7DOF false)">
+    <node if="$(optenv MOVO_HAS_LEFT_ARM_7DOF false)" pkg="si_utils" type="timed_roslaunch"
+        args="10 movo_7dof_moveit_config movo_moveit_planning_execution.launch sim:=true info:=true"
+        name="moveit_bringup" output="screen"/>
+    </group>
         
     <!-- Bring up the demo -->
     <node pkg="si_utils" type="timed_roslaunch"
