@@ -87,7 +87,7 @@ def calc_grip_angle(x):
     return (a)
 
 class MovoArmJTAS(object):
-    def __init__(self, prefix="", gripper="", interface='eth0', jaco_ip="10.66.171.15", dof_r="none", dof_l="none", rate=100.0):
+    def __init__(self, prefix="", gripper="", interface='eth0', jaco_ip="10.66.171.15", dof_r="", dof_l="", rate=100.0):
         self._alive = False
         self.init_success = True
 
@@ -108,6 +108,7 @@ class MovoArmJTAS(object):
         self._last_movement_time = rospy.get_time()
         self.dof_r = dof_r
         self.dof_l = dof_l
+        print(prefix, dof_r, dof_l)
         self._planner_homing = False
 
         """

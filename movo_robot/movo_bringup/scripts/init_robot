@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 """--------------------------------------------------------------------
 Copyright (c) 2017, Kinova Robotics inc.
 
@@ -47,16 +47,16 @@ if __name__ == "__main__":
 	move_group = MoveGroupInterface("upper_body","base_link")
 	move_group.setPlannerId("RRTConnectkConfigDefault")
 
-	if (("6dof" == dof_r and "6dof" == dof_l) or ("7dof" == dof_r and "7dof" == dof_l)):
-		lgripper = GripperActionClient('left')
-		rgripper = GripperActionClient('right')
-	elif("6dof" == dof_r or "7dof" == dof_r)
-		rgripper = GripperActionClient('right')
-
 	dof_r = rospy.get_param('~jaco_dof_right_arm')
       	dof_l = rospy.get_param('~jaco_dof_left_arm')
 	rgripper_type = rospy.get_param('~gripper_right', 'kg3')
 	lgripper_type = rospy.get_param('~gripper_left', 'kg3')
+
+	if (("6dof" == dof_r and "6dof" == dof_l) or ("7dof" == dof_r and "7dof" == dof_l)):
+		lgripper = GripperActionClient('left')
+		rgripper = GripperActionClient('right')
+	elif("6dof" == dof_r or "7dof" == dof_r):
+		rgripper = GripperActionClient('right')
 
 	if ("6dof" == dof_r and "6dof" == dof_l):
 		upper_body_joints = ["right_elbow_joint",
@@ -80,7 +80,7 @@ if __name__ == "__main__":
 			tucked[5] -= 1.571
 		if (lgripper_type == 'rq85'):
 			tucked[11] += 1.571
-      elif ("6dof" == dof_r):
+	elif ("6dof" == dof_r):
 		upper_body_joints = ["right_elbow_joint",
 							"right_shoulder_lift_joint",
 							"right_shoulder_pan_joint",
@@ -120,7 +120,7 @@ if __name__ == "__main__":
 			tucked[6] -= numpy.radians(60.0)
 		if (lgripper_type == 'rq85'):
 			tucked[13] += numpy.radians(60.0)
-      elif ("7dof" == dof_r):
+	elif ("7dof" == dof_r):
 		upper_body_joints = ["right_shoulder_pan_joint",
 							"right_shoulder_lift_joint",
 							"right_arm_half_joint",
@@ -147,7 +147,7 @@ if __name__ == "__main__":
 	if (("6dof" == dof_r and "6dof" == dof_l) or ("7dof" == dof_r and "7dof" == dof_l)):
 		lgripper.command(gripper_closed)
 		rgripper.command(gripper_closed)
-	elif("6dof" == dof_r or "7dof" == dof_r)
+	elif("6dof" == dof_r or "7dof" == dof_r):
 		rgripper.command(gripper_closed)
 
 
@@ -170,7 +170,7 @@ if __name__ == "__main__":
 	if (("6dof" == dof_r and "6dof" == dof_l) or ("7dof" == dof_r and "7dof" == dof_l)):
 		lgripper.command(gripper_closed)
 		rgripper.command(gripper_closed)
-	elif("6dof" == dof_r or "7dof" == dof_r)
+	elif("6dof" == dof_r or "7dof" == dof_r):
 		rgripper.command(gripper_closed)
 
 	rospy.sleep(5)
