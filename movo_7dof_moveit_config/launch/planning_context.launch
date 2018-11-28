@@ -32,8 +32,9 @@
   </group>
 
   <!-- Load default settings for kinematics; these settings are overridden by settings in a node's namespace. Note: there will be useless parameters if only one arm, or no arm, is present-->
-  <group ns="$(arg robot_description)_kinematics">
-    <rosparam command="load" file="$(find movo_7dof_moveit_config)/config/kinematics.yaml"/>
+  <group ns="$(arg robot_description)_kinematics" >
+    <rosparam command="load" file="$(find movo_7dof_moveit_config)/config/kinematics.yaml" if="$(optenv MOVO_HAS_TWO_7DOF_ARMS false)"/>
+    <rosparam command="load" file="$(find movo_7dof_moveit_config)/config/kinematics_right_only.yaml" if="$(optenv MOVO_HAS_RIGHT_7DOF_ARM_ONLY false)"/>
   </group>
   
 </launch>
