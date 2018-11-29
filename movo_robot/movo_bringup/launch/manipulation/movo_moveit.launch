@@ -28,6 +28,7 @@
 		<rosparam if="$(optenv MOVO_HAS_TWO_7DOF_ARMS false)" command="load" file="$(find movo_7dof_moveit_config)/config/kinematics.yaml" />
 		<rosparam if="$(optenv MOVO_HAS_TWO_6DOF_ARMS false)" command="load" file="$(find movo_moveit_config)/config/kinematics.yaml" />
                 <rosparam if="$(optenv MOVO_HAS_RIGHT_7DOF_ARM_ONLY false)" command="load" file="$(find movo_7dof_moveit_config)/config/kinematics_right_only.yaml" />
+		<rosparam if="$(optenv MOVO_HAS_LEFT_7DOF_ARM_ONLY false)" command="load" file="$(find movo_7dof_moveit_config)/config/kinematics_left_only.yaml" />
 	</node>
 
 </launch>

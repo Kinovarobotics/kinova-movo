@@ -49,9 +49,9 @@ if __name__ == "__main__":
     dof_r = rospy.get_param('~jaco_dof_right_arm')
     dof_l = rospy.get_param('~jaco_dof_left_arm')
 
-    if ("7dof" == dof_l and "6dof" == dof_l):
+    if ("7dof" == dof_l or "6dof" == dof_l):
     	lgripper = GripperActionClient('left')
-    if ("7dof" == dof_r and "6dof" == dof_r):
+    if ("7dof" == dof_r or "6dof" == dof_r):
     	rgripper = GripperActionClient('right')
     
     if ("6dof" == dof_r and "6dof" == dof_l):
@@ -82,6 +82,17 @@ if __name__ == "__main__":
                             "pan_joint",
                             "tilt_joint"]
         tucked = [-2.8, -1.48, -1.48, 0, 0, 1.571, 0.0371, 0.0, 0.0]
+    elif ("none" == dof_r and "6dof" == dof_l):
+        upper_body_joints = ["left_elbow_joint",
+                            "left_shoulder_lift_joint",
+                            "left_shoulder_pan_joint",
+                            "left_wrist_1_joint",
+                            "left_wrist_2_joint",
+                            "left_wrist_3_joint",
+                            "linear_joint",
+                            "pan_joint",
+                            "tilt_joint"]
+        tucked = [2.8, 1.48, 1.48, 0, 0, -1.571, 0.0371, 0.0, 0.0]
 
     if ("7dof" == dof_r and "7dof" == dof_l):
         upper_body_joints = ["right_shoulder_lift_joint",
@@ -116,7 +127,19 @@ if __name__ == "__main__":
                              "tilt_joint"]
 
         tucked = [-1.6, -1.5, 0.4, -2.7, 0.0, 0.5, -2.7, 0.04, 0, 0]
+    elif ("none" == dof_r and "7dof" == dof_l):
+        upper_body_joints = ["left_shoulder_lift_joint",
+                             "left_shoulder_pan_joint",
+                             "left_arm_half_joint",
+                             "left_elbow_joint",
+                             "left_wrist_spherical_1_joint",
+                             "left_wrist_spherical_2_joint",
+                             "left_wrist_3_joint",
+                             "linear_joint",
+                             "pan_joint",
+                             "tilt_joint"]
 
+        tucked = [1.6, 1.5, -0.4, 2.7, 0.0, -0.5, 2.7, 0.04, 0, 0]
     # This is not simulation so need to adjust gripper parameters
     gripper_closed = 0.01
     gripper_open = 0.165
