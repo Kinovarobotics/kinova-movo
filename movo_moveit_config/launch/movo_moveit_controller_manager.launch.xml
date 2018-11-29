@@ -4,7 +4,9 @@
   <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager"/>
 
   <!-- The rest of the params are specific to this plugin -->
-  <rosparam file="$(find movo_moveit_config)/config/controllers.yaml"/>
+  <rosparam if="$(optenv MOVO_HAS_TWO_6DOF_ARMS false)" file="$(find movo_moveit_config)/config/controllers.yaml"/>
+  <rosparam if="$(optenv MOVO_HAS_RIGHT_6DOF_ARM_ONLY false)" file="$(find movo_moveit_config)/config/controllers_right_only.yaml"/>
+  <rosparam if="$(optenv MOVO_HAS_LEFT_6DOF_ARM_ONLY false)" file="$(find movo_moveit_config)/config/controllers_left_only.yaml"/>
 
   <!--rosparam file="$(find movo_moveit_config)/config/controllers.yaml"/>
   <param name="use_controller_manager" value="false"/>
