@@ -139,6 +139,7 @@ class MovoArmJTAS(object):
                                  "tilt_joint"]
             self._homed = [-2.135, -0.227, -1.478, -2.083, 1.445, 1.321, 2.135, 0.227, 1.478, 2.083, -1.445, -1.321, 0.25, 0.0, 0.0]
 
+
         elif ("6dof" == dof_r and "none" == dof_l):
             self._joint_names = [self._prefix+'_shoulder_pan_joint',
                                  self._prefix+'_shoulder_lift_joint',
@@ -157,6 +158,25 @@ class MovoArmJTAS(object):
                                  "pan_joint",
                                  "tilt_joint"]
             self._homed = [-2.135, -0.227, -1.478, -2.083, 1.445, 1.321, 0.25, 0.0, 0.0]
+
+        elif ("none" == dof_r and "6dof" == dof_l):
+            self._joint_names = [self._prefix+'_shoulder_pan_joint',
+                                 self._prefix+'_shoulder_lift_joint',
+                                 self._prefix+'_elbow_joint',
+                                 self._prefix+'_wrist_1_joint',
+                                 self._prefix+'_wrist_2_joint',
+                                 self._prefix+'_wrist_3_joint']
+
+            self._body_joints = ["left_elbow_joint",
+                                 "left_shoulder_lift_joint",
+                                 "left_shoulder_pan_joint",
+                                 "left_wrist_1_joint",
+                                 "left_wrist_2_joint",
+                                 "left_wrist_3_joint",
+                                 "linear_joint",
+                                 "pan_joint",
+                                 "tilt_joint"]
+            self._homed = [2.135, 0.227, 1.478, 2.083, -1.445, -1.321, 0.25, 0.0, 0.0]
 
         elif ("7dof" == dof_r and "7dof" == dof_l):
             self._joint_names = [self._prefix + '_shoulder_pan_joint',
@@ -207,6 +227,27 @@ class MovoArmJTAS(object):
                                  "tilt_joint"]
             self._homed = [-1.5, -0.2, -0.15, -2.0, 2.0, -1.24, -1.1, 0.25, 0, 0]
 
+        elif ("none" == dof_r and "7dof" == dof_l):
+            self._joint_names = [self._prefix + '_shoulder_pan_joint',
+                                 self._prefix + '_shoulder_lift_joint',
+                                 self._prefix + '_arm_half_joint',
+                                 self._prefix + '_elbow_joint',
+                                 self._prefix + '_wrist_spherical_1_joint',
+                                 self._prefix + '_wrist_spherical_2_joint',
+                                 self._prefix + '_wrist_3_joint']
+
+            self._body_joints = ["left_shoulder_pan_joint",
+                                 "left_shoulder_lift_joint",
+                                 "left_arm_half_joint",
+                                 "left_elbow_joint",
+                                 "left_wrist_spherical_1_joint",
+                                 "left_wrist_spherical_2_joint",
+                                 "left_wrist_3_joint",
+                                 "linear_joint",
+                                 "pan_joint",
+                                 "tilt_joint"]
+            self._homed = [1.5, 0.2, 0.15, 2.0, -2.0, 1.24, 1.1, 0.25, 0, 0]
+
         else:
             rospy.logerr("DoF needs to be set 6 or 7, cannot start MovoArmJTAS")
             return
@@ -221,6 +262,10 @@ class MovoArmJTAS(object):
         self._goal_error = dict()
         self._path_thresh = dict()
         self._traj_smoother = TrajectorySmoother(rospy.get_name(),self._prefix)
+        if (self._prefix=="right"):
+            dof=dof_r
+        elif (self._prefix=="left"):
+            dof=dof_l	
         self._ctl = SIArmController(self._prefix,gripper,interface,jaco_ip, dof)
         self._ctl.Pause()
         self._estop_delay = 0

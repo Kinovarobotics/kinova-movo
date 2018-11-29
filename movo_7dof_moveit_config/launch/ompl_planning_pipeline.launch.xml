@@ -20,4 +20,5 @@
   <!-- Load OMPL configs. Note: there will be useless parameters if only one arm, or no arm, is present -->
   <rosparam command="load" file="$(find movo_7dof_moveit_config)/config/ompl_planning.yaml" if="$(optenv MOVO_HAS_TWO_7DOF_ARMS false)"/>
   <rosparam command="load" file="$(find movo_7dof_moveit_config)/config/ompl_planning_right_only.yaml" if="$(optenv MOVO_HAS_RIGHT_7DOF_ARM_ONLY false)"/>
+  <rosparam command="load" file="$(find movo_7dof_moveit_config)/config/ompl_planning_left_only.yaml" if="$(optenv MOVO_HAS_LEFT_7DOF_ARM_ONLY false)"/>
 </launch>
