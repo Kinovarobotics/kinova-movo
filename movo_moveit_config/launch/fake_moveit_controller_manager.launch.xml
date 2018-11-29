@@ -4,6 +4,7 @@
   <param name="moveit_controller_manager" value="moveit_fake_controller_manager/MoveItFakeControllerManager"/>
 
   <!-- The rest of the params are specific to this plugin -->
-  <rosparam file="$(find movo_moveit_config)/config/fake_controllers.yaml"/>
-
+  <rosparam file="$(find movo_moveit_config)/config/fake_controllers.yaml" if="$(optenv MOVO_HAS_TWO_6DOF_ARMS false)"/>
+  <rosparam file="$(find movo_moveit_config)/config/fake_controllers_right_only.yaml" if="$(optenv MOVO_HAS_RIGHT_6DOF_ARM_ONLY false)"/>
+  <rosparam file="$(find movo_moveit_config)/config/fake_controllers_left_only.yaml" if="$(optenv MOVO_HAS_LEFT_6DOF_ARM_ONLY false)"/>
 </launch>

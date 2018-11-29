@@ -17,6 +17,7 @@
   <param name="request_adapters" value="$(arg planning_adapters)" />
   <param name="start_state_max_bounds_error" value="$(arg start_state_max_bounds_error)" />
 
-  <rosparam command="load" file="$(find movo_moveit_config)/config/ompl_planning.yaml"/>
-
+  <rosparam command="load" file="$(find movo_moveit_config)/config/ompl_planning.yaml" if="$(optenv MOVO_HAS_TWO_6DOF_ARMS false)"/>
+  <rosparam command="load" file="$(find movo_moveit_config)/config/ompl_planning_right_only.yaml" if="$(optenv MOVO_HAS_RIGHT_6DOF_ARM_ONLY false)"/>
+  <rosparam command="load" file="$(find movo_moveit_config)/config/ompl_planning_left_only.yaml" if="$(optenv MOVO_HAS_LEFT_6DOF_ARM_ONLY false)"/>
 </launch>

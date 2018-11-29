@@ -1,0 +1,35 @@
+controller_list:
+  - name: "movo/right_arm_controller"
+    action_ns: follow_joint_trajectory
+    type: FollowJointTrajectory
+    default: true
+    joints:
+      - right_shoulder_pan_joint
+      - right_shoulder_lift_joint
+      - right_elbow_joint
+      - right_wrist_1_joint
+      - right_wrist_2_joint
+      - right_wrist_3_joint
+
+  - name: "movo/torso_controller"
+    action_ns: follow_joint_trajectory
+    type: FollowJointTrajectory
+    default: true
+    joints:
+      - linear_joint
+
+  - name: "movo/head_controller"
+    action_ns: follow_joint_trajectory
+    type: FollowJointTrajectory
+    default: true
+    joints:
+      - pan_joint
+      - tilt_joint
+      
+  - name: "movo/right_gripper_controller"
+    action_ns: gripper_cmd
+    type: GripperCommand
+    default: true
+    joints:
+      - right_gripper_finger1_joint
+      
