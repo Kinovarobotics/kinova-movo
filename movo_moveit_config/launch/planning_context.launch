@@ -6,7 +6,7 @@
   <arg name="robot_description" default="robot_description"/>
 
   <!-- Load universal robot description format (URDF) -->
-  <param if="$(arg load_robot_description)" name="$(arg robot_description)" command="$(find xacro)/xacro.py '$(find movo_description)/urdf/movo.urdf.xacro'"/>
+  <param if="$(arg load_robot_description)" name="$(arg robot_description)" command="$(find xacro)/xacro.py '$(find movo_description)/urdf/movo.urdf.xacro' --inorder"/>
 
   <!-- The semantic description that corresponds to the URDF -->
   <group if="$(optenv MOVO_HAS_TWO_6DOF_ARMS false)">
