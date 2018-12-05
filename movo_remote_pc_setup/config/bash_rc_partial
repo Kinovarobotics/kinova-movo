@@ -34,9 +34,8 @@ function save_map()
   fi
   
   rosrun map_server map_saver -f $dest 
-  local old_line='/home/$USER/movo_ws/src/movo_demos/maps/'
-  local new_line=''    
-  sed -i "s%$old_line%$new_line%g" "$dest.yaml"
+  local old_line=/home/$USER/movo_ws/src/movo_demos/maps/    
+  sed -i "s+$old_line++g" "$dest.yaml"
  
   rsync -avzh --delete --exclude '*~' --progress /home/$USER/movo_ws/src/movo_demos/maps movo@movo2:/home/movo/movo_ws/src/movo_demos/
   rsync -avzh --delete --exclude '*~' --progress /home/$USER/movo_ws/src/movo_demos/maps movo@movo1:/home/movo/movo_ws/src/movo_demos/
