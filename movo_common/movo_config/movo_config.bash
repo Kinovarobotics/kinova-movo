@@ -71,9 +71,13 @@ export MOVO_HAS_LEFT_ARM_7DOF=true
 # automatically set variables. do not touch
 if $MOVO_HAS_RIGHT_ARM_7DOF && $MOVO_HAS_LEFT_ARM_7DOF; then
   export MOVO_HAS_TWO_7DOF_ARMS=true
+else 
+  export MOVO_HAS_TWO_7DOF_ARMS=false 
 fi
 if $MOVO_HAS_RIGHT_ARM_6DOF && $MOVO_HAS_LEFT_ARM_6DOF; then
   export MOVO_HAS_TWO_6DOF_ARMS=true
+else 
+  export MOVO_HAS_TWO_6DOF_ARMS=false 
 fi
 if [ $MOVO_HAS_RIGHT_ARM_7DOF = false ] && [ $MOVO_HAS_RIGHT_ARM_6DOF = false ]; then
   export MOVO_HAS_NO_RIGHT_ARM=true
@@ -87,15 +91,23 @@ else
 fi
 if $MOVO_HAS_NO_LEFT_ARM && $MOVO_HAS_RIGHT_ARM_6DOF; then
   export MOVO_HAS_RIGHT_6DOF_ARM_ONLY=true
+else 
+  export MOVO_HAS_RIGHT_6DOF_ARM_ONLY=false 
 fi
 if $MOVO_HAS_NO_LEFT_ARM && $MOVO_HAS_RIGHT_ARM_7DOF; then
   export MOVO_HAS_RIGHT_7DOF_ARM_ONLY=true
+else 
+  export MOVO_HAS_RIGHT_7DOF_ARM_ONLY=false 
 fi
 if $MOVO_HAS_NO_RIGHT_ARM && $MOVO_HAS_LEFT_ARM_6DOF; then
   export MOVO_HAS_LEFT_6DOF_ARM_ONLY=true
+else 
+  export MOVO_HAS_LEFT_6DOF_ARM_ONLY=false 
 fi
 if $MOVO_HAS_NO_RIGHT_ARM && $MOVO_HAS_LEFT_ARM_7DOF; then
   export MOVO_HAS_LEFT_7DOF_ARM_ONLY=true
+else 
+  export MOVO_HAS_LEFT_7DOF_ARM_ONLY=false 
 fi
 
 export KINOVA_RIGHT_ARM_IP_ADDRESS=10.66.171.15
