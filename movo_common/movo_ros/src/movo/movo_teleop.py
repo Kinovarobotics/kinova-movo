@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  \file   movo_teleop.py
 
  \brief  This module contains a class for teleoperating the movo
-         platform with a joystick controller
+         platform with an Xbox controller
 
  \Platform: Ubuntu 16.04 LTS / ROS Kinetic
 --------------------------------------------------------------------"""
@@ -45,25 +45,33 @@ import sys
 import math
 
 """
-mapping for controller order is dtz_request, powerdown_request, standby_request, tractor_request, balance_request, audio_request, 
-deadman_input, manual_ovvrd_input, twist_linear_x_input, twist_linear_y_input, twist_angular_z_input
+Mapping for the controller will be as follows.
+
 """
-MAP_DTZ_IDX         = 0
-MAP_PWRDWN_IDX      = 1
-MAP_STANDBY_IDX     = 2
-MAP_TRACTOR_IDX     = 3
-MAP_BALANCE_IDX     = 4
-MAP_AUDIO_IDX       = 5
-MAP_REC_GOAL_IDX    = 6
-MAP_DEADMAN_IDX     = 7
-MAP_MAN_OVVRD_IDX   = 8
-NUMBER_OF_MOMENTARY_INPUTS = 9
+MAP_BASE_A = 0
+MAP_rARM_B = 1
+MAP_lARM_X = 2
+MAP_HEAD_Y = 3
+MAP_lWRIST_LB = 4
+MAP_rWRIST_RB = 5
+MAP_TORS_back_= 6
+MAP_HOME_start = 7
+MAP_eSTOP_power = 8
+MAP_TRACT_lstick = 9
+MAP_stby_rstick = 10
 
+NUMBER_OF_MOMENTARY_INPUTS = 11
 
-MAP_TWIST_LIN_X_IDX = 0
-MAP_TWIST_LIN_Y_IDX = 1 
-MAP_TWIST_ANG_Z_IDX = 2
-NUMBER_OF_AXIS_INPUTS = 3
+MAP_TWIST_LR_stickleft = 0
+MAP_TWIST_UD_stickleft = 1 
+MAP_TRIGGER_LT = 2
+MAP_TWIST_LR_stickright = 3
+MAP_TWIST_UD_stickright = 4
+MAP_TRIGGER_RT = 5
+MAP_CROSS_LR = 6
+MAP_CROSS_UD = 7
+
+NUMBER_OF_AXIS_INPUTS = 8
  
 
 class MovoTeleop:
@@ -94,18 +102,26 @@ class MovoTeleop:
             self.accel_lim = rospy.get_param('~sim_teleop_accel_lim',0.5)
             self.yaw_accel_lim = rospy.get_param('~sim_teleop_yaw_accel_lim',1.0)           
         
-        self.ctrl_map = dict({'momentary':[[{'is_button':true,'index':4,'set_val':1}],
-                                           [{'is_button':true,'index':8,'set_val':1}],
-                                           [{'is_button':true,'index':2,'set_val':1}],
-                                           [{'is_button':true,'index':3,'set_val':1}],
-                                           [{'is_button':true,'index':5,'set_val':1}],
-                                           [{'is_button':true,'index':10,'set_val':1}],
-                                           [{'is_button':true,'index':11,'set_val':1}],
-                                           [{'is_button':true,'index':0,'set_val':1}],
-                                           [{'is_button':true,'index':1,'set_val':1}]],
-                              'axis_range':[{'index':1,'invert_axis':false},
-                                            {'index':0,'invert_axis':false},
-                                            {'index':2,'invert_axis':false}]})
+        self.ctrl_map = dict({'momentary':[[{'is_button':True,'index':0,'set_val':1}],
+                                           [{'is_button':True,'index':1,'set_val':1}],
+                                           [{'is_button':True,'index':2,'set_val':1}],
+                                           [{'is_button':True,'index':3,'set_val':1}],
+                                           [{'is_button':True,'index':4,'set_val':1}],
+                                           [{'is_button':True,'index':5,'set_val':1}],
+                                           [{'is_button':True,'index':6,'set_val':1}],
+                                           [{'is_button':True,'index':7,'set_val':1}],
+                                           [{'is_button':True,'index':8,'set_val':1}],
+                                           [{'is_button':True,'index':9,'set_val':1}],
+                                           [{'is_button':True,'index':10,'set_val':1}],
+                                           [{'is_button':True,'index':11,'set_val':1}]],
+                              'axis_range':[{'index':0,'invert_axis':False},
+                                            {'index':1,'invert_axis':False},
+                                            {'index':2,'invert_axis':False},
+                                            {'index':3,'invert_axis':False},
+                                            {'index':4,'invert_axis':False},
+                                            {'index':5,'invert_axis':False},
+                                            {'index':6,'invert_axis':False},
+                                            {'index':7,'invert_axis':False}]})
         
         """
         Initialize the debounce logic states
@@ -127,7 +143,7 @@ class MovoTeleop:
         self.limited_cmd = Twist()
         self.motion_pub = rospy.Publisher('/movo/teleop/cmd_vel', Twist, queue_size=10)
         self.override_pub = rospy.Publisher("/movo/manual_override/cmd_vel",Twist, queue_size=10)
-
+	print("MAPPING DONE")
         rospy.Subscriber('/joy', Joy, self._movo_teleop)
         
     def _update_configuration_limits(self,config):
@@ -141,7 +157,7 @@ class MovoTeleop:
         
     def _parse_joy_input(self,joyMessage):
         
-
+	
         raw_button_states = [True] * NUMBER_OF_MOMENTARY_INPUTS
         self.button_state = [False] * NUMBER_OF_MOMENTARY_INPUTS
          
@@ -179,10 +195,11 @@ class MovoTeleop:
             if (axis_input_map['invert_axis']):
                 temp *= -1.0
             self.axis_value[i] = temp
+	print("PARSE JOY")
 
     def _movo_teleop(self, joyMessage):
         self._parse_joy_input(joyMessage)
-        if self.button_state[MAP_REC_GOAL_IDX] == 1:
+        if self.button_state[MAP_eSTOP_power] == 1:
             if (False == self.goalrecorded):
                 temp = Bool()
                 temp.data = True
@@ -190,8 +207,8 @@ class MovoTeleop:
                 self.goalrecorded= True
         else:
             self.goalrecorded= False                                  
-
-        if self.button_state[MAP_DTZ_IDX]:
+	print("IN MOVOTELEOP NOT FULL")
+        if self.button_state[MAP_eSTOP_power]:
             self.cfg_cmd.gp_cmd = 'GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE'
             self.cfg_cmd.gp_param = DTZ_REQUEST
         elif self.button_state[MAP_PWRDWN_IDX]:
@@ -200,7 +217,7 @@ class MovoTeleop:
         elif self.button_state[MAP_STANDBY_IDX]:
             self.cfg_cmd.gp_cmd = 'GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE'
             self.cfg_cmd.gp_param = STANDBY_REQUEST
-        elif self.button_state[MAP_TRACTOR_IDX]:
+        elif self.button_state[MAP_TRACT_lstick]:
             self.cfg_cmd.gp_cmd = 'GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE'
             self.cfg_cmd.gp_param = TRACTOR_REQUEST
         else:
@@ -218,10 +235,10 @@ class MovoTeleop:
             self.cfg_cmd.header.seq
             self.send_cmd_none = False
         elif (False == self.send_cmd_none):
-            if self.button_state[MAP_DEADMAN_IDX]:
-                self.motion_cmd.linear.x =  (self.axis_value[MAP_TWIST_LIN_X_IDX] * self.x_vel_limit_mps)
-                self.motion_cmd.linear.y =  (self.axis_value[MAP_TWIST_LIN_Y_IDX] * self.y_vel_limit_mps)
-                self.motion_cmd.angular.z = (self.axis_value[MAP_TWIST_ANG_Z_IDX] * self.yaw_rate_limit_rps)
+            if self.axis_value[MAP_TRIGGER_RT]==-1.0:
+                self.motion_cmd.linear.x =  (self.axis_value[MAP_TWIST_UD_stickleft] * self.x_vel_limit_mps)
+                self.motion_cmd.linear.y =  (self.axis_value[MAP_TWIST_LR_stickleft] * self.y_vel_limit_mps)
+                self.motion_cmd.angular.z = (self.axis_value[MAP_TWIST_UD_stickright] * self.yaw_rate_limit_rps)
                 self.last_motion_command_time = rospy.get_time()
               
             else:
@@ -249,7 +266,7 @@ class MovoTeleop:
                     
                     self.motion_pub.publish(self.limited_cmd)
                     
-                    if self.button_state[MAP_DEADMAN_IDX] and self.button_state[MAP_MAN_OVVRD_IDX]:
+                    if self.axis_value[MAP_TRIGGER_RT]==-1.0 and self.button_state[MAP_TORS_back_]:
                         self.override_pub.publish(self.motion_cmd)
 
            
