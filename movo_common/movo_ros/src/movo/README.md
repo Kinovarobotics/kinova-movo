@@ -6,9 +6,10 @@ To use the Xbox 360 wireless controller instead of the logitech controller, inst
 
 You should plug a wireless controller receiver in Movo or your computer.
 
-If you want to control the Movo with a logitech controller or with an Xbox controller, you should overwrite these two files by the ones in the appropriate commit:
-			movo_teleop_full_system.py 
-			movo_teleop.py
+If you want to control the Movo with a logitech controller or with an Xbox controller, you should go in movo_common/movo_config/movo_config.bash and change 
+MOVO_IS_JOY_XBOX or MOVO_IS_JOY_LOGITECH. Put the joystick you want to true and the other to false. Do a `sync_robot -nc` and reboot Movo for the change
+to be applied.
+
 The mapping for the Xbox controller can be found in any of these last two files:
 
 
