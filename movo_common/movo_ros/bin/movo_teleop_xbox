@@ -28,13 +28,13 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
- \file   movo_teleop_full_system
+ \file   movo_teleop_xbox
 
  \brief  Teleop node for the Stanley Innovation Vector Platform
 
  \Platform: Ubuntu 16.04 LTS / ROS Kinetic
 --------------------------------------------------------------------"""
-from movo.movo_teleop_full_system import MovoTeleopFullSystem
+from movo.movo_teleop_xbox import MovoTeleop
 import rospy
 
 if __name__ == "__main__":
@@ -42,6 +42,6 @@ if __name__ == "__main__":
     Initialize the node
     """
     rospy.init_node('movo_teleop')
-    MovoTeleopFullSystem()
+    MovoTeleop()
     rospy.spin()
     

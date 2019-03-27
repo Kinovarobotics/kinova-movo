@@ -27,13 +27,12 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
- \file   movo_teleop_full_system.py
+ \file   movo_teleop_full_system_xbox.py
 
  \brief  This module contains a class for teleoperating all the movo
-         platform DOF with a joystick controller; only works with logitech
-         extreme 3d
+         platform DOF with a joystick controller; only works with Xbox controller
 
- \Platform: Linux/ROS Indigo
+ \Platform: Ubuntu 16.04 LTS / ROS Kinetic
 
 Edited 7/25/2016: Vivian Chu, vchu@gatech - included support for simulation
 Edited 11/07/2016: David Kent, dekent@gatech - integrated arm commands with wpi_jaco
@@ -93,30 +92,32 @@ class MovoTeleopFullSystem(object):
             self.lin_act_vel_lim = rospy.get_param('~sim_teleop_linear_actuator_vel_limit',0.05)
     
         """
-        Set the mapping for the various commands
+        Set the mapping for the various commands. Take the wired microsoft xbox 360
         """        
-        self.ctrl_map  = dict({'momentary': {'dead_man'     : {'is_button':True,'index':1,'set_val':1},
-                                             'man_ovvrd'    : {'is_button':True,'index':2,'set_val':1},
-                                             'standby'      : {'is_button':True,'index':3,'set_val':1},
-                                             'tractor'      : {'is_button':True,'index':4,'set_val':1},
-                                             'wrist1'       : {'is_button':True,'index':5,'set_val':1},
-                                             'wrist2'       : {'is_button':True,'index':6,'set_val':1},
-                                             'estop'        : {'is_button':True,'index':7,'set_val':1},
-                                             'home_arms'    : {'is_button':True,'index':8,'set_val':1},
-                                             'pan_tilt_ctl' : {'is_button':True,'index':9,'set_val':1},
-                                             'base_ctl'     : {'is_button':True,'index':10,'set_val':1},
-                                             'arm_ctl_right': {'is_button':True,'index':11,'set_val':1},
-                                             'arm_ctl_left' : {'is_button':True,'index':12,'set_val':1}},
-                               'axis'     : {'left_right'   : {'index' :1, 'invert_axis':False},
-                                             'for_aft'      : {'index' :2, 'invert_axis':False},
-                                             'twist'        : {'index' :3, 'invert_axis':False},
-                                             'flipper'   : {'index' :4, 'invert_axis':False},
-                                             'dpad_lr'   : {'index' :5, 'invert_axis':False},
-                                             'dpad_ud'   : {'index' :6, 'invert_axis':False}}})
+        self.ctrl_map  = dict({'momentary': {'MAP_BASE_A'     : {'is_button':True,'index':1,'set_val':1},
+                                             'MAP_rARM_B'    : {'is_button':True,'index':2,'set_val':1},
+                                             'MAP_lARM_X'      : {'is_button':True,'index':3,'set_val':1},
+                                             'MAP_HEAD_Y'      : {'is_button':True,'index':4,'set_val':1},
+                                             'MAP_lWRIST_LB'       : {'is_button':True,'index':5,'set_val':1},
+                                             'MAP_rWRIST_RB'       : {'is_button':True,'index':6,'set_val':1},
+                                             'MAP_TORS_back_'        : {'is_button':True,'index':7,'set_val':1},
+                                             'MAP_HOME_start'    : {'is_button':True,'index':8,'set_val':1},
+                                             'MAP_eSTOP_power' : {'is_button':True,'index':9,'set_val':1},
+                                             'MAP_TRACT_lstick'     : {'is_button':True,'index':10,'set_val':1},
+                                             'MAP_stby_rstick': {'is_button':True,'index':11,'set_val':1}},
+                               'axis'     : {'MAP_TWIST_LR_stickleft'   : {'index' :1, 'invert_axis':False},
+                                             'MAP_TWIST_UD_stickleft'      : {'index' :2, 'invert_axis':False},
+                                             'MAP_TRIGGER_LT'        : {'index' :3, 'invert_axis':False},
+                                             'MAP_TWIST_LR_stickright'   : {'index' :4, 'invert_axis':False},
+                                             'MAP_TWIST_UD_stickright'   : {'index' :5, 'invert_axis':False},
+                                             'MAP_TRIGGER_RT'   : {'index' :6, 'invert_axis':False},
+                                             'MAP_CROSS_LR'   : {'index' :7, 'invert_axis':False},
+                                             'MAP_CROSS_UD'   : {'index' :8, 'invert_axis':False}}})
         
         """
         Initialize the debounce logic states
         """
+	
         self.db_cnt = dict()
         self.axis_value = dict()
         self.button_state = dict()
@@ -130,7 +131,6 @@ class MovoTeleopFullSystem(object):
                 self.db_cnt[key]=0
                 self.axis_value[key]=0.0            
                  
-
         self.send_cmd_none = False
         self.no_motion_commands = True
         self.last_motion_command_time = 0.0
@@ -249,25 +249,25 @@ class MovoTeleopFullSystem(object):
         dt = rospy.get_time() - self.last_joy
         self.last_joy = rospy.get_time()
         
-        if self.button_state['base_ctl']:
+        if self.button_state['MAP_BASE_A']:
             self.teleop_control_mode_msg.data = "base_ctl"
             self.run_arm_ctl_right = False
             self.run_arm_ctl_left = False
             self.run_pan_tilt_ctl = False
             self._init_pan_tilt = False
-        elif self.button_state['arm_ctl_right']:
+        elif self.button_state['MAP_rARM_B']:
             self.teleop_control_mode_msg.data = "arm_ctl_right"
             self.run_arm_ctl_right = True
             self.run_arm_ctl_left = False
             self.run_pan_tilt_ctl = False
             self._init_pan_tilt = False
-        elif self.button_state['arm_ctl_left']:
+        elif self.button_state['MAP_lARM_X']:
             self.teleop_control_mode_msg.data = "arm_ctl_left"
             self.run_arm_ctl_right = False
             self.run_arm_ctl_left = True
             self.run_pan_tilt_ctl = False
             self._init_pan_tilt = False
-        elif self.button_state['pan_tilt_ctl']:
+        elif self.button_state['MAP_HEAD_Y']:
             self.teleop_control_mode_msg.data = "pan_tilt_ctl"
             # only mux topic when run_pan_tilt_ctl is changed from False to true
             if self.run_pan_tilt_ctl == False:
@@ -283,7 +283,7 @@ class MovoTeleopFullSystem(object):
             self.run_pan_tilt_ctl = True
             self._init_pan_tilt = True
 
-        if self.button_state['estop']:
+        if self.button_state['MAP_eSTOP_power']:
             self.teleop_control_mode_msg.data = "estop"
             self.run_arm_ctl = False
             self.run_pan_tilt_ctl = False
@@ -294,7 +294,7 @@ class MovoTeleopFullSystem(object):
             self.arm_pub[0].publish(arm_cmd)
             self.arm_pub[1].publish(arm_cmd)
 
-        if self.button_state['home_arms']:
+        if self.button_state['MAP_HOME_start']:
             self.teleop_control_mode_msg.data = "home_arms"
             if not (self.homing_sent):
                 tmp = Bool()
@@ -304,10 +304,10 @@ class MovoTeleopFullSystem(object):
                 self.homing_start_time = rospy.get_time()
                 
         if (self.homing_sent):
-            if ((rospy.get_time()-self.homing_start_time) > 10.0) and not self.button_state['home_arms']:
+            if ((rospy.get_time()-self.homing_start_time) > 10.0) and not self.button_state['MAP_HOME_start']:
                 self.homing_sent = False
                 
-        if self.button_state['estop']:
+        if self.button_state['MAP_eSTOP_power']:
             self.cfg_cmd.gp_cmd = 'GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE'
             self.cfg_cmd.gp_param = DISABLE_REQUEST
             self.cfg_cmd.header.stamp = rospy.get_rostime()
@@ -320,7 +320,7 @@ class MovoTeleopFullSystem(object):
         """
         self.teleop_control_mode_pub.publish(self.teleop_control_mode_msg)
 
-
+    
         if self.run_arm_ctl_right or self.run_arm_ctl_left:
 
             arm_cmd = JacoCartesianVelocityCmd()
@@ -334,18 +334,18 @@ class MovoTeleopFullSystem(object):
             else:
                 arm_idx = 1
   
-            if self.button_state['dead_man']:
+            if self.axis_value['MAP_TRIGGER_RT']==-1.0:
                 if 0==arm_idx:
-                    arm_cmd.x = self.axis_value['left_right'] * -self.arm_vel_lim
+                    arm_cmd.x = self.axis_value['MAP_TWIST_LR_stickleft'] * -self.arm_vel_lim
                 else:
-                    arm_cmd.x = self.axis_value['left_right'] * self.arm_vel_lim
-                arm_cmd.z = self.axis_value['for_aft'] * self.arm_vel_lim
+                    arm_cmd.x = self.axis_value['MAP_TWIST_LR_stickleft'] * -self.arm_vel_lim
+                arm_cmd.z = self.axis_value['MAP_TWIST_UD_stickleft'] * self.arm_vel_lim
                 
-                if not self.button_state['man_ovvrd']:
-                    arm_cmd.y = self.axis_value['twist'] * self.arm_vel_lim
+                if not self.button_state['MAP_TORS_back_']:
+                    arm_cmd.y = self.axis_value['MAP_TWIST_UD_stickright'] * -self.arm_vel_lim
                 else:
                     dt = rospy.get_time() - self.last_arm_update
-                    self.lincmd.desired_position_m += (self.axis_value['twist'] * self.lin_act_vel_lim) * dt
+                    self.lincmd.desired_position_m += (self.axis_value['MAP_TWIST_UD_stickright'] * self.lin_act_vel_lim) * dt
                     
                     if (self.lincmd.desired_position_m  > 0.464312):
                         self.lincmd.desired_position_m  = 0.464312
@@ -357,22 +357,22 @@ class MovoTeleopFullSystem(object):
                     self.linpub.publish(self.lincmd)
                     self.lincmd.header.seq+=1
                 self.last_arm_update = rospy.get_time()
-                arm_cmd.theta_y = self.axis_value['dpad_ud'] * 100.0
-                arm_cmd.theta_x = self.axis_value['dpad_lr'] * 100.0
+                arm_cmd.theta_y = self.axis_value['MAP_CROSS_LR'] * 100.0
+                arm_cmd.theta_x = self.axis_value['MAP_CROSS_UD'] * 100.0
 
-                if self.button_state['wrist1']:
+                if self.button_state['MAP_lWRIST_LB']:
                     arm_cmd.theta_z = 100.0
-                elif self.button_state['wrist2']:
+                elif self.button_state['MAP_rWRIST_RB']:
                     arm_cmd.theta_z = -100.0
 
-            if self.button_state['standby']:
+            if self.button_state['MAP_stby_rstick']:
                 kg_cmd.data = 5000.0
-            elif self.button_state['tractor']:
+            elif self.button_state['MAP_TRACT_lstick']:
                 kg_cmd.data = -5000.0
             else:
                 kg_cmd.data = 0.0
                 
-            gripper_val =  (self.axis_value['flipper'] + 1.0)/2.0
+            gripper_val =  (self.axis_value['MAP_TRIGGER_LT'] + 1.0)/2.0
             
             if abs(self._last_gripper_val-gripper_val) > 0.05: 
                 gripper_cmd.position = gripper_val * 0.085
@@ -387,9 +387,9 @@ class MovoTeleopFullSystem(object):
         elif self.run_pan_tilt_ctl:
             if self.head_cmd_source[self.head_cmd_current_source_index] == 'teleop':
                 vel_cmd = [0.0,0.0]
-                if self.button_state['dead_man']:
-                    vel_cmd[0]= -self.axis_value['twist'] * self.pt_vel_lim
-                    vel_cmd[1]= -self.axis_value['for_aft'] * self.pt_vel_lim
+                if self.axis_value['MAP_TRIGGER_RT']==-1.0:
+                    vel_cmd[0]= -self.axis_value['MAP_TWIST_LR_stickleft'] * self.pt_vel_lim
+                    vel_cmd[1]= -self.axis_value['MAP_TWIST_UD_stickright'] * self.pt_vel_lim
 
                 self.pt_cmds.pan_cmd.pos_rad += vel_cmd[0] *dt
                 self.pt_cmds.tilt_cmd.pos_rad += vel_cmd[1] *dt
@@ -401,14 +401,14 @@ class MovoTeleopFullSystem(object):
                 self.pt_cmds.tilt_cmd.vel_rps = 50.0 * (math.pi/180.0)
                 self.p_pub.publish(self.pt_cmds)
         else:
-            if self.button_state['estop']:
+            if self.button_state['MAP_eSTOP_power']:
                 #handled at top of function
                 self.cfg_cmd.gp_cmd = 'GENERAL_PURPOSE_CMD_NONE'
                 self.cfg_cmd.gp_param = 0  
-            elif self.button_state['standby']:
+            elif self.button_state['MAP_stby_rstick']:
                 self.cfg_cmd.gp_cmd = 'GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE'
                 self.cfg_cmd.gp_param = STANDBY_REQUEST
-            elif self.button_state['tractor']:
+            elif self.button_state['MAP_TRACT_lstick']:
                 self.cfg_cmd.gp_cmd = 'GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE'
                 self.cfg_cmd.gp_param = TRACTOR_REQUEST
             else:
@@ -426,10 +426,10 @@ class MovoTeleopFullSystem(object):
                 self.cfg_cmd.header.seq
                 self.send_cmd_none = False
             elif (False == self.send_cmd_none):
-                if self.button_state['dead_man']:
-                    self.motion_cmd.linear.x =  (self.axis_value['for_aft'] * self.x_vel_limit_mps)
-                    self.motion_cmd.linear.y =  (self.axis_value['left_right'] * self.y_vel_limit_mps)
-                    self.motion_cmd.angular.z = (self.axis_value['twist'] * self.yaw_rate_limit_rps)
+                if self.axis_value['MAP_TRIGGER_RT']==-1.0:
+                    self.motion_cmd.linear.x =  (self.axis_value['MAP_TWIST_UD_stickleft'] * self.x_vel_limit_mps)
+                    self.motion_cmd.linear.y =  (self.axis_value['MAP_TWIST_LR_stickleft'] * self.y_vel_limit_mps)
+                    self.motion_cmd.angular.z = (self.axis_value['MAP_TWIST_LR_stickright'] * self.yaw_rate_limit_rps)
                     self.last_motion_command_time = rospy.get_time()
                   
                 else:
@@ -453,8 +453,5 @@ class MovoTeleopFullSystem(object):
          
                         
                         self.motion_pub.publish(self.limited_cmd)
-                        
-                        if self.button_state['man_ovvrd'] and self.button_state['man_ovvrd']:
-                            self.override_pub.publish(self.motion_cmd)
-
-
+                    
+    
