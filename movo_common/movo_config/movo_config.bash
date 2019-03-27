@@ -30,14 +30,9 @@ export RUN_FULL_SYSTEM_TELEOP=true
 
 # Joystick configurations for joystick set MOVO_JOY_IS_ATTACHED if the joystick
 # is physically attached to this PC
-# If you are using the logitech controller, put MOVO_JOY_IS_LOGITECH to true and MOVO_JOY_IS_XBOX to false
-# If you want to use the XBox 360 wireless controller, put the opposite instead. 
-# You need to do a sync_robot and a reboot of the Movo for it to apply.
-
-export MOVO_JOY_IS_ATTACHED=true
+export MOVO_JOY_IS_ATTACHED=false
 export MOVO_JOY_DEV=/dev/input/js0
-export MOVO_JOY_IS_XBOX=true
-export MOVO_JOY_IS_LOGITECH=false
+
 #define if movo is wearing skins
 export MOVO_HAS_BODY=true
 
@@ -65,8 +60,8 @@ export MOVO_HAS_TWO_KINOVA_ARMS=true
 export KINOVA_RIGHT_ARM_IP_ADDRESS=10.66.171.15
 export KINOVA_LEFT_ARM_IP_ADDRESS=10.66.171.16
 export KINOVA_ARM_IFACE=eth0
-export MOVO_HAS_KINOVA_ARM_7DOF=false
-export MOVO_HAS_KINOVA_ARM_6DOF=true
+export MOVO_HAS_KINOVA_ARM_7DOF=true
+export MOVO_HAS_KINOVA_ARM_6DOF=false
 
 #Camera configurations
 export MOVO_HAS_KINECT_CAMERA=true
