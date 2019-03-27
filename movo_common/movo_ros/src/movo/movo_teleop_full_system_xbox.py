@@ -27,7 +27,7 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
- \file   movo_teleop_full_system.py
+ \file   movo_teleop_full_system_xbox.py
 
  \brief  This module contains a class for teleoperating all the movo
          platform DOF with a joystick controller; only works with Xbox controller

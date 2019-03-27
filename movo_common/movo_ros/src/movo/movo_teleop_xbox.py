@@ -27,7 +27,7 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
- \file   movo_teleop.py
+ \file   movo_teleop_xbox.py
 
  \brief  This module contains a class for teleoperating the movo
          platform with an Xbox controller
