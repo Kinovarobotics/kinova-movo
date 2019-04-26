@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(si_utils)
 
 ## Uncomment if the package has a setup.py
-#catkin_python_setup()
+catkin_python_setup()
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)

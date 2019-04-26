@@ -28,19 +28,20 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
- \file   jaco_jtas_test
+ \file   head_jtas_test.py
 
  \brief
 
  \Platform: Ubuntu 16.04 LTS / ROS Kinetic
 --------------------------------------------------------------------"""
+import argparse
 import sys
-
 from copy import copy
-
 import rospy
-import math
 import actionlib
+import math
+import random
+
 from control_msgs.msg import (
     FollowJointTrajectoryAction,
     FollowJointTrajectoryGoal,
@@ -49,19 +50,20 @@ from trajectory_msgs.msg import (
     JointTrajectoryPoint,
 )
 from sensor_msgs.msg import JointState
+
 from control_msgs.msg import JointTrajectoryControllerState
 
 
-class JacoJTASTest(object):
-    def __init__(self, arm='right', dof='6dof'):
+class HeadJTASTest(object):
+    def __init__(self):
         self._client = actionlib.SimpleActionClient(
-            'movo/%s_arm_controller/follow_joint_trajectory'%arm,
+            'movo/head_controller/follow_joint_trajectory',
             FollowJointTrajectoryAction,
         )
         self._goal = FollowJointTrajectoryGoal()
         self._goal_time_tolerance = rospy.Time(0.1)
         self._goal.goal_time_tolerance = self._goal_time_tolerance
-        self.dof = dof
+        self.total_time = 0.0
         server_up = self._client.wait_for_server(timeout=rospy.Duration(10.0))
         if not server_up:
             rospy.logerr("Timed out waiting for Joint Trajectory"
@@ -69,7 +71,7 @@ class JacoJTASTest(object):
                          " before running example.")
             rospy.signal_shutdown("Timed out waiting for Action Server")
             sys.exit(1)
-        self.clear(arm)
+        self.clear()
 
     def add_point(self, positions, time):
         point = JointTrajectoryPoint()
@@ -77,9 +79,6 @@ class JacoJTASTest(object):
         point.velocities = [0.0] * len(self._goal.trajectory.joint_names)
         point.time_from_start = rospy.Duration(time)
         self._goal.trajectory.points.append(point)
-
-    def add_point_deg(self, joints_degree, time):
-        self.add_point(map(math.radians, joints_degree), time)
 
     def start(self):
         self._goal.trajectory.header.stamp = rospy.Time(0.0)
@@ -94,48 +93,60 @@ class JacoJTASTest(object):
     def result(self):
         return self._client.get_result()
 
-    def clear(self, arm='right'):
+    def clear(self):
         self._goal = FollowJointTrajectoryGoal()
         self._goal.goal_time_tolerance = self._goal_time_tolerance
-        if '6dof' == self.dof:
-            self._goal.trajectory.joint_names = ['%s_shoulder_pan_joint'%arm,
-                                                 '%s_shoulder_lift_joint'%arm,
-                                                 '%s_elbow_joint'%arm,
-                                                 '%s_wrist_1_joint'%arm,
-                                                 '%s_wrist_2_joint'%arm,
-                                                 '%s_wrist_3_joint'%arm]
-        if '7dof' == self.dof:
-            self._goal.trajectory.joint_names = ['%s_shoulder_pan_joint' % arm,
-                                                 '%s_shoulder_lift_joint' % arm,
-                                                 '%s_arm_half_joint' % arm,
-                                                 '%s_elbow_joint' % arm,
-                                                 '%s_wrist_spherical_1_joint' % arm,
-                                                 '%s_wrist_spherical_2_joint' % arm,
-                                                 '%s_wrist_3_joint' % arm]
+        self._goal.trajectory.joint_names = ['pan_joint','tilt_joint']
 
 
 def main():
-    rospy.init_node('jaco_jtas_test')
-    arm_laterality = 'right'
-    dof = rospy.get_param('/' + arm_laterality + '_arm_ctl/jaco_dof')
+    rospy.init_node('pan_tilt_jtas_test')
     
-    tmp = rospy.wait_for_message("/movo/right_arm/joint_states", JointState)
+    tmp = rospy.wait_for_message("/movo/head/joint_states", JointState)
     current_angles= tmp.position
-    traj = JacoJTASTest(arm_laterality, dof)
-    traj.add_point(current_angles, 0.0)
-
-    if '6dof' == dof:
-        p1 = [0.0] * 6
-    if '7dof' == dof:
-        p1 = [0.0] * 7
-
-    traj.add_point(p1,10.0)
-    p2 = list(current_angles)
-    traj.add_point(p2,20.0)
+    print current_angles
+    traj = HeadJTASTest()
+    traj.add_point(list(current_angles), 0.0)
+    
+    total_time = 0.0
+    points = [list(current_angles), 0.0]
+    for i in range(0,10):
+        
+        pos = [0,random.uniform(-1.57,1.57)]
+        vel = random.uniform(0.2,0.5)
+        
+        dt = 0.0
+        for i in range(2):
+            tmp = abs(pos[i])/vel
+            if (tmp > dt):
+                dt = tmp
+        total_time+=dt
+   
+        traj.add_point(pos,total_time)
+        
+        
     traj.start()
 
-    traj.wait(20.0)
+    traj.wait(total_time+3.0)
     print("Exiting - Joint Trajectory Action Test Complete")
 
 if __name__ == "__main__":
     main()
+
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

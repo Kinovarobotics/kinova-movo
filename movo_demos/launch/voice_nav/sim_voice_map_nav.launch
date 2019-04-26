@@ -1,0 +1,18 @@
+ <launch>
+    <arg name="map_file" default="test_zone"/>
+ 
+     <!-- Tuck the robot -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="1 movo_demos sim_map_nav.launch map_file:=$(arg map_file)"
+        name="tuck_robot" output="screen"/>
+ 
+    <!-- Bring up voice navigation-->
+    <node pkg="movo_demos" type="voice_nav.py" name="voice_nav" 
+    output="screen"/>
+    <!--Bring up voice input-->
+    <node pkg="movo_demos" type="voice_input.py" name="voice_input" 
+    output="screen"/>
+    <node pkg="movo_demos" type="voice_commands.py" name="voice_commands" 
+    output="screen"/>
+
+</launch>
