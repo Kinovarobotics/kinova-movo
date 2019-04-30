@@ -21,7 +21,7 @@ from si_utils.jaco_jtas_test import JacoJTASTest
 """
 This class takes root in the moveit_ Move Group Python Interface. This code is useful because someone can plan trajectories and movements with only a python code. The link [https://ros-planning.github.io/moveit_tutorials/doc/move_group_python_interface/move_group_python_interface_tutorial.html].
 
-It has been adapted for MOVO, or at least, it should work on MOVO. 
+It has been adapted for MOVO. 
 """
 
 class Movo_movement(object): 
