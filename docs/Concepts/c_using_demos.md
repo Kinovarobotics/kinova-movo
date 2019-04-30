@@ -10,7 +10,7 @@ Here is a little document explaining what some of the files can do, you can alwa
 movo_common/movo_ros/src/movo_action_clients:
 	move_base_action_client.py is an interface to drive Movo with a certain speed during a certain time.
 		_motion_vel: You can send velocity commands to the base. For example, if you send [v_x,v_y, v_z]=[1,2,3], you are sending a command of 1 m/s in x, a command of 2 m/s in y, and a rotation command of 3degrees/second.
-		_motion_dist: Instead of sending velocity commands, you can send distance commands. You tell the base to move in x, y, z. Basically, you are sending them to a relative position from its current positions. If you want, you can record the initial position and move the base in regard to the initial position.
+		_motion_dist: Instead of sending velocity commands, you can send distance commands. You tell the base to move in x, y, z(rotation). Basically, you are sending them to a relative position from its current positions. If you want, you can record the initial position and move the base in regard to the initial position.
 	head_action_client.py is an interface to move the Kinect.
 		add_point: this functions takes two angular positions. Those positions corresponds to the pan_joint and tilt_joint. They also take a time (in second). The time corresponds to the start time to go to that trajectory. For example,
 				obj=HeadJTASTest()
@@ -30,7 +30,8 @@ movo_common/si_utils/src/si_utils/: This folder contains example codes on how to
 
 -------------------------------------------------------------------------------------------------------
 movo_demos:
-	XXX = robot [When you connect to the robot, ROS MASTER is Movo2] and sim [In simulation, ROS_MASTER is your computer] 
+	There are 2 sets of launch files, one for simulation (replace XXX by sim) and one for the robot when connected(replace XXX by robot) 
+	XXX = robot [When you connect to the robot, ROS MASTER is Movo2] and sim [In simulation, ROS_MASTER is your computer]
 	XXX_map_nav.launch: Opens Rviz and Gazebo to navigate in a map. The map should be added in movo_demos/maps and the XXX_map_nav.launch file. 
 		To use the demo, you click on 2D pose estimate and click on the start point of the map. This will be the initial pose of the robot. 
 		Then, you click on 2D Nav goal to set a goal for the robot. The robot will then naviguate to that position using the map and the sensors of the base. 
@@ -40,7 +41,7 @@ movo_demos:
 	XXX_teleop.launch: Launch the joystick teleop node. You will be able to move the robot around with the joystick connected to the computer or directly with the Movo.
 	XXX_assisted_teleop.launch: Launches the teleop.launch node and uses a footprint area around the robot to avoid collision with surrounding objects.
 	dance_invitation.launch: Movo will track your face and when it recognizes a face it will position itself and ask the user if it wants to dance. If it does, it will extend its right arm. You will 		be able to control Movo by applying forces on the end effector and make it move.
-	face_tracking: The face_tracking will launch and will follow a person's face (after recognizing it). If you move to fast, the head may not follow you.
+	face_tracking: The face_tracking will launch and the kinect will follow a person's face (after recognizing it). If you move to fast, the head may not follow you.
 	tuck_robot.launch: Will tuck the robot. 
 -----------------------------------------------------------------------------------------------------------------
 

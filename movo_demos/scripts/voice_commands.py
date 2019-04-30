@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-This code is meant to control MOVO with voice commands using a map created prior to the demo. In short, when I tell it to go somewhere, for example Nassif's office, it should go there.
+This code is meant to control MOVO with voice commands using a map created prior to the demo. In short, when I tell it to go somewhere, for example 'main office', it should go there.
 """
 
 from tf.transformations import euler_from_quaternion, quaternion_from_euler

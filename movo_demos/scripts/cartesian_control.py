@@ -15,7 +15,7 @@ from trajectory_msgs.msg import (JointTrajectoryPoint,)
 """
 This class takes root in the moveit_ Move Group Python Interface. This code is useful because someone can plan trajectories and movements with only a python code. The link [https://ros-planning.github.io/moveit_tutorials/doc/move_group_python_interface/move_group_python_interface_tutorial.html].
 
-It has been adapted for MOVO, or at least, it should work on MOVO. 
+It has been adapted for MOVO.
 """
 
 class Movo_movement(object): 
@@ -60,10 +60,10 @@ class Movo_movement(object):
 
 def main():
 
-	mon_robot = Movo_movement('left_arm')
-	position = mon_robot.get_current_pose()
+	my_robot = Movo_movement('left_arm')
+	position = my_robot.get_current_pose()
 	print position
-	mon_robot.go_cartesian_pose(0.805, 0.11, 1.047, 0.57)
+	my_robot.go_cartesian_pose(0.805, 0.11, 1.047, 0.57)
 	
 
 if __name__== '__main__':

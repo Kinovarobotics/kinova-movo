@@ -1,5 +1,5 @@
 """--------------------------------------------------------------------
-Copyright (c) 2017, Kinova Robotics inc.
+Copyright (c) 2019, Kinova Robotics inc.
 
 All rights reserved.
 

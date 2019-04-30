@@ -2,9 +2,9 @@ Voice navigation demo:
 
 The voice navigation demo uses the move_base node, a map and a microphone to command Movo to a certain position in said map. 
 
-Prior to using the demo, you should map the environment in which Movo will naviguate. Make sure the map is accurate and up to date to said location.
-Also, when mapping with Movo, it may drift and create some artifacts. These can be smoothened using Paint or Gimp to make a better, cleaner map. Bare in mind
-that if the map is too innacurate, the demo will not work. Also, keep in mind that Movo sees from its base only. A table must be drawn in gimp for Movo to avoid
+Prior to using the demo, you should map the environment in which Movo will navigate. Make sure the map is accurate and up to date to said location.
+Also, when mapping with Movo, it may drift and create some artifacts. These can be smoothened using Paint or Gimp to make a better, cleaner map. Bear in mind
+that if the map is too innacurate, the demo will not work. Also, keep in mind that Movo detects from its base only. A table must be drawn in gimp for Movo to avoid
 it in real life.
 
 You should also install SpeechRecognition: 'pip install SpeechRecognition'

@@ -112,7 +112,7 @@ def main():
     points = [list(current_angles), 0.0]
     for i in range(0,10):
         
-        pos = [0,random.uniform(-1.57,1.57)]
+        pos = [random.uniform(-1.57,1.57),random.uniform(-1.57,1.57)]
         vel = random.uniform(0.2,0.5)
         
         dt = 0.0
