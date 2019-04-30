@@ -73,7 +73,7 @@
 
 #include <actionlib/server/simple_action_server.h>
 #include <face_detector/FaceDetectorAction.h>
-
+#include <std_msgs/String.h>
 using namespace std;
 
 namespace people
@@ -152,6 +152,7 @@ public:
   // in rviz at runtime (eg the alpha, display time, etc. can't be changed.)
   ros::Publisher cloud_pub_;
   ros::Publisher pos_array_pub_;
+  ros::Publisher FaceID_;
 
   // Display
   bool do_display_; /**< True/false display images with bounding boxes locally. */
@@ -312,7 +313,7 @@ public:
 
       // Advertise a position measure message.
       pos_array_pub_ = nh_.advertise<people_msgs::PositionMeasurementArray>("face_detector/people_tracker_measurements_array", 1, pos_pub_connect_cb, pos_pub_connect_cb);
-
+      FaceID_=nh_.advertise<std_msgs::String>("face_detector/face_ID",1);
       cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("face_detector/faces_cloud", 0, cloud_pub_connect_cb, cloud_pub_connect_cb);
     }
 
@@ -650,6 +651,9 @@ private:
               (*close_it).second.dist = mindist;
               (*close_it).second.pos = pos;
             }
+            std_msgs::String face_id;
+            face_id.data=string(pos.object_id);
+            FaceID_.publish(face_id);
             //ROS_INFO_STREAM_NAMED("face_detector", "Found face to match with id " << pos.object_id);
           }
           else
