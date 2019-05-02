@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  \brief  This module contains a class for teleoperating the movo
          platform with a joystick controller
 
- \Platform: Ubuntu 16.04 LTS / ROS Kinetic
+ \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
 from utils import *
 from system_defines import *
