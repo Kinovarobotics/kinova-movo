@@ -89,7 +89,7 @@ class SIArmController(object):
         self._prefix = prefix
         self.iface = interface
         self.arm_dof = dof
-	self.gripper=gripper
+        self.gripper=gripper
 
         # List of joint names
         if ("6dof"== self.arm_dof):

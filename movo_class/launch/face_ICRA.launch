@@ -1,0 +1,13 @@
+<launch>
+
+  <!-- Enable face_tracking -->
+  <node pkg="si_utils" type="timed_roslaunch"
+        args="1 movo_demos face_tracking.launch"
+        name="face_tracking" output="screen"/>
+
+   
+  <!-- Bring up the face demo-->
+    <node pkg="movo_class" type="face_ICRA.py" name="face_icra" 
+    output="screen"/>
+
+</launch>

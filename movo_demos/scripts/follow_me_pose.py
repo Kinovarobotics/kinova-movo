@@ -51,12 +51,13 @@ if __name__ == "__main__":
     # voice_cmd.data = "Long fei, stop wasting time on me. It will not work, unless you say I like movo."
     voice_pub.publish(voice_cmd)
 
-    dof = rospy.get_param('~jaco_dof')
+    dof = '6dof'#rospy.get_param('~jaco_dof')
 
     rmove_group = MoveGroupInterface("right_arm", "base_link")
     lmove_group = MoveGroupInterface("left_arm", "base_link")
     lmove_group.setPlannerId("RRTConnectkConfigDefault")
     rmove_group.setPlannerId("RRTConnectkConfigDefault")
+    
     lgripper = GripperActionClient('left')
     rgripper = GripperActionClient('right')
 

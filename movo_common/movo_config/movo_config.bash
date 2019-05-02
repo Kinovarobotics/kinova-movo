@@ -36,8 +36,8 @@ export RUN_FULL_SYSTEM_TELEOP=true
 
 export MOVO_JOY_IS_ATTACHED=true
 export MOVO_JOY_DEV=/dev/input/js0
-export MOVO_JOY_IS_XBOX=false
-export MOVO_JOY_IS_LOGITECH=true
+export MOVO_JOY_IS_XBOX=true
+export MOVO_JOY_IS_LOGITECH=false
 #define if movo is wearing skins
 export MOVO_HAS_BODY=true
 
@@ -65,8 +65,8 @@ export MOVO_HAS_TWO_KINOVA_ARMS=true
 export KINOVA_RIGHT_ARM_IP_ADDRESS=10.66.171.15
 export KINOVA_LEFT_ARM_IP_ADDRESS=10.66.171.16
 export KINOVA_ARM_IFACE=eth0
-export MOVO_HAS_KINOVA_ARM_7DOF=true
-export MOVO_HAS_KINOVA_ARM_6DOF=false
+export MOVO_HAS_KINOVA_ARM_7DOF=false
+export MOVO_HAS_KINOVA_ARM_6DOF=true
 
 #Camera configurations
 export MOVO_HAS_KINECT_CAMERA=true

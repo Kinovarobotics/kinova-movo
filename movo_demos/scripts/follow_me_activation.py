@@ -74,7 +74,7 @@ class LowPassFilter:
 
 class FollowMe:
     def __init__(self):
-        dof = rospy.get_param('/init_robot/jaco_dof', '6dof')
+        dof = '6dof'
         if dof == '6dof':
             self._dof = 6
 
@@ -214,7 +214,7 @@ class FollowMe:
             # mimic press joystick button 4 continuously for 0.1sec. Publish just one time with first run not working
             while rospy.get_rostime() - self._start_time < rospy.Duration(0.1):
                 # make sure robot can move the base
-                self._base_cfg_msg.gp_cmd = "GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE"
+                self._base_cfg_msg.gp_cmd = 'GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE'
                 self._base_cfg_msg.gp_param = TRACTOR_REQUEST
                 self._base_cfg_msg.header.stamp = rospy.get_rostime()
                 self._base_cfg_pub.publish(self._base_cfg_msg)
@@ -284,17 +284,19 @@ class FollowMe:
 
         # use torque along gripper to control robot rotation
         self._base_force_msg.theta_z = torque_eef_frame_x
+        print(self._base_force_msg)
         # rospy.logdebug("torque in eef_frame is " + ", ".join("%3.3f" % x for x in [torque_eef_frame_x, torque_eef_frame_y, torque_eef_frame_z]))
 
         # debug info
         self._base_force_pub.publish(self._base_force_msg)
-
+        
         # transform Movo base force to movo base motion
         base_cmd_vel = self._base_admittance_model()
-
+        
         # publish base velocity command or reset base force for filter in next cycle
         if self._is_applied_force_valid:
             self._base_cmd_pub.publish(base_cmd_vel)
+            
         else:
             self._base_force_msg.x = 0.0
             self._base_force_msg.y = 0.0
@@ -336,7 +338,7 @@ class FollowMe:
         base_cmd_vel.linear.y = round(self._base_y_speed_filter.get_output(base_cmd_vel.linear.y, (rospy.get_rostime() - self._sampling_time).to_sec()), 3)
         base_cmd_vel.angular.z = round(self._base_theta_z_speed_filter.get_output(base_cmd_vel.angular.z, (rospy.get_rostime() - self._sampling_time).to_sec()), 3)
         self._sampling_time = rospy.get_rostime()
-
+        
         return base_cmd_vel
 
 

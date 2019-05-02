@@ -1,0 +1,5 @@
+ <launch>
+    <!-- Bring up voice navigation-->
+    <node pkg="movo_class" type="ICRA_demo_subprocess.py" name="icra_mapping" 
+    output="screen"/>
+</launch>

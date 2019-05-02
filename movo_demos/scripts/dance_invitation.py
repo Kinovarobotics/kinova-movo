@@ -153,8 +153,9 @@ class DanceRequest(smach.State):
         tried_time = 0
         while not rospy.is_shutdown():
             tried_time += 1
-            invitation_answer = rospy.wait_for_message('/asr_control/detected_words', String)
-            invitation_answer.data = invitation_answer.data.lower()
+            invitation_answer = String()
+            invitation_answer.data = "yes movo v"
+            rospy.sleep(4)
             if invitation_answer.data.find("yes movo") > -1:
                 self._speech_text.data = "Let the music rock!"
                 rospy.loginfo("Let the music rock!")
@@ -199,13 +200,13 @@ class LetsDance(smach.State):
     def execute(self, userdata):
         rospy.loginfo('Executing state LETS_DANCE')
         try:
-            self._play_music_client.playWave('/home/movo/movo_ws/src/movo_demos/launch/voice_control/we_are_robots.wav')
+            self._play_music_client.playWave('/home/movo/movo_ws/src/kinova-movo/movo_demos/launch/voice_control/courtney_gears.wav')
             self._launch_follow_me_activation.start()
         except:
             rospy.logwarn('failed to enable dance')
             return 'failed'
 
-        music_duration = 20
+        music_duration = 48
         rospy.sleep(music_duration)
 
         self._speech_text.data = "You dance much better than Long fei. Thank you very much. I will take a rest now, good bye."
