@@ -1,6 +1,6 @@
 #!/bin/bash
 
-~/movo_ws/src/movo_common/si_utils/scripts/setup_movo_pc_migration
+~/movo_ws/src/movo_common/si_utils/src/si_utils/setup_movo_pc_migration
 
 if grep -q "MOVO REMOTE PC START" ~/.bashrc
 then

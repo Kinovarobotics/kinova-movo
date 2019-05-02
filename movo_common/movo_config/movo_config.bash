@@ -36,8 +36,10 @@ export RUN_FULL_SYSTEM_TELEOP=true
 
 export MOVO_JOY_IS_ATTACHED=true
 export MOVO_JOY_DEV=/dev/input/js0
-export MOVO_JOY_IS_XBOX=true
-export MOVO_JOY_IS_LOGITECH=false
+
+export MOVO_JOY_IS_XBOX=false
+export MOVO_JOY_IS_LOGITECH=true
+
 #define if movo is wearing skins
 export MOVO_HAS_BODY=true
 

@@ -129,9 +129,9 @@ def main():
     if '7dof' == dof:
         p1 = [0.0] * 7
 
-    traj.add_point(p1,10.0)
+    traj.add_point(p1,10)
     p2 = list(current_angles)
-    traj.add_point(p2,20.0)
+    traj.add_point(p2,20)
     traj.start()
 
     traj.wait(20.0)

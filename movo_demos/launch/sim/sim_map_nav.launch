@@ -5,7 +5,7 @@
     <node pkg="si_utils" type="timed_roslaunch"
         args="1 movo_gazebo movo_test_zone.launch"
         name="sim_bringup" output="screen"/>
-        
+    
     <!-- Bring up the joystick for control -->
     <node pkg="si_utils" type="timed_roslaunch"
         args="7 movo_remote_teleop movo_remote_teleop.launch"

@@ -118,7 +118,7 @@ fi
 
 temp=1
 cnts=0
-while [ $cnts -lt 10 ] && [ $temp -ne 0 ]; do
+while [ $cnts -lt 100 ] && [ $temp -ne 0 ]; do
   ping -q -c 1 -W 1 "$KINOVA_LEFT_ARM_IP_ADDRESS" >/dev/null
   temp=$?
   cnts=$[$cnts+1]
@@ -133,7 +133,7 @@ fi
 
 temp=1
 cnts=0
-while [ $cnts -lt 10 ] && [ $temp -ne 0 ]; do
+while [ $cnts -lt 100 ] && [ $temp -ne 0 ]; do
   ping -q -c 1 -W 1 "$KINOVA_RIGHT_ARM_IP_ADDRESS" >/dev/null
   temp=$?
   cnts=$[$cnts+1]
