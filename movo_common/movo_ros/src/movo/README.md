@@ -6,10 +6,12 @@ To use the Xbox 360 wireless controller instead of the logitech controller, inst
 
 You should plug a wireless controller receiver in Movo or your computer.
 
+
 Note that the development computer has to be in the same ROS network.
 
 If you want to control the Movo with a logitech controller or with an Xbox controller, you should go in movo_common/movo_config/movo_config.bash and change 
 MOVO_JOY_IS_XBOX or MOVO_JOY_IS_LOGITECH. Put the joystick you want to true and the other to false. Do a `sync_robot -nc`. After this, we suggest you do a `catkin_make` in your movo_ws on Movo2 and Movo1. To do it in movo1 open a shell to Movo 1 and write `cd ~/movo_ws; rm -rf build/ devel/; catkin_make`. Then reboot Movo.
+
 
 The mapping for the Xbox controller can be found in any of these last two files:
 
