@@ -45,8 +45,10 @@ laser_model_type:           likelihood_field #default likelihood_field
 
 # Odometery model parameters
 odom_model_type:  omni
-odom_alpha1:      0.15     #default 0.2 rotational    drift caused by rotation
-odom_alpha2:      0.15     #default 0.2 rotational    drift caused by translation
-odom_alpha3:      0.15     #default 0.2 translational drift caused by translation
-odom_alpha4:      0.15     #default 0.2 translational drift caused by rotation
-odom_alpha5:      0.15     #default 0.2 Holonomic drive systems only
+odom_alpha1:      0.005     #default 0.2 rotational    drift caused by rotation
+odom_alpha2:      0.005     #default 0.2 rotational    drift caused by translation
+odom_alpha3:      0.010     #default 0.2 translational drift caused by translation
+odom_alpha4:      0.005     #default 0.2 translational drift caused by rotation
+odom_alpha5:      0.003     #default 0.2 Holonomic drive systems only
+#these values are taken from internet following a systematic error on omni directional odometry
+#https://answers.ros.org/question/227811/tuning-amcls-diff-corrected-and-omni-corrected-odom-models/

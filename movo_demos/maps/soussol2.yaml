@@ -1,0 +1,7 @@
+image: soussol2.pgm
+resolution: 0.050000
+origin: [-9.2, -11, 0.000000]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+8.32 0.917

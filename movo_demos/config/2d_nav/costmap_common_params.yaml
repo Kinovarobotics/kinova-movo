@@ -6,7 +6,7 @@ robot_base_frame:           base_link
 transform_tolerance:        0.5
 
 # ---Vector footprint (Meters):---
-footprint: [[0.39,0.3],[0.39,-0.3],[-0.39,-0.3],[-0.39,0.3]]
+footprint: [[0.2,0.2],[0.2,-0.2],[-0.2,-0.2],[-0.2,0.2]]
 
 ### Costmap definitions ###
 update_frequency: 5.0

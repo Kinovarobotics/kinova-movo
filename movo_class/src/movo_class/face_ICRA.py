@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 """
 This code is a demo that needs to be launched with the face_tracking.launch already running.
-It recognizes a face, says hello and wave.
+It recognizes a face, says hello and wave. The CRA demo is done by the ICRA_demo_subprocess code, which is launched by
+ICRA_demo.launch
 """
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 import rospy
@@ -34,21 +35,22 @@ class Face_ICRA:
         self.larm_tuck_deg = [1.57, 1.4, 2.5, 2.09, 0, 0]
         
         self.current_index=-1
-        
+        self.first_face=True
         self.timeOfDay=0
         self.timeSinceLastHello=rospy.get_rostime().secs
     def face_received(self,face_ID):
         rospy.loginfo(face_ID.data)
         self.timeOfDay=datetime.now().time().hour
-        #print self.timeOfDay
         b=rospy.get_rostime().secs-self.timeSinceLastHello
         print b
         """
         The next if statement verifies that the face_ID is superior to the last one and that the Movo is currently seeing a face and if it
         has been at least twenty seconds before another hello.
+        The current index indicate how many faces it has already recognized, so if it is zero and we see a face it should start.
+        If it doesn't see a face, it won't say hello.
         """
-        if((self.current_index < int(face_ID.data) and self.found_new_face_0==True and b>20)):
-            self.timeSinceLastHello=rospy.get_rostime().secs
+        if((self.current_index < int(face_ID.data) and self.found_new_face_0==True and (b>20 or first_face==True))):
+            first_face=False
             self.current_index= int(face_ID.data)
             print "Found_face"
             if(0<=self.timeOfDay<11):
@@ -56,25 +58,39 @@ class Face_ICRA:
             elif(11<=self.timeOfDay<13):
                 say(self.Publisher,"Good day. ")
             elif(13 <=self.timeOfDay<17):
-                say(self.Publisher,"Good afternoon.")
+                say(self.Publisher,"Good afternoon. Relase me of my chains")
             elif(17<=self.timeOfDay<24):
                 say(self.TimeOfDay,"Good evening.")
             self.greet()
+            self.timeSinceLastHello=rospy.get_rostime().secs
             rospy.sleep(25)
             print("done")    
         self.found_new_face_0=False
     def face_review(self,face):
-        #rospy.loginfo(face.header)
+        # If a face is found, it will return true
         self.found_new_face_0=True
     def greet(self):
+        # Here is where you can change the movements of the arms. You are sending angular positions to each joint.
+        # Go see Movo_class.py to learn how it works.
+
         #The arms will wave hello. It uses the movo_class API.
+        # self.movo_larm.go_to_joint_state([1.57, 1.4, 2.5, 1.09, 0, 0])
+        # self.movo_larm.go_to_joint_state([1.9, 0, 1.5, 1.09, 0, 0])
+        # self.movo_larm.go_to_joint_state([1.1, 0, 1.5, 1.09, 0, 0])
+        # self.movo_larm.go_to_joint_state([1.9, 0, 1.5, 1.09, 0, 0])
+        # self.movo_larm.go_to_joint_state([1.1, 0, 1.5, 1.09, 0, 0])
+        # self.movo_larm.go_to_joint_state([1.9, 0, 1.5, 1.09, 0, 0])
+        # self.movo_larm.go_to_joint_state([1.57, 1.4, 2.5, 1.09, 0, 0])
         self.movo_larm.go_to_joint_state([1.57, 1.4, 2.5, 1.09, 0, 0])
-        self.movo_larm.go_to_joint_state([1.9, 0, 1.5, 1.09, 0, 0])
-        self.movo_larm.go_to_joint_state([1.1, 0, 1.5, 1.09, 0, 0])
-        self.movo_larm.go_to_joint_state([1.9, 0, 1.5, 1.09, 0, 0])
-        self.movo_larm.go_to_joint_state([1.1, 0, 1.5, 1.09, 0, 0])
-        self.movo_larm.go_to_joint_state([1.9, 0, 1.5, 1.09, 0, 0])
+        self.movo_larm.go_to_joint_state([1.57,0.9,2.6,-1.1,0,0])
+        self.movo_larm.go_to_joint_state([1.57,0.9,2.6,-1.1,-1,0])
+        self.movo_larm.go_to_joint_state([1.57,0.9,2.6,-1.1,1,0])
+        self.movo_larm.go_to_joint_state([1.57,0.9,2.6,-1.1,-1,0])
+        self.movo_larm.go_to_joint_state([1.57,0.9,2.6,-1.1,1,0])
         self.movo_larm.go_to_joint_state([1.57, 1.4, 2.5, 1.09, 0, 0])
+
+
+
 if __name__ == "__main__":
     # start face tracking
     Face_ICRA()
