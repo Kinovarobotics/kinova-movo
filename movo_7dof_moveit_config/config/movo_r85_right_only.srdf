@@ -161,7 +161,7 @@
     <passive_joint name="mid_body_joint" />
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
     <disable_collisions link1="base_chassis_link" link2="front_laser_link" reason="Adjacent" />
-    <disable_collisions link1="base_chassis_link" link2="kinect2_link" reason="Never" />
+    <disable_collisions link1="base_chassis_link" link2="movo_camera_link" reason="Never" />
     <disable_collisions link1="base_chassis_link" link2="left_arm_half_1_link" reason="Never" />
     <disable_collisions link1="base_chassis_link" link2="left_arm_half_2_link" reason="Never" />
     <disable_collisions link1="base_chassis_link" link2="left_base_link" reason="Never" />
@@ -179,7 +179,7 @@
     <disable_collisions link1="base_chassis_link" link2="right_shoulder_link" reason="Never" />
     <disable_collisions link1="base_chassis_link" link2="tilt_link" reason="Never" />
     <disable_collisions link1="base_chassis_link" link2="upper_body_link" reason="Never" />
-    <disable_collisions link1="front_laser_link" link2="kinect2_link" reason="Never" />
+    <disable_collisions link1="front_laser_link" link2="movo_camera_link" reason="Never" />
     <disable_collisions link1="front_laser_link" link2="left_arm_half_1_link" reason="Never" />
     <disable_collisions link1="front_laser_link" link2="left_arm_half_2_link" reason="Never" />
     <disable_collisions link1="front_laser_link" link2="left_base_link" reason="Never" />
@@ -197,18 +197,18 @@
     <disable_collisions link1="front_laser_link" link2="right_shoulder_link" reason="Never" />
     <disable_collisions link1="front_laser_link" link2="tilt_link" reason="Never" />
     <disable_collisions link1="front_laser_link" link2="upper_body_link" reason="Never" />
-    <disable_collisions link1="kinect2_link" link2="left_base_link" reason="Never" />
-    <disable_collisions link1="kinect2_link" link2="left_shoulder_link" reason="Never" />
-    <disable_collisions link1="kinect2_link" link2="linear_actuator_fixed_link" reason="Never" />
-    <disable_collisions link1="kinect2_link" link2="lower_body_link" reason="Never" />
-    <disable_collisions link1="kinect2_link" link2="mid_body_link" reason="Never" />
-    <disable_collisions link1="kinect2_link" link2="pan_base_link" reason="Never" />
-    <disable_collisions link1="kinect2_link" link2="pan_link" reason="Never" />
-    <disable_collisions link1="kinect2_link" link2="rear_laser_link" reason="Never" />
-    <disable_collisions link1="kinect2_link" link2="right_base_link" reason="Never" />
-    <disable_collisions link1="kinect2_link" link2="right_shoulder_link" reason="Never" />
-    <disable_collisions link1="kinect2_link" link2="tilt_link" reason="Adjacent" />
-    <disable_collisions link1="kinect2_link" link2="upper_body_link" reason="Never" />
+    <disable_collisions link1="movo_camera_link" link2="left_base_link" reason="Never" />
+    <disable_collisions link1="movo_camera_link" link2="left_shoulder_link" reason="Never" />
+    <disable_collisions link1="movo_camera_link" link2="linear_actuator_fixed_link" reason="Never" />
+    <disable_collisions link1="movo_camera_link" link2="lower_body_link" reason="Never" />
+    <disable_collisions link1="movo_camera_link" link2="mid_body_link" reason="Never" />
+    <disable_collisions link1="movo_camera_link" link2="pan_base_link" reason="Never" />
+    <disable_collisions link1="movo_camera_link" link2="pan_link" reason="Never" />
+    <disable_collisions link1="movo_camera_link" link2="rear_laser_link" reason="Never" />
+    <disable_collisions link1="movo_camera_link" link2="right_base_link" reason="Never" />
+    <disable_collisions link1="movo_camera_link" link2="right_shoulder_link" reason="Never" />
+    <disable_collisions link1="movo_camera_link" link2="tilt_link" reason="Adjacent" />
+    <disable_collisions link1="movo_camera_link" link2="upper_body_link" reason="Never" />
     <disable_collisions link1="left_arm_half_1_link" link2="left_arm_half_2_link" reason="Adjacent" />
     <disable_collisions link1="left_arm_half_1_link" link2="left_base_link" reason="Default" />
     <disable_collisions link1="left_arm_half_1_link" link2="left_shoulder_link" reason="Adjacent" />
