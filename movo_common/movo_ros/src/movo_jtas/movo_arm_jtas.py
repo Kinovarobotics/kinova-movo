@@ -94,6 +94,11 @@ class MovoArmJTAS(object):
         self._action_name = rospy.get_name()
         self._prefix = prefix
         # Action Feedback/Result
+
+        if ("none" == gripper):
+            self.is_gripper_present = False
+        else:
+            self.is_gripper_present = True
         
         if ("kg2" == gripper) or ("rq85" == gripper):
             self.gripper_stall_force = 20.0
@@ -108,7 +113,7 @@ class MovoArmJTAS(object):
         self._last_movement_time = rospy.get_time()
         self.dof_r = dof_r
         self.dof_l = dof_l
-        print(prefix, dof_r, dof_l)
+        print(prefix, dof_r, dof_l, gripper)
         self._planner_homing = False
 
         """
@@ -294,20 +299,21 @@ class MovoArmJTAS(object):
         self._server.start()
         
         # Action Server
-        self._gripper_server = actionlib.SimpleActionServer(
-            '/movo/%s_gripper_controller/gripper_cmd'%self._prefix,
-            GripperCommandAction,
-            execute_cb=self._on_gripper_action,
-            auto_start=False)
-        self._gripper_server.start()
-        
-        self._gripper_action_name = '/movo/%s_gripper_controller/gripper_cmd'%self._prefix
+        if self.is_gripper_present:
+            self._gripper_server = actionlib.SimpleActionServer(
+                '/movo/%s_gripper_controller/gripper_cmd'%self._prefix,
+                GripperCommandAction,
+                execute_cb=self._on_gripper_action,
+                auto_start=False)
+            self._gripper_server.start()
+            
+            self._gripper_action_name = '/movo/%s_gripper_controller/gripper_cmd'%self._prefix
 
-        # Action Feedback/Result
-        self._gripper_fdbk = GripperCommandFeedback()
-        self._gripper_result = GripperCommandResult()
-        self._gripper_timeout = 6.0
-        self._ctl.api.InitFingers()
+            # Action Feedback/Result
+            self._gripper_fdbk = GripperCommandFeedback()
+            self._gripper_result = GripperCommandResult()
+            self._gripper_timeout = 6.0
+            self._ctl.api.InitFingers()
 
     def _home_arm_planner(self):
         if self._prefix == 'left':
