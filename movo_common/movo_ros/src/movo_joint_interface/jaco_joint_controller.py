@@ -627,7 +627,10 @@ class SIArmController(object):
                     (SIArmController.TRAJECTORY == self._ctl_mode):
 
                     # Send zero angular commands to all joints and the fingers
-                    self.api.send_angular_vel_cmds([0.0] * (self._num_joints + self.num_fingers))
+                    if self.num_fingers != 0:
+                        self.api.send_angular_vel_cmds([0.0] * (self._num_joints + self.num_fingers))
+                    else: # Without a gripper the API still needs 3 values to send but they will not be used
+                        self.api.send_angular_vel_cmds([0.0] * (self._num_joints + 3))
 
                 else:
                     rospy.logerr("{} arm controller: Unrecognized control mode {}".format(
