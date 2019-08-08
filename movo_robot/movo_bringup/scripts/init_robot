@@ -49,13 +49,25 @@ if __name__ == "__main__":
 
 	dof_r = rospy.get_param('~jaco_dof_right_arm')
       	dof_l = rospy.get_param('~jaco_dof_left_arm')
-	rgripper_type = rospy.get_param('~gripper_right', 'kg3')
-	lgripper_type = rospy.get_param('~gripper_left', 'kg3')
+	rgripper_type = rospy.get_param('~gripper_right', 'none')
+	lgripper_type = rospy.get_param('~gripper_left', 'none')
 
-	if("6dof" == dof_l or "7dof" == dof_l):
-		lgripper = GripperActionClient('left')
-	if("6dof" == dof_r or "7dof" == dof_r):
+
+	rgripper_is_present = False	
+	if (rgripper_type == "none"):
+		rgripper = None 	
+
+	elif("6dof" == dof_l or "7dof" == dof_l):
 		rgripper = GripperActionClient('right')
+		rgripper_is_present = True
+
+	lgripper_is_present = False	
+	if (lgripper_type == "none"):
+		lgripper = None 
+
+	elif("6dof" == dof_l or "7dof" == dof_l):
+		lgripper = GripperActionClient('left')
+		lgripper_is_present = True
 
 	if ("6dof" == dof_r and "6dof" == dof_l):
 		upper_body_joints = ["right_elbow_joint",
@@ -173,11 +185,12 @@ if __name__ == "__main__":
 	gripper_closed = 0.01
 	gripper_open = 0.165
 
-	if("6dof" == dof_l or "7dof" == dof_l):
-		lgripper.command(gripper_closed)
-	if("6dof" == dof_r or "7dof" == dof_r):
-		rgripper.command(gripper_closed)
-
+	if (lgripper_is_present):
+		if("6dof" == dof_l or "7dof" == dof_l):
+			lgripper.command(gripper_closed)
+	if (rgripper_is_present):
+		if("6dof" == dof_r or "7dof" == dof_r):
+			rgripper.command(gripper_closed)
 
 	success=False
 	while not rospy.is_shutdown() and not success:
@@ -194,11 +207,12 @@ if __name__ == "__main__":
 		result = move_group.moveToJointPosition(upper_body_joints, tucked, 0.05)
 		if result.error_code.val == MoveItErrorCodes.SUCCESS:
 			success = True
-
-	if("6dof" == dof_l or "7dof" == dof_l):
-		lgripper.command(gripper_closed)
-	elif("6dof" == dof_r or "7dof" == dof_r):
-		rgripper.command(gripper_closed)
+	if (lgripper_is_present):
+		if("6dof" == dof_l or "7dof" == dof_l):
+			lgripper.command(gripper_closed)
+	if (rgripper_is_present):
+		if("6dof" == dof_r or "7dof" == dof_r):
+			rgripper.command(gripper_closed)
 
 	rospy.sleep(5)
 	rospy.set_param('~initialized', True)
