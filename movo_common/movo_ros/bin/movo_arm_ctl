@@ -44,11 +44,12 @@ if __name__ == "__main__":
     """
     rospy.init_node('movo_arm_ctl')
     arm_name = rospy.get_param("~arm_name",'right')
-    gripper = rospy.get_param("~gripper", '')
+    gripper = rospy.get_param("~gripper", 'none')
     jaco_ip = rospy.get_param("~jaco_ip", '10.66.171.15')
     interface = rospy.get_param("~interface", 'eth0')
-    dof = rospy.get_param("~jaco_dof", '')
-    driver = MovoArmJTAS(arm_name,gripper,interface,jaco_ip,dof)
+    dof_r = rospy.get_param("~jaco_dof_right_arm", 'none')
+    dof_l = rospy.get_param("~jaco_dof_left_arm", 'none')
+    driver = MovoArmJTAS(arm_name,gripper,interface,jaco_ip,dof_r, dof_l)
     if driver.init_success:
         rospy.on_shutdown(driver.clean_shutdown)
         rospy.spin()

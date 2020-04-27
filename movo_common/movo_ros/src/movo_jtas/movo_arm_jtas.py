@@ -87,13 +87,18 @@ def calc_grip_angle(x):
     return (a)
 
 class MovoArmJTAS(object):
-    def __init__(self, prefix="", gripper="", interface='eth0', jaco_ip="10.66.171.15", dof="", rate=100.0):
+    def __init__(self, prefix="", gripper="", interface='eth0', jaco_ip="10.66.171.15", dof_r="", dof_l="", rate=100.0):
         self._alive = False
         self.init_success = True
 
         self._action_name = rospy.get_name()
         self._prefix = prefix
         # Action Feedback/Result
+
+        if ("none" == gripper):
+            self.is_gripper_present = False
+        else:
+            self.is_gripper_present = True
         
         if ("kg2" == gripper) or ("rq85" == gripper):
             self.gripper_stall_force = 20.0
@@ -106,13 +111,15 @@ class MovoArmJTAS(object):
         self._gripper_stall_to = 0.7
         self._gripper_pos_stall = False
         self._last_movement_time = rospy.get_time()
-        self.dof = dof
+        self.dof_r = dof_r
+        self.dof_l = dof_l
+        print(prefix, dof_r, dof_l, gripper)
         self._planner_homing = False
 
         """
         Define the joint names
         """
-        if ("6dof" == dof):
+        if ("6dof" == dof_r and "6dof" == dof_l):
             self._joint_names = [self._prefix+'_shoulder_pan_joint',
                                  self._prefix+'_shoulder_lift_joint',
                                  self._prefix+'_elbow_joint',
@@ -137,7 +144,46 @@ class MovoArmJTAS(object):
                                  "tilt_joint"]
             self._homed = [-2.135, -0.227, -1.478, -2.083, 1.445, 1.321, 2.135, 0.227, 1.478, 2.083, -1.445, -1.321, 0.25, 0.0, 0.0]
 
-        elif ("7dof" == dof):
+
+        elif ("6dof" == dof_r and "none" == dof_l):
+            self._joint_names = [self._prefix+'_shoulder_pan_joint',
+                                 self._prefix+'_shoulder_lift_joint',
+                                 self._prefix+'_elbow_joint',
+                                 self._prefix+'_wrist_1_joint',
+                                 self._prefix+'_wrist_2_joint',
+                                 self._prefix+'_wrist_3_joint']
+
+            self._body_joints = ["right_elbow_joint",
+                                 "right_shoulder_lift_joint",
+                                 "right_shoulder_pan_joint",
+                                 "right_wrist_1_joint",
+                                 "right_wrist_2_joint",
+                                 "right_wrist_3_joint",
+                                 "linear_joint",
+                                 "pan_joint",
+                                 "tilt_joint"]
+            self._homed = [-2.135, -0.227, -1.478, -2.083, 1.445, 1.321, 0.25, 0.0, 0.0]
+
+        elif ("none" == dof_r and "6dof" == dof_l):
+            self._joint_names = [self._prefix+'_shoulder_pan_joint',
+                                 self._prefix+'_shoulder_lift_joint',
+                                 self._prefix+'_elbow_joint',
+                                 self._prefix+'_wrist_1_joint',
+                                 self._prefix+'_wrist_2_joint',
+                                 self._prefix+'_wrist_3_joint']
+
+            self._body_joints = ["left_elbow_joint",
+                                 "left_shoulder_lift_joint",
+                                 "left_shoulder_pan_joint",
+                                 "left_wrist_1_joint",
+                                 "left_wrist_2_joint",
+                                 "left_wrist_3_joint",
+                                 "linear_joint",
+                                 "pan_joint",
+                                 "tilt_joint"]
+            self._homed = [2.135, 0.227, 1.478, 2.083, -1.445, -1.321, 0.25, 0.0, 0.0]
+
+        elif ("7dof" == dof_r and "7dof" == dof_l):
             self._joint_names = [self._prefix + '_shoulder_pan_joint',
                                  self._prefix + '_shoulder_lift_joint',
                                  self._prefix + '_arm_half_joint',
@@ -165,6 +211,48 @@ class MovoArmJTAS(object):
                                  "tilt_joint"]
             self._homed = [-1.5, -0.2, -0.15, -2.0, 2.0, -1.24, -1.1, 1.5, 0.2, 0.15, 2.0, -2.0, 1.24, 1.1, 0.25, 0, 0]
 
+        elif ("7dof" == dof_r and "none" == dof_l):
+            self._joint_names = [self._prefix + '_shoulder_pan_joint',
+                                 self._prefix + '_shoulder_lift_joint',
+                                 self._prefix + '_arm_half_joint',
+                                 self._prefix + '_elbow_joint',
+                                 self._prefix + '_wrist_spherical_1_joint',
+                                 self._prefix + '_wrist_spherical_2_joint',
+                                 self._prefix + '_wrist_3_joint']
+
+            self._body_joints = ["right_shoulder_pan_joint",
+                                 "right_shoulder_lift_joint",
+                                 "right_arm_half_joint",
+                                 "right_elbow_joint",
+                                 "right_wrist_spherical_1_joint",
+                                 "right_wrist_spherical_2_joint",
+                                 "right_wrist_3_joint",
+                                 "linear_joint",
+                                 "pan_joint",
+                                 "tilt_joint"]
+            self._homed = [-1.5, -0.2, -0.15, -2.0, 2.0, -1.24, -1.1, 0.25, 0, 0]
+
+        elif ("none" == dof_r and "7dof" == dof_l):
+            self._joint_names = [self._prefix + '_shoulder_pan_joint',
+                                 self._prefix + '_shoulder_lift_joint',
+                                 self._prefix + '_arm_half_joint',
+                                 self._prefix + '_elbow_joint',
+                                 self._prefix + '_wrist_spherical_1_joint',
+                                 self._prefix + '_wrist_spherical_2_joint',
+                                 self._prefix + '_wrist_3_joint']
+
+            self._body_joints = ["left_shoulder_pan_joint",
+                                 "left_shoulder_lift_joint",
+                                 "left_arm_half_joint",
+                                 "left_elbow_joint",
+                                 "left_wrist_spherical_1_joint",
+                                 "left_wrist_spherical_2_joint",
+                                 "left_wrist_3_joint",
+                                 "linear_joint",
+                                 "pan_joint",
+                                 "tilt_joint"]
+            self._homed = [1.5, 0.2, 0.15, 2.0, -2.0, 1.24, 1.1, 0.25, 0, 0]
+
         else:
             rospy.logerr("DoF needs to be set 6 or 7, cannot start MovoArmJTAS")
             return
@@ -179,6 +267,10 @@ class MovoArmJTAS(object):
         self._goal_error = dict()
         self._path_thresh = dict()
         self._traj_smoother = TrajectorySmoother(rospy.get_name(),self._prefix)
+        if (self._prefix=="right"):
+            dof=dof_r
+        elif (self._prefix=="left"):
+            dof=dof_l	
         self._ctl = SIArmController(self._prefix,gripper,interface,jaco_ip, dof)
         self._ctl.Pause()
         self._estop_delay = 0
@@ -207,20 +299,21 @@ class MovoArmJTAS(object):
         self._server.start()
         
         # Action Server
-        self._gripper_server = actionlib.SimpleActionServer(
-            '/movo/%s_gripper_controller/gripper_cmd'%self._prefix,
-            GripperCommandAction,
-            execute_cb=self._on_gripper_action,
-            auto_start=False)
-        self._gripper_server.start()
-        
-        self._gripper_action_name = '/movo/%s_gripper_controller/gripper_cmd'%self._prefix
+        if self.is_gripper_present:
+            self._gripper_server = actionlib.SimpleActionServer(
+                '/movo/%s_gripper_controller/gripper_cmd'%self._prefix,
+                GripperCommandAction,
+                execute_cb=self._on_gripper_action,
+                auto_start=False)
+            self._gripper_server.start()
+            
+            self._gripper_action_name = '/movo/%s_gripper_controller/gripper_cmd'%self._prefix
 
-        # Action Feedback/Result
-        self._gripper_fdbk = GripperCommandFeedback()
-        self._gripper_result = GripperCommandResult()
-        self._gripper_timeout = 6.0
-        self._ctl.api.InitFingers()
+            # Action Feedback/Result
+            self._gripper_fdbk = GripperCommandFeedback()
+            self._gripper_result = GripperCommandResult()
+            self._gripper_timeout = 6.0
+            self._ctl.api.InitFingers()
 
     def _home_arm_planner(self):
         if self._prefix == 'left':

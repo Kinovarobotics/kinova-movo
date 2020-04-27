@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # This configures the environment variables for a MoVo simulation
 # This is necessary to run before starting the simulation 
 #
@@ -5,6 +7,8 @@
 # If there is an onboard PC powered by the system this will run the watchdog
 # to make sure it gets gracefully shutdown before the system power cuts out.
 #export MOVO_POWERS_PC_ONBOARD=true
+
+unset "${!MOVO_HAS_@}"
 
 #Default Movo network 
 export MOVO_IP_ADDRESS=10.66.171.5
@@ -62,13 +66,60 @@ export LASER2_MIN_ANGLE=-2.0
 export LASER2_PREFIX="rear"
 
 #Kinova arm configurations (the right arm should be the default if there is only one)
-export MOVO_HAS_KINOVA_ARM=true
-export MOVO_HAS_TWO_KINOVA_ARMS=true
+#export MOVO_HAS_KINOVA_ARM=true
+#export MOVO_HAS_TWO_KINOVA_ARMS=true
+
+export MOVO_HAS_RIGHT_ARM_6DOF=false
+export MOVO_HAS_RIGHT_ARM_7DOF=true
+export MOVO_HAS_LEFT_ARM_6DOF=false
+export MOVO_HAS_LEFT_ARM_7DOF=true
+
+
+# automatically set variables. do not touch
+if $MOVO_HAS_RIGHT_ARM_7DOF && $MOVO_HAS_LEFT_ARM_7DOF; then
+  export MOVO_HAS_TWO_7DOF_ARMS=true
+else 
+  export MOVO_HAS_TWO_7DOF_ARMS=false 
+fi
+if $MOVO_HAS_RIGHT_ARM_6DOF && $MOVO_HAS_LEFT_ARM_6DOF; then
+  export MOVO_HAS_TWO_6DOF_ARMS=true
+else 
+  export MOVO_HAS_TWO_6DOF_ARMS=false 
+fi
+if [ $MOVO_HAS_RIGHT_ARM_7DOF = false ] && [ $MOVO_HAS_RIGHT_ARM_6DOF = false ]; then
+  export MOVO_HAS_NO_RIGHT_ARM=true
+else 
+  export MOVO_HAS_NO_RIGHT_ARM=false 
+fi
+if [ $MOVO_HAS_LEFT_ARM_7DOF = false ] && [ $MOVO_HAS_LEFT_ARM_6DOF = false ]; then
+  export MOVO_HAS_NO_LEFT_ARM=true
+else 
+  export MOVO_HAS_NO_LEFT_ARM=false 
+fi
+if $MOVO_HAS_NO_LEFT_ARM && $MOVO_HAS_RIGHT_ARM_6DOF; then
+  export MOVO_HAS_RIGHT_6DOF_ARM_ONLY=true
+else 
+  export MOVO_HAS_RIGHT_6DOF_ARM_ONLY=false 
+fi
+if $MOVO_HAS_NO_LEFT_ARM && $MOVO_HAS_RIGHT_ARM_7DOF; then
+  export MOVO_HAS_RIGHT_7DOF_ARM_ONLY=true
+else 
+  export MOVO_HAS_RIGHT_7DOF_ARM_ONLY=false 
+fi
+if $MOVO_HAS_NO_RIGHT_ARM && $MOVO_HAS_LEFT_ARM_6DOF; then
+  export MOVO_HAS_LEFT_6DOF_ARM_ONLY=true
+else 
+  export MOVO_HAS_LEFT_6DOF_ARM_ONLY=false 
+fi
+if $MOVO_HAS_NO_RIGHT_ARM && $MOVO_HAS_LEFT_ARM_7DOF; then
+  export MOVO_HAS_LEFT_7DOF_ARM_ONLY=true
+else 
+  export MOVO_HAS_LEFT_7DOF_ARM_ONLY=false 
+fi
+
 export KINOVA_RIGHT_ARM_IP_ADDRESS=10.66.171.15
 export KINOVA_LEFT_ARM_IP_ADDRESS=10.66.171.16
 export KINOVA_ARM_IFACE=eth0
-export MOVO_HAS_KINOVA_ARM_7DOF=false
-export MOVO_HAS_KINOVA_ARM_6DOF=true
 
 #Camera configurations
 export MOVO_HAS_KINECT_CAMERA=true

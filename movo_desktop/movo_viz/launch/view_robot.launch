@@ -3,9 +3,17 @@
 <launch>
   <arg name='function' default=''/>
 
-  <node if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)"
+  <node if="$(optenv MOVO_HAS_RIGHT_ARM_6DOF false)"
         name="rviz" pkg="rviz" type="rviz" args="-d $(find movo_viz)/rviz/robot_$(arg function).rviz" output="screen"/>
 
-  <node if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)"
+  <group unless="$(optenv MOVO_HAS_RIGHT_ARM_6DOF false)">
+	<node if="$(optenv MOVO_HAS_LEFT_ARM_6DOF false)"
+        	name="rviz" pkg="rviz" type="rviz" args="-d $(find movo_viz)/rviz/robot_$(arg function).rviz" output="screen"/>
+  </group>
+  <node if="$(optenv MOVO_HAS_RIGHT_ARM_7DOF false)"
         name="rviz" pkg="rviz" type="rviz" args="-d $(find movo_viz)/rviz/robot_7dof_$(arg function).rviz" output="screen"/>
+  <group unless="$(optenv MOVO_HAS_RIGHT_ARM_7DOF false)">
+	<node if="$(optenv MOVO_HAS_LEFT_ARM_7DOF false)"
+        	name="rviz" pkg="rviz" type="rviz" args="-d $(find movo_viz)/rviz/robot_7dof_$(arg function).rviz" output="screen"/>
+  </group>
 </launch>
