@@ -195,19 +195,19 @@ namespace gazebo
   void GazeboRosForceBasedMove::UpdateChild()
   {
     boost::mutex::scoped_lock scoped_lock(lock);
-    math::Pose pose = parent_->GetWorldPose();
+    ignition::math::Pose3d pose = parent_->GetWorldPose();
 
-    math::Vector3 angular_vel = parent_->GetWorldAngularVel();
+    ignition::math::Vector3d angular_vel = parent_->GetWorldAngularVel();
 
-    double error = angular_vel.z - rot_;
+    double error = angular_vel.Z() - rot_;
 
-    link_->AddTorque(math::Vector3(0.0, 0.0, -error * torque_yaw_velocity_p_gain_));
+    link_->AddTorque(ignition::math::Vector3d(0.0, 0.0, -error * torque_yaw_velocity_p_gain_));
 
     float yaw = pose.rot.GetYaw();
 
-    math::Vector3 linear_vel = parent_->GetRelativeLinearVel();
+    ignition::math::Vector3d linear_vel = parent_->GetRelativeLinearVel();
 
-    link_->AddRelativeForce(math::Vector3((x_ - linear_vel.x)* force_x_velocity_p_gain_,
+    link_->AddRelativeForce(ignition::math::Vector3d((x_ - linear_vel.x)* force_x_velocity_p_gain_,
                                           (y_ - linear_vel.y)* force_y_velocity_p_gain_,
                                           0.0));
 
@@ -258,7 +258,7 @@ namespace gazebo
       tf::resolve(tf_prefix_, robot_base_frame_);
 
     // getting data for base_footprint to odom transform
-    math::Pose pose = this->parent_->GetWorldPose();
+    ignition::math::Pose3d pose = this->parent_->GetWorldPose();
     
     if (true == publish_odometry_tf_){
 
@@ -287,7 +287,7 @@ namespace gazebo
     odom_.pose.covariance[35] = 0.001;
 
     // get velocity in /odom frame
-    math::Vector3 linear;
+    ignition::math::Vector3d linear;
     linear.x = (pose.pos.x - last_odom_pose_.pos.x) / step_time;
     linear.y = (pose.pos.y - last_odom_pose_.pos.y) / step_time;
     if (rot_ > M_PI / step_time) 

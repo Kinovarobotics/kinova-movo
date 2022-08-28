@@ -140,7 +140,7 @@ bool GazeboGraspGripper::HandleAttach(const std::string& objName)
         std::cerr<<"ERROR: Object ModelPtr "<<objName<<" not found in world, can't attach it"<<std::endl;
         return false;
     }
-    gazebo::math::Pose diff = obj->GetLink()->GetWorldPose() - this->palmLink->GetWorldPose();
+    ignition::math::Pose3d diff = obj->GetLink()->GetWorldPose() - this->palmLink->GetWorldPose();
     this->palmLink->AttachStaticModel(obj,diff);
 #else
     physics::CollisionPtr obj = boost::dynamic_pointer_cast<physics::Collision>(world->GetEntity(objName));
@@ -148,7 +148,7 @@ bool GazeboGraspGripper::HandleAttach(const std::string& objName)
         std::cerr<<"ERROR: Object "<<objName<<" not found in world, can't attach it"<<std::endl;
         return false;
     }
-    gazebo::math::Pose diff = obj->GetLink()->GetWorldPose() - this->palmLink->GetWorldPose();
+    ignition::math::Pose3d diff = obj->GetLink()->GetWorldPose() - this->palmLink->GetWorldPose();
     this->fixedJoint->Load(this->palmLink,obj->GetLink(), diff);
     this->fixedJoint->Init();
     this->fixedJoint->SetHighStop(0, 0);

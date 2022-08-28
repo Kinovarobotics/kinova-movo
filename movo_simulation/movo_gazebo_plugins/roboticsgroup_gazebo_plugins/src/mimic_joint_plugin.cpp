@@ -162,10 +162,10 @@ void MimicJointPlugin::UpdateChild()
       if(a!=a)
         a = angle;
       double error = angle-a;
-      double effort = gazebo::math::clamp(pid_.computeCommand(error, period), -max_effort_, max_effort_);
+      double effort = ignition::math::clamp(pid_.computeCommand(error, period), -max_effort_, max_effort_);
     }
     else
-      mimic_joint_->SetAngle(0, math::Angle(angle));
+      mimic_joint_->SetAngle(0, ignition::math::Angle(angle));
   }
 }
 

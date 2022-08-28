@@ -153,7 +153,7 @@ private:
      * than minAngleDiff (in rad), and one is at least
      * lengthRatio (0..1) of the other in it's length.
      */
-    bool checkGrip(const std::vector<math::Vector3>& forces, float minAngleDiff, float lengthRatio);
+    bool checkGrip(const std::vector<ignition::math::Vector3d>& forces, float minAngleDiff, float lengthRatio);
 
     bool isGripperLink(const std::string& linkName, std::string& gripperName) const;   
 

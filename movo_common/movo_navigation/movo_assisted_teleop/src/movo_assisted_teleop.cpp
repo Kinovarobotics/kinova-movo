@@ -83,7 +83,8 @@ inline double WrapPosNegPI(double fAng)
 
 
 namespace assisted_teleop {
-  AssistedTeleop::AssistedTeleop() : costmap_ros_("local_costmap", tf_), planning_thread_(NULL){
+  // younes todo caution we are reusing the same bf_
+  AssistedTeleop::AssistedTeleop() : bf_(), tf_(bf_), costmap_ros_("local_costmap", bf_), planning_thread_(NULL){
     ros::NodeHandle private_nh("~");
     private_nh.param("controller_frequency", controller_frequency_, 10.0);
     private_nh.param("num_th_samples", num_th_samples_, 20);
@@ -93,7 +94,7 @@ namespace assisted_teleop {
     private_nh.param("rotational_collision_speed", collision_rot_speed_, 0.0);
     private_nh.param("diff_drive", diff_drive_, true);
     
-    planner_.initialize("TrajectoryPlannerROS", &tf_, &costmap_ros_);
+    planner_.initialize("TrajectoryPlannerROS", &bf_, &costmap_ros_);
 
     ros::NodeHandle n;
     pub_ = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);

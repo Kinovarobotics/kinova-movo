@@ -46,7 +46,7 @@
 
 // register this planner as a BaseGlobalPlanner plugin
 // (see http://www.ros.org/wiki/pluginlib/Tutorials/Writing%20and%20Using%20a%20Simple%20Plugin)
-PLUGINLIB_DECLARE_CLASS(eband_local_planner, EBandPlannerROS, eband_local_planner::EBandPlannerROS, nav_core::BaseLocalPlanner)
+PLUGINLIB_EXPORT_CLASS(eband_local_planner::EBandPlannerROS, nav_core::BaseLocalPlanner)
 
 
   namespace eband_local_planner{
@@ -226,20 +226,18 @@ PLUGINLIB_DECLARE_CLASS(eband_local_planner, EBandPlannerROS, eband_local_planne
 
       // instantiate local variables
       //std::vector<geometry_msgs::PoseStamped> local_plan;
-      tf::Stamped<tf::Pose> global_pose;
       geometry_msgs::PoseStamped global_pose_msg;
       std::vector<geometry_msgs::PoseStamped> tmp_plan;
 
       // get curent robot position
       ROS_DEBUG("Reading current robot Position from costmap and appending it to elastic band.");
-      if(!costmap_ros_->getRobotPose(global_pose))
+      if(!costmap_ros_->getRobotPose(global_pose_msg))
       {
         ROS_WARN("Could not retrieve up to date robot pose from costmap for local planning.");
         return false;
       }
 
       // convert robot pose to frame in plan and set position in band at which to append
-      tf::poseStampedTFToMsg(global_pose, global_pose_msg);
       tmp_plan.assign(1, global_pose_msg);
       eband_local_planner::AddAtPosition add_frames_at = add_front;
 
