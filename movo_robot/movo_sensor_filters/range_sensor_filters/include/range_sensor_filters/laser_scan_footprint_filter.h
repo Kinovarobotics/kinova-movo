@@ -6,7 +6,7 @@
 #define LASER_SCAN_FOOTPRINT_FILTER_H
 
 #include <tf/transform_listener.h>
-#include <filters/filter_base.h>
+#include <filters/filter_base.hpp>
 #include <sensor_msgs/LaserScan.h>
 #include <geometry_msgs/PolygonStamped.h>
 #include <XmlRpcException.h>

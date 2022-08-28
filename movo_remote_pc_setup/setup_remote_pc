@@ -61,13 +61,13 @@ fi
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
 sudo apt-get update
-sudo apt-get install ros-indigo-desktop-full
+sudo apt-get install ros-noetic-desktop-full
 sudo rosdep init
 rosdep update
-source /opt/ros/indigo/setup.bash
+source /opt/ros/noetic/setup.bash
 sudo apt-get install python-rosinstall
 sudo apt-get update && sudo apt-get upgrade
-sudo apt-get install xdotool wmctrl iperf chrony htop bridge-utils ros-indigo-navigation ros-indigo-gmapping ros-indigo-robot-localization ros-indigo-yocs-cmd-vel-mux ros-indigo-joy ros-indigo-urg-node ros-indigo-sick-tim ros-indigo-cmake-modules daemontools openssh-server libpcap0.8-dev ros-indigo-um7 ros-indigo-imu-tools ros-indigo-jsk-recognition ros-indigo-ros-controllers ros-indigo-scan-tools ros-indigo-gazebo-ros ros-indigo-gazebo-plugins ros-indigo-moveit ros-indigo-gazebo-ros-control ros-indigo-hector-gazebo-plugins ros-indigo-trac-ik
+sudo apt-get install xdotool wmctrl iperf chrony htop bridge-utils ros-noetic-navigation ros-noetic-gmapping ros-noetic-robot-localization ros-noetic-joy ros-noetic-urg-node ros-noetic-sick-tim ros-noetic-cmake-modules daemontools openssh-server libpcap0.8-dev ros-noetic-um7 ros-noetic-imu-tools ros-noetic-jsk-recognition ros-noetic-ros-controllers ros-noetic-scan-tools ros-noetic-gazebo-ros ros-noetic-gazebo-plugins ros-noetic-moveit ros-noetic-gazebo-ros-control ros-noetic-hector-gazebo-plugins ros-noetic-trac-ik
 
 echo -e "\niai_kinect2 prerequisites must be installed!!!!!\nIf you have a PC with Intel integrated graphics answering Y will install\neverything. If you have a PC with a dedicated NVIDIA graphics card\nand want to be able to use CUDA follow the instructions\non https://github.com/code-iai/iai_kinect2 and then enter N here\n"
 read -r -p "Do you want to install iai_kinect2 prerequisites for Intel CPU now? [y/N] " response

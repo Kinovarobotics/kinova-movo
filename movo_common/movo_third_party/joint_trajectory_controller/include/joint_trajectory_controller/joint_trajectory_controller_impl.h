@@ -31,6 +31,8 @@
 #ifndef JOINT_TRAJECTORY_CONTROLLER_JOINT_TRAJECTORY_CONTROLLER_IMP_H
 #define JOINT_TRAJECTORY_CONTROLLER_JOINT_TRAJECTORY_CONTROLLER_IMP_H
 
+#include <memory>
+
 
 namespace joint_trajectory_controller
 {
@@ -100,7 +102,7 @@ boost::shared_ptr<urdf::Model> getUrdf(const ros::NodeHandle& nh, const std::str
   return urdf;
 }
 
-typedef boost::shared_ptr<const urdf::Joint> UrdfJointConstPtr;
+typedef std::shared_ptr<const urdf::Joint> UrdfJointConstPtr;
 std::vector<UrdfJointConstPtr> getUrdfJoints(const urdf::Model& urdf, const std::vector<std::string>& joint_names)
 {
   std::vector<UrdfJointConstPtr> out;
