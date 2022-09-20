@@ -30,7 +30,7 @@
 #ifndef FILTERS_SELF_SEE_H_
 #define FILTERS_SELF_SEE_H_
 
-#include <filters/filter_base.h>
+#include <filters/filter_base.hpp>
 #include <robot_self_filter/self_mask.h>
 #include <ros/console.h>
 

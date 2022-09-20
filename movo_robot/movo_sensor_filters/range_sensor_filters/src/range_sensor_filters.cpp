@@ -32,8 +32,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "range_sensor_filters/laser_scan_footprint_filter.h"
 #include "sensor_msgs/PointCloud2.h"
 #include "sensor_msgs/LaserScan.h"
-#include "filters/filter_base.h"
+#include "filters/filter_base.hpp"
 #include "pluginlib/class_list_macros.h"
 
-PLUGINLIB_DECLARE_CLASS(range_sensor_filters, LaserScanFootprintFilter, range_sensor_filters::LaserScanFootprintFilter, filters::FilterBase<sensor_msgs::LaserScan>)
-PLUGINLIB_DECLARE_CLASS(range_sensor_filters, PointCloudFootprintFilter, range_sensor_filters::PointCloudFootprintFilter, filters::FilterBase<sensor_msgs::PointCloud2>)
+PLUGINLIB_EXPORT_CLASS(range_sensor_filters::LaserScanFootprintFilter, filters::FilterBase<sensor_msgs::LaserScan>)
+PLUGINLIB_EXPORT_CLASS(range_sensor_filters::PointCloudFootprintFilter, filters::FilterBase<sensor_msgs::PointCloud2>)

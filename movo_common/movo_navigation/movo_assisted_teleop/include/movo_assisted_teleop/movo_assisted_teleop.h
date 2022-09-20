@@ -34,6 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <geometry_msgs/Twist.h>
 #include <costmap_2d/costmap_2d_ros.h>
 #include <base_local_planner/trajectory_planner_ros.h>
+#include <tf2_ros/transform_listener.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 #include <Eigen/Core>
@@ -47,7 +48,7 @@ namespace assisted_teleop {
       void velCB(const geometry_msgs::TwistConstPtr& vel);
       void controlLoop();
 
-      tf::TransformListener tf_;
+      tf2_ros::Buffer bf_;
       costmap_2d::Costmap2DROS costmap_ros_;
       double controller_frequency_;
       base_local_planner::TrajectoryPlannerROS planner_;

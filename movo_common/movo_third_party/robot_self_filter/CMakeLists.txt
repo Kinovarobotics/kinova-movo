@@ -3,13 +3,11 @@ cmake_minimum_required(VERSION 2.8.3)
 project(robot_self_filter)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
 endif()
 
 
 find_package(PkgConfig REQUIRED)
-
-find_package(Boost REQUIRED COMPONENTS signals)
 
 set(bullet_FOUND 0)
 pkg_check_modules(bullet REQUIRED bullet)
