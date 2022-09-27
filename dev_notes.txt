@@ -1,0 +1,8 @@
+# SSH'ing into the movos
+Make sure you are connected to the robohub wifi
+movo1 can be reached by `ssh robohub@129.97.70.109`
+movo2 can be reached by `ssh robohub@129.97.71.113`
+
+# Camera
+Camera uses the iai_kinect2 pkg
+Can be launched with roslaunch kinect2_bridge kinect2_bridge.launch
