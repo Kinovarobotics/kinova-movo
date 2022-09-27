@@ -33,17 +33,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
-from system_defines import *
-from utils import *
+from movo.system_defines import *
+from movo.utils import *
 from movo_msgs.msg import *
 from geometry_msgs.msg import Twist
 from movo_ros.cfg import movoConfig
 from dynamic_reconfigure.server import Server
 from dynamic_reconfigure.client import Client
 from dynamic_reconfigure.msg import Config
-from io_eth import IoEthThread
-from movo_data_classes import MOVO_DATA
-from movo_linear_actuator import LinearActuator
+from movo.io_eth import IoEthThread
+from movo.movo_data_classes import MOVO_DATA
+from movo.movo_linear_actuator import LinearActuator
 import multiprocessing
 import rospy
 import select

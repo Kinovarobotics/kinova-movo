@@ -36,9 +36,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import struct
 import socket
 import math
-from crc32 import calc_crc32, valid_crc32
+from movo.crc32 import calc_crc32, valid_crc32
 import array
-from system_defines import *
+from movo.system_defines import *
 import timeit
 
 """
