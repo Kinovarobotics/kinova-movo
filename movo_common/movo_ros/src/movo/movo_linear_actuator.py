@@ -33,10 +33,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
-from system_defines import *
-from utils import *
+from movo.system_defines import *
+from movo.utils import *
 from movo_msgs.msg import LinearActuatorCmd
-from io_eth import IoEthThread
+from movo.io_eth import IoEthThread
 import multiprocessing
 import re
 import os
