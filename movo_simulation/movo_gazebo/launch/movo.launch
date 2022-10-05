@@ -87,7 +87,7 @@
     <!--node pkg="robot_self_filter"
         type="self_filter" clear_params="true"
         name="self_filter" respawn="true" output="screen">
-        <remap from="cloud_in" to="/kinect2/sd/points" />
+	    <remap from="cloud_in" to="/camera/depth/color/points" />
         <remap from="cloud_out" to="/movo/perception/points_filtered" />
         <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" command="load" file="$(find movo_bringup)/launch/perception/config/robot_self_filter.yaml"/>
         <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" command="load" file="$(find movo_bringup)/launch/perception/config/robot_7dof_self_filter.yaml"/>
