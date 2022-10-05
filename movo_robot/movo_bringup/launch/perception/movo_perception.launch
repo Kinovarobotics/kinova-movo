@@ -1,112 +1,150 @@
-<?xml version="1.0"?>
 <launch>
+  <arg name="serial_no"           default=""/>
+  <arg name="usb_port_id"         default=""/>
+  <arg name="device_type"         default=""/>
+  <arg name="json_file_path"      default=""/>
+  <arg name="camera"              default="camera"/>
+  <arg name="tf_prefix"           default="$(arg camera)"/>
+  <arg name="external_manager"    default="false"/>
+  <arg name="manager"             default="realsense2_camera_manager"/>
+  <arg name="output"              default="screen"/>
+  <arg name="respawn"              default="false"/>
 
-  <arg name="base_name"         default="kinect2"/>
-  <arg name="sensor"            default=""/>
-  <arg name="publish_tf"        default="false"/>
-  <arg name="base_name_tf"      default="$(arg base_name)"/>
-  <arg name="fps_limit"         default="-1.0"/>
-  <arg name="calib_path"        default="$(find kinect2_bridge)/data/"/>
-  <arg name="use_png"           default="false"/>
-  <arg name="jpeg_quality"      default="90"/>
-  <arg name="png_level"         default="1"/>
-  <arg name="depth_method"      default="default"/>
-  <arg name="depth_device"      default="-1"/>
-  <arg name="reg_method"        default="default"/>
-  <arg name="reg_device"        default="-1"/>
-  <arg name="max_depth"         default="12.0"/>
-  <arg name="min_depth"         default="0.1"/>
-  <arg name="queue_size"        default="5"/>
-  <arg name="bilateral_filter"  default="true"/>
-  <arg name="edge_aware_filter" default="true"/>
-  <arg name="worker_threads"    default="4"/>
-  <arg name="nodelet_manager"   default="$(arg base_name)"/>
-  <arg name="start_manager"     default="true"/>
-  <arg name="use_machine"       default="true"/>
-  <arg name="respawn"           default="true"/>
-  <arg name="use_nodelet"       default="true"/>
-  <arg name="output"            default="screen"/>
+  <arg name="fisheye_width"       default="-1"/>
+  <arg name="fisheye_height"      default="-1"/>
+  <arg name="enable_fisheye"      default="false"/>
 
+  <arg name="depth_width"         default="-1"/>
+  <arg name="depth_height"        default="-1"/>
+  <arg name="enable_depth"        default="true"/>
 
-  <node pkg="nodelet" type="nodelet" name="$(arg nodelet_manager)" args="manager"
-        if="$(arg start_manager)" output="screen"/>
+  <arg name="confidence_width"    default="-1"/>
+  <arg name="confidence_height"   default="-1"/>
+  <arg name="enable_confidence"   default="true"/>
+  <arg name="confidence_fps"      default="-1"/>
 
-  <!-- Nodelet version of kinect2_bridge -->
-  <node pkg="nodelet" type="nodelet" name="$(arg base_name)_bridge" 
-        args="load kinect2_bridge/kinect2_bridge_nodelet $(arg nodelet_manager)"
-        respawn="$(arg respawn)" output="$(arg output)" if="$(arg use_nodelet)">
-    <param name="base_name"         type="str"    value="$(arg base_name)"/>
-    <param name="sensor"            type="str"    value="$(arg sensor)"/>
-    <param name="publish_tf"        type="bool"   value="$(arg publish_tf)"/>
-    <param name="base_name_tf"      type="str"    value="$(arg base_name_tf)"/>
-    <param name="fps_limit"         type="double" value="$(arg fps_limit)"/>
-    <param name="calib_path"        type="str"    value="$(arg calib_path)"/>
-    <param name="use_png"           type="bool"   value="$(arg use_png)"/>
-    <param name="jpeg_quality"      type="int"    value="$(arg jpeg_quality)"/>
-    <param name="png_level"         type="int"    value="$(arg png_level)"/>
-    <param name="depth_method"      type="str"    value="$(arg depth_method)"/>
-    <param name="depth_device"      type="int"    value="$(arg depth_device)"/>
-    <param name="reg_method"        type="str"    value="$(arg reg_method)"/>
-    <param name="reg_device"        type="int"    value="$(arg reg_device)"/>
-    <param name="max_depth"         type="double" value="$(arg max_depth)"/>
-    <param name="min_depth"         type="double" value="$(arg min_depth)"/>
-    <param name="queue_size"        type="int"    value="$(arg queue_size)"/>
-    <param name="bilateral_filter"  type="bool"   value="$(arg bilateral_filter)"/>
-    <param name="edge_aware_filter" type="bool"   value="$(arg edge_aware_filter)"/>
-    <param name="worker_threads"    type="int"    value="$(arg worker_threads)"/>
-  </node>
+  <arg name="infra_width"         default="848"/>
+  <arg name="infra_height"        default="480"/>
+  <arg name="enable_infra"        default="false"/>
+  <arg name="enable_infra1"       default="false"/>
+  <arg name="enable_infra2"       default="false"/>
+  <arg name="infra_rgb"           default="false"/>
 
-  <!-- Node version of kinect2_bridge -->
-  <node pkg="kinect2_bridge" type="kinect2_bridge" name="$(arg base_name)_bridge" 
-        respawn="$(arg respawn)" output="$(arg output)" unless="$(arg use_nodelet)">
-    <param name="base_name"         type="str"    value="$(arg base_name)"/>
-    <param name="sensor"            type="str"    value="$(arg sensor)"/>
-    <param name="publish_tf"        type="bool"   value="$(arg publish_tf)"/>
-    <param name="base_name_tf"      type="str"    value="$(arg base_name_tf)"/>
-    <param name="fps_limit"         type="double" value="$(arg fps_limit)"/>
-    <param name="calib_path"        type="str"    value="$(arg calib_path)"/>
-    <param name="use_png"           type="bool"   value="$(arg use_png)"/>
-    <param name="jpeg_quality"      type="int"    value="$(arg jpeg_quality)"/>
-    <param name="png_level"         type="int"    value="$(arg png_level)"/>
-    <param name="depth_method"      type="str"    value="$(arg depth_method)"/>
-    <param name="depth_device"      type="int"    value="$(arg depth_device)"/>
-    <param name="reg_method"        type="str"    value="$(arg reg_method)"/>
-    <param name="reg_device"        type="int"    value="$(arg reg_device)"/>
-    <param name="max_depth"         type="double" value="$(arg max_depth)"/>
-    <param name="min_depth"         type="double" value="$(arg min_depth)"/>
-    <param name="queue_size"        type="int"    value="$(arg queue_size)"/>
-    <param name="bilateral_filter"  type="bool"   value="$(arg bilateral_filter)"/>
-    <param name="edge_aware_filter" type="bool"   value="$(arg edge_aware_filter)"/>
-    <param name="worker_threads"    type="int"    value="$(arg worker_threads)"/>
-  </node>
+  <arg name="color_width"         default="-1"/>
+  <arg name="color_height"        default="-1"/>
+  <arg name="enable_color"        default="true"/>
 
-  <!-- sd point cloud (512 x 424) -->
-  <node pkg="nodelet" type="nodelet" name="$(arg base_name)_points_xyzrgb_sd" 
-        args="load depth_image_proc/point_cloud_xyzrgb $(arg nodelet_manager)" respawn="$(arg respawn)">
-    <remap from="rgb/camera_info"             to="$(arg base_name)/sd/camera_info"/>
-    <remap from="rgb/image_rect_color"        to="$(arg base_name)/sd/image_color_rect"/>
-    <remap from="depth_registered/image_rect" to="$(arg base_name)/sd/image_depth_rect"/>
-    <remap from="depth_registered/points"     to="$(arg base_name)/sd/points"/>
-    <param name="queue_size" type="int" value="$(arg queue_size)"/>
-  </node>
+  <arg name="fisheye_fps"         default="-1"/>
+  <arg name="depth_fps"           default="-1"/>
+  <arg name="infra_fps"           default="30"/>
+  <arg name="color_fps"           default="-1"/>
+  <arg name="gyro_fps"            default="-1"/>
+  <arg name="accel_fps"           default="-1"/>
+  <arg name="enable_gyro"         default="false"/>
+  <arg name="enable_accel"        default="false"/>
 
-  <!-- qhd point cloud (960 x 540) -->
-  <node pkg="nodelet" type="nodelet" name="$(arg base_name)_points_xyzrgb_qhd" 
-        args="load depth_image_proc/point_cloud_xyzrgb $(arg nodelet_manager)" respawn="$(arg respawn)">
-    <remap from="rgb/camera_info"             to="$(arg base_name)/qhd/camera_info"/>
-    <remap from="rgb/image_rect_color"        to="$(arg base_name)/qhd/image_color_rect"/>
-    <remap from="depth_registered/image_rect" to="$(arg base_name)/qhd/image_depth_rect"/>
-    <remap from="depth_registered/points"     to="$(arg base_name)/qhd/points"/>
-    <param name="queue_size" type="int" value="$(arg queue_size)"/>
-  </node>
+  <arg name="enable_pointcloud"         default="false"/>
+  <arg name="pointcloud_texture_stream" default="RS2_STREAM_COLOR"/>
+  <arg name="pointcloud_texture_index"  default="0"/>
+  <arg name="allow_no_texture_points"   default="false"/>
+  <arg name="ordered_pc"                default="false"/>
 
-  <!-- hd point cloud (1920 x 1080) -->
-  <node pkg="nodelet" type="nodelet" name="$(arg base_name)_points_xyzrgb_hd" 
-        args="load depth_image_proc/point_cloud_xyzrgb $(arg nodelet_manager)" respawn="$(arg respawn)">
-    <remap from="rgb/camera_info"             to="$(arg base_name)/hd/camera_info"/>
-    <remap from="rgb/image_rect_color"        to="$(arg base_name)/hd/image_color_rect"/>
-    <remap from="depth_registered/image_rect" to="$(arg base_name)/hd/image_depth_rect"/>
-    <remap from="depth_registered/points"     to="$(arg base_name)/hd/points"/>
-    <param name="queue_size" type="int" value="$(arg queue_size)"/>
-  </node>
+  <arg name="enable_sync"               default="false"/>
+  <arg name="align_depth"               default="false"/>
+
+  <arg name="publish_tf"                default="true"/>
+  <arg name="tf_publish_rate"           default="0"/>
+
+  <arg name="filters"                   default="pointcloud"/>
+  <arg name="clip_distance"             default="-2"/>
+  <arg name="linear_accel_cov"          default="0.01"/>
+  <arg name="initial_reset"             default="false"/>
+  <arg name="reconnect_timeout"         default="6.0"/>
+  <arg name="wait_for_device_timeout"   default="-1.0"/>
+  <arg name="unite_imu_method"          default=""/>
+  <arg name="topic_odom_in"             default="odom_in"/>
+  <arg name="calib_odom_file"           default=""/>
+  <arg name="publish_odom_tf"           default="true"/>
+
+  <arg name="stereo_module/exposure/1"  default="7500"/>
+  <arg name="stereo_module/gain/1"      default="16"/>
+  <arg name="stereo_module/exposure/2"  default="1"/>
+  <arg name="stereo_module/gain/2"      default="16"/>
+  
+  
+
+  <group ns="$(arg camera)">
+    <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
+      <arg name="tf_prefix"                value="$(arg tf_prefix)"/>
+      <arg name="external_manager"         value="$(arg external_manager)"/>
+      <arg name="manager"                  value="$(arg manager)"/>
+      <arg name="output"                   value="$(arg output)"/>
+      <arg name="respawn"                  value="$(arg respawn)"/>
+      <arg name="serial_no"                value="$(arg serial_no)"/>
+      <arg name="usb_port_id"              value="$(arg usb_port_id)"/>
+      <arg name="device_type"              value="$(arg device_type)"/>
+      <arg name="json_file_path"           value="$(arg json_file_path)"/>
+
+      <arg name="enable_pointcloud"        value="$(arg enable_pointcloud)"/>
+      <arg name="pointcloud_texture_stream" value="$(arg pointcloud_texture_stream)"/>
+      <arg name="pointcloud_texture_index"  value="$(arg pointcloud_texture_index)"/>
+      <arg name="enable_sync"              value="$(arg enable_sync)"/>
+      <arg name="align_depth"              value="$(arg align_depth)"/>
+
+      <arg name="fisheye_width"            value="$(arg fisheye_width)"/>
+      <arg name="fisheye_height"           value="$(arg fisheye_height)"/>
+      <arg name="enable_fisheye"           value="$(arg enable_fisheye)"/>
+
+      <arg name="depth_width"              value="$(arg depth_width)"/>
+      <arg name="depth_height"             value="$(arg depth_height)"/>
+      <arg name="enable_depth"             value="$(arg enable_depth)"/>
+
+      <arg name="confidence_width"         value="$(arg confidence_width)"/>
+      <arg name="confidence_height"        value="$(arg confidence_height)"/>
+      <arg name="enable_confidence"        value="$(arg enable_confidence)"/>
+      <arg name="confidence_fps"           value="$(arg confidence_fps)"/>
+
+      <arg name="color_width"              value="$(arg color_width)"/>
+      <arg name="color_height"             value="$(arg color_height)"/>
+      <arg name="enable_color"             value="$(arg enable_color)"/>
+
+      <arg name="infra_width"              value="$(arg infra_width)"/>
+      <arg name="infra_height"             value="$(arg infra_height)"/>
+      <arg name="enable_infra"             value="$(arg enable_infra)"/>
+      <arg name="enable_infra1"            value="$(arg enable_infra1)"/>
+      <arg name="enable_infra2"            value="$(arg enable_infra2)"/>
+      <arg name="infra_rgb"                value="$(arg infra_rgb)"/>
+
+      <arg name="fisheye_fps"              value="$(arg fisheye_fps)"/>
+      <arg name="depth_fps"                value="$(arg depth_fps)"/>
+      <arg name="infra_fps"                value="$(arg infra_fps)"/>
+      <arg name="color_fps"                value="$(arg color_fps)"/>
+      <arg name="gyro_fps"                 value="$(arg gyro_fps)"/>
+      <arg name="accel_fps"                value="$(arg accel_fps)"/>
+      <arg name="enable_gyro"              value="$(arg enable_gyro)"/>
+      <arg name="enable_accel"             value="$(arg enable_accel)"/>
+
+      <arg name="publish_tf"               value="$(arg publish_tf)"/>
+      <arg name="tf_publish_rate"          value="$(arg tf_publish_rate)"/>
+
+      <arg name="filters"                  value="$(arg filters)"/>
+      <arg name="clip_distance"            value="$(arg clip_distance)"/>
+      <arg name="linear_accel_cov"         value="$(arg linear_accel_cov)"/>
+      <arg name="initial_reset"            value="$(arg initial_reset)"/>
+      <arg name="reconnect_timeout"        value="$(arg reconnect_timeout)"/>
+      <arg name="wait_for_device_timeout"  value="$(arg wait_for_device_timeout)"/>
+      <arg name="unite_imu_method"         value="$(arg unite_imu_method)"/>
+      <arg name="topic_odom_in"            value="$(arg topic_odom_in)"/>
+      <arg name="calib_odom_file"          value="$(arg calib_odom_file)"/>
+      <arg name="publish_odom_tf"          value="$(arg publish_odom_tf)"/>
+      <arg name="stereo_module/exposure/1" value="$(arg stereo_module/exposure/1)"/>
+      <arg name="stereo_module/gain/1"     value="$(arg stereo_module/gain/1)"/>
+      <arg name="stereo_module/exposure/2" value="$(arg stereo_module/exposure/2)"/>
+      <arg name="stereo_module/gain/2"     value="$(arg stereo_module/gain/2)"/>
+
+      <arg name="allow_no_texture_points"  value="$(arg allow_no_texture_points)"/>
+      <arg name="ordered_pc"               value="$(arg ordered_pc)"/>
+      
+    </include>
+  </group>
 </launch>

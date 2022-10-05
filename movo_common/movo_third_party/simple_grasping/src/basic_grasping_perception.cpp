@@ -90,7 +90,7 @@ public:
     range_filter_.setFilterFieldName("z");
     range_filter_.setFilterLimits(0, 2.5);
 
-    // Subscribe to head camera cloud  "/kinect2/sd/points"
+    // Subscribe to head camera cloud  "/camera/depth/color/points"
     cloud_sub_ = nh_.subscribe<sensor_msgs::PointCloud2>("/head_camera/depth_registered/points",
                                                                      1,
                                                                      &BasicGraspingPerception::cloudCallback,
