@@ -136,9 +136,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             </inertial>
 		</link>
         
-		<xacro:d435_sensor prefix="${rgbd_prefix}" parent="tilt_link">
+		<xacro:sensor_d435 parent="tilt_link">
 			<origin xyz="0 0 0" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
-		</xacro:d435_sensor>
+		</xacro:sensor_d435>
 
     </xacro:macro>
 
