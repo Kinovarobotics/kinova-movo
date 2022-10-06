@@ -72,32 +72,20 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+        camera_bottom_screw_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         front_laser_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        kinect2_ir_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        kinect2_ir_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        kinect2_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        kinect2_rgb_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        kinect2_rgb_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         left_base_link:
           Alpha: 1
           Show Axes: false
@@ -290,17 +278,27 @@ Visualization Manager:
           Value: false
         base_link:
           Value: false
+        camera_bottom_screw_frame:
+          Value: false
+        camera_color_frame:
+          Value: false
+        camera_color_optical_frame:
+          Value: false
+        camera_depth_frame:
+          Value: false
+        camera_depth_optical_frame:
+          Value: false
+        camera_infra1_frame:
+          Value: true
+        camera_infra1_optical_frame:
+          Value: true
+        camera_infra2_frame:
+          Value: true
+        camera_infra2_optical_frame:
+          Value: true
+        camera_link:
+          Value: true
         front_laser_link:
-          Value: false
-        kinect2_ir_link:
-          Value: false
-        kinect2_ir_optical_frame:
-          Value: false
-        kinect2_link:
-          Value: false
-        kinect2_rgb_link:
-          Value: false
-        kinect2_rgb_optical_frame:
           Value: false
         left_base_link:
           Value: false
@@ -407,12 +405,19 @@ Visualization Manager:
                   pan_base_link:
                     pan_link:
                       tilt_link:
-                        kinect2_link:
-                          kinect2_ir_link:
-                            kinect2_ir_optical_frame:
-                              {}
-                            kinect2_rgb_link:
-                              kinect2_rgb_optical_frame:
+                        camera_bottom_screw_frame:
+                          camera_link:
+                            camera_color_frame:
+                              camera_color_optical_frame:
+                                {}
+                            camera_depth_frame:
+                              camera_depth_optical_frame:
+                                {}
+                            camera_infra1_frame:
+                              camera_infra1_optical_frame:
+                                {}
+                            camera_infra2_frame:
+                              camera_infra2_optical_frame:
                                 {}
                   right_base_link:
                     right_shoulder_link:
