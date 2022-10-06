@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
 Software License Agreement (BSD)
-\file      pan_tilt_kinect_one.urdf.xacro
+\file      pan_tilt_d435.urdf.xacro
 \authors   Patrick Hussey
 \copyright Copyright (c) 2017, Kinova Robotics inc. All rights reserved.
 Redistribution and use in source and binary forms, with or without modification,
@@ -27,7 +27,7 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <robot name="movo_pan_tilt" xmlns:xacro="http://ros.org/wiki/xacro">
-    <xacro:include filename="$(find movo_description)/urdf/sensors/kinect_one_sensor.urdf.xacro"/>
+    <xacro:include filename="$(find movo_description)/urdf/sensors/_d435.urdf.xacro"/>
 
     <xacro:property name="M_PI" value="3.14159"/>
 
@@ -136,9 +136,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             </inertial>
 		</link>
         
-		<xacro:kinect_one_sensor prefix="${rgbd_prefix}" parent="tilt_link">
-			<origin xyz="0.05825 -0.0105875 -0.026" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
-		</xacro:kinect_one_sensor>
+		<xacro:d435_sensor prefix="${rgbd_prefix}" parent="tilt_link">
+			<origin xyz="0 0 0" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
+		</xacro:d435_sensor>
+
     </xacro:macro>
 
 </robot>
