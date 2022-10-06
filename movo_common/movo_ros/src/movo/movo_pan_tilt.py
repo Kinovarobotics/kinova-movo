@@ -33,14 +33,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
-from system_defines import *
-from utils import *
+from movo.system_defines import *
+from movo.utils import *
 from movo_msgs.msg import PanTiltCmd, PanTiltFdbk, PVA
 from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectory,JointTrajectoryPoint
 from control_msgs.msg import JointTrajectoryControllerState
 from control_msgs.srv import QueryTrajectoryState,QueryTrajectoryStateResponse
-from io_eth import IoEthThread
+from movo.io_eth import IoEthThread
 import multiprocessing
 import threading
 import select
@@ -257,8 +257,8 @@ class PanTiltIO(object):
             self._jcs.actual.velocities = self.js.velocity
             self._jcs.actual.accelerations = [0.0,0.0]
             try:
-                self._jcs.error.positions = map(operator.sub,self._jcs.desired.positions,self._jcs.actual.positions)
-                self._jcs.error.velocities = map(operator.sub,self._jcs.desired.velocities,self._jcs.actual.velocities)
+                self._jcs.error.positions = list(map(operator.sub,self._jcs.desired.positions,self._jcs.actual.positions))
+                self._jcs.error.velocities = list(map(operator.sub,self._jcs.desired.velocities,self._jcs.actual.velocities))
             except:
                 self._jcs.error.positions = [0.0]*2
                 self._jcs.error.velocities = [0.0]*2

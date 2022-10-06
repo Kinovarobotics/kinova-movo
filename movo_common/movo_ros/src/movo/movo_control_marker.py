@@ -38,8 +38,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import rospy
 import tf
 import sys
-from utils import *
-from system_defines import *
+from movo.utils import *
+from movo.system_defines import *
 from movo_msgs.msg import *
 from std_msgs.msg import UInt32
 from geometry_msgs.msg import Twist

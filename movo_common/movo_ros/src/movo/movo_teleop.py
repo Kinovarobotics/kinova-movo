@@ -34,8 +34,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
-from utils import *
-from system_defines import *
+from movo.utils import *
+from movo.system_defines import *
 from movo_msgs.msg import *
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
