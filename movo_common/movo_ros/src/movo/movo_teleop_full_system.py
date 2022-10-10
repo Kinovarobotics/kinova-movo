@@ -39,8 +39,8 @@ Edited 7/25/2016: Vivian Chu, vchu@gatech - included support for simulation
 Edited 11/07/2016: David Kent, dekent@gatech - integrated arm commands with wpi_jaco
 
 --------------------------------------------------------------------"""
-from utils import *
-from system_defines import *
+from movo.utils import *
+from movo.system_defines import *
 from movo_msgs.msg import *
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
@@ -120,9 +120,9 @@ class MovoTeleopFullSystem(object):
         self.axis_value = dict()
         self.button_state = dict()
         
-        for key, value in self.ctrl_map.iteritems():
+        for key, value in self.ctrl_map.items():
             if key == 'momentary':
-                for key, value2 in value.iteritems():
+                for key, value2 in value.items():
                     self.db_cnt[key]=0
                     self.button_state[key]=False
             else:

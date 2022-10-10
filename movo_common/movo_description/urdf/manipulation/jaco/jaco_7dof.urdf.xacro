@@ -42,13 +42,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <xacro:property name="wrist_spherical_2_mass" value="0.463" />
     <xacro:property name="wrist_3_mass" value="0.190782"/>
 
-    <property name="shoulder_pan_joint_rpy" value="0 ${M_PI} 0" />
-    <property name="shoulder_lift_joint_rpy" value="${M_PI/2} 0 0" />
-    <property name="arm_half_joint_rpy" value="-${M_PI/2} 0 0" />
-    <property name="elbow_joint_rpy" value="-${M_PI/2} 0 0"/>
-    <property name="wrist_spherical_1_joint_rpy" value="${M_PI/2} ${M_PI} 0" />
-    <property name="wrist_spherical_2_joint_rpy" value="-${M_PI/2} 0 0" />
-    <property name="wrist_3_joint_rpy" value="${M_PI/2} ${M_PI} 0" />
+    <xacro:property name="shoulder_pan_joint_rpy" value="0 ${M_PI} 0" />
+    <xacro:property name="shoulder_lift_joint_rpy" value="${M_PI/2} 0 0" />
+    <xacro:property name="arm_half_joint_rpy" value="-${M_PI/2} 0 0" />
+    <xacro:property name="elbow_joint_rpy" value="-${M_PI/2} 0 0"/>
+    <xacro:property name="wrist_spherical_1_joint_rpy" value="${M_PI/2} ${M_PI} 0" />
+    <xacro:property name="wrist_spherical_2_joint_rpy" value="-${M_PI/2} 0 0" />
+    <xacro:property name="wrist_3_joint_rpy" value="${M_PI/2} ${M_PI} 0" />
 
     <xacro:macro name="jaco_robot_7dof" params="prefix parent *origin">
         

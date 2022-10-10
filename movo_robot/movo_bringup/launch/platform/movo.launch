@@ -3,7 +3,7 @@
 
     <arg name="local" default="true"/>
 
-    <machine name="movo1" address="movo1" user="movo" 
+    <machine name="movo1" address="movo1" user="robohub" 
                  env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
          
     <!--System watchdog-->
@@ -11,6 +11,8 @@
         <param name="pc_name" value="movo1"/>
     </node>
     
+    <!-- Platform specific robot state publisher and parameters -->
+    <include file="$(find movo_description)/launch/movo_upload.launch"/>
     
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
         <param name="publish_frequency" value="100.0" />

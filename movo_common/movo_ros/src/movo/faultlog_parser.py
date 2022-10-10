@@ -34,8 +34,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
-from system_defines import *
-from utils          import *
+from movo.system_defines import *
+from movo.utils          import *
 import webbrowser
 import os
 import time

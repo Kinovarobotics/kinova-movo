@@ -6,7 +6,7 @@
     <arg name="sim" default="false"/>
     <arg name="local" default="true"/>
 
-    <machine name="movo1" address="movo1" user="movo" 
+    <machine name="movo1" address="movo1" user="robohub" 
                  env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
 
     <!-- Run the map server -->

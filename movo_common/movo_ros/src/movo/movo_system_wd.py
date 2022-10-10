@@ -40,7 +40,7 @@ import sys
 import rospy
 import os
 from std_msgs.msg import Bool
-from utils import m32
+from movo.utils import m32
 import socket
 import re
 
@@ -81,7 +81,7 @@ class MovoWatchdog:
             
         if (len(data) == 4):
         
-            rx_dat = [ord(i) for i in data]
+            rx_dat = [i for i in data]
             shutdwn_cmd = m32(rx_dat)
             if (0x8756BAEB == shutdwn_cmd):
                 self.remote_pub.publish(self._remote_shutdown_msg)

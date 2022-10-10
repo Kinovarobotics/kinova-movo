@@ -1,8 +1,13 @@
 # SSH'ing into the movos
 Make sure you are connected to the robohub wifi
-movo1 can be reached by `ssh robohub@129.97.70.109`
-movo2 can be reached by `ssh robohub@129.97.71.113`
+movo1 can be reached by `ssh robohub@movo1`
+movo2 can be reached by `ssh robohub@movo2`
 
 # Camera
 Camera uses the iai_kinect2 pkg
 Can be launched with roslaunch kinect2_bridge kinect2_bridge.launch
+
+#ROS Install
+This metapackage uses vcstool to keep track of 3rd party packages that must be built from source
+See ROS page on vcstool for context
+Repositories can be imported with "vcs import src/ < src/kinova-movo/movo.rosinstall" from the root of the ws

@@ -1,0 +1,15 @@
+repositories:
+  ar_track_alvar:
+    type: git
+    url: https://github.com/machinekoder/ar_track_alvar.git
+    version: noetic-devel
+
+  yujin_ocs:
+    type: git
+    url: https://github.com/yujinrobot/yujin_ocs.git
+    version: devel
+
+  yocs_msgs:
+    type: git
+    url: https://github.com/yujinrobot/yocs_msgs.git
+    version: release/0.7-melodic

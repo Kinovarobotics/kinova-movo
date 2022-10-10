@@ -112,7 +112,7 @@ def add_bytes(list_to_append,var2,bits):
     if bits % 2:
         return False
     
-    bytes_to_make = bits/8
+    bytes_to_make = bits//8
     tmp_list = []
     for i in range(0,bytes_to_make):
         shift = bits - 8*(i+1)

@@ -37,7 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import bisect
 from copy import deepcopy
 import numpy as np
-import bezier
+import movo_jtas.bezier
 import rospy
 from std_msgs.msg import UInt16
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryFeedback, FollowJointTrajectoryResult, JointTrajectoryControllerState

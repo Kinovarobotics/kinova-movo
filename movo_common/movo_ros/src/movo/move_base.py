@@ -36,14 +36,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import rospy
 import tf
 import actionlib
-from system_defines import *
 from actionlib_msgs.msg import *
 from movo_msgs.msg import *
 from geometry_msgs.msg import Pose, PoseStamped, PointStamped, PoseWithCovarianceStamped, Point, Quaternion, Twist
 from move_base_msgs.msg import *
 from std_msgs.msg import Bool, UInt32
 from math import pow, sqrt
-from system_defines import *
+from movo.system_defines import *
 from visualization_msgs.msg import MarkerArray,Marker
 from math import atan2
 import rospkg
