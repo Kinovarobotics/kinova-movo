@@ -70,7 +70,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <transmission name="pan_trans" type="SimpleTransmission">
 			<type>transmission_interface/SimpleTransmission</type>
 			<joint name="pan_joint">
-				<hardwareInterface>PositionJointInterface</hardwareInterface>
+				<hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
 			</joint>
 			<actuator name="pan_actuator">
 				<mechanicalReduction>1</mechanicalReduction>
@@ -109,7 +109,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <transmission name="tilt_trans" type="SimpleTransmission">
 			<type>transmission_interface/SimpleTransmission</type>
 			<joint name="tilt_joint">
-				<hardwareInterface>PositionJointInterface</hardwareInterface>
+				<hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
 			</joint>
 			<actuator name="tilt_actuator">
 				<mechanicalReduction>1</mechanicalReduction>
