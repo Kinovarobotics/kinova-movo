@@ -37,7 +37,7 @@ if [ "$1" = "-h" ]; then
     showHelp
 else 
     echo "Synchronizing time with server at $1"
-    sudo service chrony stop
-    sudo ntpdate $1
-    sudo service chrony start
+    service chrony stop
+    ntpdate $1          
+    service chrony start
 fi
