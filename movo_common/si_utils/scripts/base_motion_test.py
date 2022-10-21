@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """--------------------------------------------------------------------
 Copyright (c) 2017, Kinova Robotics inc.
 
@@ -68,7 +68,7 @@ class BaseMotionTest(object):
         @param duration: second
         @return:
         """
-        vel_cmd = map(float, vel_cmd)
+        vel_cmd = list(map(float, vel_cmd))
         duration = float(duration)
 
         self._cfg_cmd.gp_cmd = 'GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE'
@@ -104,8 +104,8 @@ class BaseMotionTest(object):
         if vel_cmd is None:
             vel_cmd = [0.1, 0.1, 30]
 
-        dist_cmd = map(math.fabs, map(float, dist_cmd))
-        vel_cmd = map(float, vel_cmd)
+        dist_cmd = list(map(math.fabs, list(map(float, dist_cmd))))
+        vel_cmd = list(map(float, vel_cmd))
 
         # duration is as the action takes most time consumption.
         duration_temp = [0.0, 0.0, 0.0]
@@ -209,7 +209,7 @@ class BaseMotionTest(object):
                 self._base_vel_pub.publish(Twist())
                 r.sleep()
         except Exception as ex:
-            print "Message of base motion failed to be published, error message: ", ex.message
+            print("Message of base motion failed to be published, error message: ", ex.message)
             pass
 
 
