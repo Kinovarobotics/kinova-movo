@@ -16,7 +16,7 @@ find_package(catkin REQUIRED grasp_msgs
     shape_msgs
     tf
 )
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 link_directories(
   ${catkin_LIBRARY_DIRS}

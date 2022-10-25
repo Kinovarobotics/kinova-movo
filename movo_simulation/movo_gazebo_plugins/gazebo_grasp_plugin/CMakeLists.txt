@@ -31,7 +31,7 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES gazebo_grasp_fix
   CATKIN_DEPENDS gazebo_ros geometry_msgs roscpp std_msgs
-  DEPENDS gazebo 
+  DEPENDS GAZEBO 
 )
 
 ###########

@@ -584,11 +584,11 @@ void GazeboGraspFix::OnUpdate() {
 
             // Get transform for currLinkWorldPose as matrix
             ignition::math::Matrix4d worldToLink(currLinkWorldPose.Rot());
-            worldToLink.Translate(currLinkWorldPose.Pos());
+            worldToLink.SetTranslation(currLinkWorldPose.Pos());
 
             // Get the transform from collision link to contact point
             ignition::math::Matrix4d linkToContact=ignition::math::Matrix4d::Identity;
-            linkToContact.Translate(relContactPos);
+            linkToContact.SetTranslation(relContactPos);
                     
             // the current world position of the contact point right now is:
             ignition::math::Matrix4d _currContactWorldPose=worldToLink*linkToContact;
@@ -770,12 +770,12 @@ void GazeboGraspFix::OnContact(const ConstContactsPtr &_msg)
 
             // To find out the collision point relative to the Link's local coordinate system, first get the Poses as 4x4 matrices
             ignition::math::Matrix4d worldToLink(linkWorldPose.Rot());
-            worldToLink.Translate(linkWorldPose.Pos());
+            worldToLink.SetTranslation(linkWorldPose.Pos());
             
             ignition::math::Matrix4d worldToContact=ignition::math::Matrix4d::Identity;
             //we can assume that the contact has identity rotation because we don't care about its orientation.
             //We could always set another rotation here too.
-            worldToContact.Translate(avgPos);
+            worldToContact.SetTranslation(avgPos);
 
             // now, worldToLink * contactInLocal = worldToContact
             // hence, contactInLocal = worldToLink.Inv * worldToContact
@@ -803,7 +803,7 @@ void GazeboGraspFix::OnContact(const ConstContactsPtr &_msg)
             // now, get the pose of the object and compute it's relative position to the collision surface.
             ignition::math::Pose3d objWorldPose = objCollision->GetLink()->WorldPose();
             ignition::math::Matrix4d worldToObj(objWorldPose.Rot());
-            worldToObj.Translate(objWorldPose.Pos());
+            worldToObj.SetTranslation(objWorldPose.Pos());
     
             ignition::math::Matrix4d objInLocal = worldToLinkInv * worldToObj;
             ignition::math::Vector3d objPosInLocal = objInLocal.Translation();
