@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """--------------------------------------------------------------------
 Copyright (c) 2017, Kinova Robotics inc.
 
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     
     print("Torso Joint Trajectory Action Test Complete")
     
-    print
+    print()
     print("----------------------------------------------------")
     print("Exiting - All Joint Trajectory Action Test Complete")
     print("----------------------------------------------------")

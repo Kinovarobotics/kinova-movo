@@ -83,7 +83,7 @@ class PickPlaceInterface(object):
                           "planning_scene_diff",
                           "planning_time",
                           "support_name")
-        for arg in kwargs.keys():
+        for arg in list(kwargs.keys()):
             if not arg in supported_args:
                 rospy.loginfo("pickup: unsupported argument: %s", arg)
 
@@ -175,7 +175,7 @@ class PickPlaceInterface(object):
                           "planning_scene_diff",
                           "planning_time",
                           "support_name")
-        for arg in kwargs.keys():
+        for arg in list(kwargs.keys()):
             if not arg in supported_args:
                 rospy.loginfo("place: unsupported argument: %s", arg)
 

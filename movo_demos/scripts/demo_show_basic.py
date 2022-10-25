@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """--------------------------------------------------------------------
 Copyright (c) 2017, Kinova Robotics inc.
 
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     movo_rarm.start()
     movo_larm.wait(from_start_time+2)
     movo_rarm.wait(from_start_time+2)
-    print "Movo Completing Greeting Task!"
+    print("Movo Completing Greeting Task!")
     # """
     # 2. Feature Motion
     # """
@@ -187,7 +187,7 @@ if __name__ == "__main__":
     rospy.sleep(1)
     target = Pose2D(x=0.0, y=0.0, theta=0.0)
     movo_base.goto(target)
-    print "Movo Completing Base Motion"
+    print("Movo Completing Base Motion")
 
     # Torso motion
     say(Publisher, "There are certain advantages to being a robot. We do not have to worry about being too tall or too short. "
@@ -201,7 +201,7 @@ if __name__ == "__main__":
     movo_torsor.add_point([0.10], 12)
     movo_torsor.start()
     movo_torsor.wait(14.0)
-    print "Movo Completing Torso Motion"
+    print("Movo Completing Torso Motion")
 
     # Arm motion
     if '6dof' == dof:
@@ -365,4 +365,4 @@ if __name__ == "__main__":
     print("Return to Home position for next loop")
 
     process_stop_time = dt.datetime.now()
-    print "Process time is : ", (process_stop_time - process_start_time).seconds, " seconds"
+    print("Process time is : ", (process_stop_time - process_start_time).seconds, " seconds")

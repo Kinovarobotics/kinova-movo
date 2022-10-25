@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import rospy
 from copy import deepcopy
-from helpers import FilterSignals
+from .helpers import FilterSignals
 
 class JacoPID(object):
     """

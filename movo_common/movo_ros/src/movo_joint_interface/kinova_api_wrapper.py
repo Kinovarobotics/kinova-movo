@@ -35,8 +35,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
 from ctypes import *
-from helpers import dottedQuadToNum,get_ip_address
-from angles import deg_to_rad, rad_to_deg
+from .helpers import dottedQuadToNum,get_ip_address
+from .angles import deg_to_rad, rad_to_deg
 import rospy
 
 class KinovaDevice(Structure):

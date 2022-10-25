@@ -25,7 +25,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import thread, copy
+import _thread, copy
 import rospy
 
 try:
@@ -63,7 +63,7 @@ class PlanningSceneInterface(object):
                                           queue_size=10)
 
         # track the attached and collision objects
-        self._mutex = thread.allocate_lock()
+        self._mutex = _thread.allocate_lock()
         # these are updated based what the planning scene actually contains
         self._attached = list()
         self._collision = list()
@@ -384,21 +384,21 @@ class PlanningSceneInterface(object):
             sync = True
             # delete objects that should be gone
             for name in self._collision:
-                if name in self._removed.keys():
+                if name in list(self._removed.keys()):
                     # should be removed, is not
                     self.removeCollisionObject(name, False)
                     sync = False
             for name in self._attached:
-                if name in self._attached_removed.keys():
+                if name in list(self._attached_removed.keys()):
                     # should be removed, is not
                     self.removeAttachedObject(name, False)
                     sync = False
             # add missing objects
-            for name in self._objects.keys():
+            for name in list(self._objects.keys()):
                 if name not in self._collision + self._attached:
                     self._pub.publish(self._objects[name])
                     sync = False
-            for name in self._attached_objects.keys():
+            for name in list(self._attached_objects.keys()):
                 if name not in self._attached:
                     self._attached_pub.publish(self._attached_objects[name])
                     sync = False
@@ -425,7 +425,7 @@ class PlanningSceneInterface(object):
         # Need to send a planning scene diff
         p = PlanningScene()
         p.is_diff = True
-        for color in self._colors.values():
+        for color in list(self._colors.values()):
             p.object_colors.append(color)
         self._scene_pub.publish(p)
 

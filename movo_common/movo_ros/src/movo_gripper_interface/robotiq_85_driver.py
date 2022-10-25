@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
-from robotiq_85_gripper import Robotiq85Gripper
+from .robotiq_85_gripper import Robotiq85Gripper
 from movo_msgs.msg import GripperCmd, GripperStat
 from sensor_msgs.msg import JointState
 import numpy as np

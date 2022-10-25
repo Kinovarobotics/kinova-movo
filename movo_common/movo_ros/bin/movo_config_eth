@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """--------------------------------------------------------------------
 Copyright (c) 2017, Kinova Robotics inc.
 
@@ -80,9 +80,9 @@ def parse_movo_rsp(rsp,new_settings):
     
     if not valid_rsp:
         return False
-    print new_settings,rsp_data[ROS_FRAM_ETH_IP_ADDRESS_INDEX:]
+    print(new_settings,rsp_data[ROS_FRAM_ETH_IP_ADDRESS_INDEX:])
     for i in range(len(new_settings)):
-        print new_settings[i],rsp_data[ROS_FRAM_ETH_IP_ADDRESS_INDEX+i]
+        print(new_settings[i],rsp_data[ROS_FRAM_ETH_IP_ADDRESS_INDEX+i])
         if new_settings[i] != rsp_data[ROS_FRAM_ETH_IP_ADDRESS_INDEX+i]:
             valid_rsp = False
             break
@@ -114,7 +114,7 @@ if __name__ == "__main__":
     """
     First kill the movo core process
     """
-    print "Shutting down the movo-core service"
+    print("Shutting down the movo-core service")
     os.system("sudo service movo-core status")
     
     """
@@ -143,7 +143,7 @@ if __name__ == "__main__":
         platform_streaming = False
         
     if (True == platform_streaming):
-        print "Could not stop platform stream"
+        print("Could not stop platform stream")
         sock.close()
         exit(-1)
     
@@ -155,7 +155,7 @@ if __name__ == "__main__":
     cmd_bytes = generate_cmd_bytes(new_settings)
     cmd_str = ''.join([chr(i) for i in cmd_bytes])
     
-    print "Updating Movo ethernet settings"
+    print("Updating Movo ethernet settings")
     
     sock.send(cmd_str)
     cmd_none = [GENERAL_PURPOSE_CMD_ID,[GENERAL_PURPOSE_CMD_NONE,0]]
@@ -228,7 +228,7 @@ if __name__ == "__main__":
             exit(-1)
         
 
-    print "Please udpate the settings in the 50.movo_env.sh file that gets sources by workspace or by ros package"        
+    print("Please udpate the settings in the 50.movo_env.sh file that gets sources by workspace or by ros package")        
 
 
 

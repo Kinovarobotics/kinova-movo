@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """--------------------------------------------------------------------
 Copyright (c) 2017, Kinova Robotics inc.
 
@@ -105,7 +105,7 @@ def main():
     
     tmp = rospy.wait_for_message("/movo/linear_actuator/joint_states", JointState)
     current_angles= tmp.position
-    print current_angles
+    print(current_angles)
     traj = TorsoJTASTest()
     traj.add_point(list(current_angles), 0.0)
     

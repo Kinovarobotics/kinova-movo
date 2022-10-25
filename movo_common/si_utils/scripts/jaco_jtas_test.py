@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """--------------------------------------------------------------------
 Copyright (c) 2017, Kinova Robotics inc.
 
@@ -79,7 +79,7 @@ class JacoJTASTest(object):
         self._goal.trajectory.points.append(point)
 
     def add_point_deg(self, joints_degree, time):
-        self.add_point(map(math.radians, joints_degree), time)
+        self.add_point(list(map(math.radians, joints_degree)), time)
 
     def start(self):
         self._goal.trajectory.header.stamp = rospy.Time(0.0)

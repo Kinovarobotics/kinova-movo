@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
-from modbus_crc import compute_modbus_rtu_crc,verify_modbus_rtu_crc
+from .modbus_crc import compute_modbus_rtu_crc,verify_modbus_rtu_crc
 import numpy as np
 import array
 

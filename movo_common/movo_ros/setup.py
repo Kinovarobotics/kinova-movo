@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ## ! DO NOT MANUALLY INVOKE THIS setup.py, USE CATKIN INSTEAD
 
 from distutils.core import setup

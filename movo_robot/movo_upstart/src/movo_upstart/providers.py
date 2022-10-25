@@ -30,7 +30,7 @@ could be defined for systemd, supervisor, launchd, or other systems.
 
 import em
 import os
-import StringIO
+import io
 
 from catkin.find_in_workspaces import find_in_workspaces
 
@@ -105,7 +105,7 @@ class Upstart(Generic):
         # all of it. A more sophisticated future implementation could track contents or hashes and
         # thereby warn users when a new installation is stomping a change they have made.
         self._load_installed_files_set()
-        self.installed_files_set.update(self.installation_files.keys())
+        self.installed_files_set.update(list(self.installation_files.keys()))
 
         # Remove the job directory. This will fail if it is not empty, and notify the user.
         self.installed_files_set.add(self.job.job_path)
@@ -132,7 +132,7 @@ class Upstart(Generic):
             self.root, "etc/ros", self.job.rosdistro, self.job.name + ".d")
 
     def _fill_template(self, template):
-        self.interpreter.output = StringIO.StringIO()
+        self.interpreter.output = io.StringIO()
         self.interpreter.reset()
         with open(find_in_workspaces(project="movo_upstart", path=template)[0]) as f:
             self.interpreter.file(f)

@@ -128,7 +128,7 @@ class MovoMarkerMenu:
         elif ("Reload" == self.wp_menu_opt[handle]):
             msg = 1<<6                  
         self._msg_pub.publish(msg)
-        for key,value in self.wp_menu_opt.iteritems():
+        for key,value in self.wp_menu_opt.items():
             if (key != handle):
                 self.menu_handler.setCheckState( key, MenuHandler.UNCHECKED )
 
@@ -147,7 +147,7 @@ class MovoMarkerMenu:
         
         self._cfg_pub.publish(msg)
         
-        for key,value in self.mode_menu_opt.iteritems():
+        for key,value in self.mode_menu_opt.items():
             if (key != handle):
                 self.menu_handler.setCheckState( key, MenuHandler.UNCHECKED )
 

@@ -36,7 +36,7 @@ from movo_msgs.msg import *
 from move_base_msgs.msg import *
 from geometry_msgs.msg import Pose2D
 from movo.system_defines import *
-from helpers import Helpers
+from .helpers import Helpers
 from math import sqrt,pow
 
 def trunc(f, n):

@@ -164,19 +164,19 @@ class MovoHeadJTAS(object):
                         self._goal_error[jnt] = tolerance.position
 
     def _get_current_position(self, joint_names):    
-        pos = dict(zip(self._js.name,self._js.position))
+        pos = dict(list(zip(self._js.name,self._js.position)))
         pos = [pos[jnt] for jnt in joint_names]
         return pos
 
     def _get_current_velocities(self, joint_names):
-        vel = dict(zip(self._js.name,self._js.velocity))
+        vel = dict(list(zip(self._js.name,self._js.velocity)))
         vel = [vel[jnt] for jnt in joint_names]
         return vel
 
     def _get_current_errors(self, joint_names):
         actual = self._get_current_position(joint_names)
-        error = map(operator.sub,self.pos_targets,actual)
-        return zip(joint_names, error)       
+        error = list(map(operator.sub,self.pos_targets,actual))
+        return list(zip(joint_names, error))       
 
     def _update_feedback(self, cmd_point, joint_names, cur_time):
         self._fdbk.header.stamp = rospy.Duration.from_sec(rospy.get_time())
@@ -185,10 +185,10 @@ class MovoHeadJTAS(object):
         self._fdbk.desired.time_from_start = rospy.Duration.from_sec(cur_time)
         self._fdbk.actual.positions = self._get_current_position(joint_names)
         self._fdbk.actual.time_from_start = rospy.Duration.from_sec(cur_time)
-        self._fdbk.error.positions = map(operator.sub,
+        self._fdbk.error.positions = list(map(operator.sub,
                                          self._fdbk.desired.positions,
                                          self._fdbk.actual.positions
-                                        )
+                                        ))
         self._fdbk.error.time_from_start = rospy.Duration.from_sec(cur_time)
         self._server.publish_feedback(self._fdbk)
 
@@ -344,7 +344,7 @@ class MovoHeadJTAS(object):
         """
         last = trajectory_points[-1]
         last_time = trajectory_points[-1].time_from_start.to_sec()
-        end_angles = dict(zip(joint_names, last.positions))
+        end_angles = dict(list(zip(joint_names, last.positions)))
         while (now_from_start < (last_time + self._goal_time)
                and not rospy.is_shutdown() and self.robot_is_enabled()):
             if not self._command_joints(joint_names, last):

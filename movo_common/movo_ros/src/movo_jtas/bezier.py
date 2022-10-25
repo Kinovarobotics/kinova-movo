@@ -130,7 +130,7 @@ def de_boor_control_pts(points_array, d0=None,
             else:
                 x[N-2, 0] = 6*points_array[-2, col] - 1.5*dN[0, col]
                 x[0, 0] = 6*points_array[1, col] - 1.5*d0[0, col]
-            x[range(1, N-3+1), 0] = 6*points_array[range(2, N-2+1), col]
+            x[list(range(1, N-3+1)), 0] = 6*points_array[list(range(2, N-2+1)), col]
             # Solve bezier interpolation
             d_pts[2:N+1, col] = np.linalg.solve(A, x).T
         else:
@@ -284,7 +284,7 @@ def bezier_point(b_coeffs, b_index, t):
     else:
         t = 0.0 if t < 0.0 else t
         t = 1.0 if t > 1.0 else t
-        b_coeff_set = b_coeffs[:, b_index-1, range(4)]
+        b_coeff_set = b_coeffs[:, b_index-1, list(range(4))]
         b_point = _cubic_spline_point(b_coeff_set, t)
     return b_point
 
@@ -318,7 +318,7 @@ def bezier_curve(b_coeffs, num_intervals):
     # Copy out initial point
     b_curve[0, :] = b_coeffs[:, 0, 0]
     for current_bpt in range(num_bpts):
-            b_coeff_set = b_coeffs[:, current_bpt, range(4)]
+            b_coeff_set = b_coeffs[:, current_bpt, list(range(4))]
             for iteration, t in enumerate(np.linspace(interval, 1,
                                                       num_intervals)):
                 b_curve[(current_bpt *

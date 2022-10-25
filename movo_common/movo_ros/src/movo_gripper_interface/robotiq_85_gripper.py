@@ -29,8 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------"""
 
 from movo.io_eth import IoEthThread
-from gripper_io import GripperIO
-from modbus_crc import verify_modbus_rtu_crc
+from .gripper_io import GripperIO
+from .modbus_crc import verify_modbus_rtu_crc
 from movo.crc32 import calc_crc32, valid_crc32
 from copy import deepcopy
 import array

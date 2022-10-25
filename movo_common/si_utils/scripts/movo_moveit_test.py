@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """--------------------------------------------------------------------
 Copyright (c) 2017, Kinova Robotics inc.
@@ -48,7 +48,7 @@ def movo_moveit_test():
     ## CALL_SUB_TUTORIAL imports
     ##
     ## First initialize moveit_commander and rospy.
-    print "============ Starting tutorial setup"
+    print("============ Starting tutorial setup")
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node('movo_moveit_test',
                   anonymous=True)
@@ -96,14 +96,14 @@ def movo_moveit_test():
     
 
     ## We can get a list of all the groups in the robot
-    print "============ Robot Groups:"
-    print robot.get_group_names()
+    print("============ Robot Groups:")
+    print(robot.get_group_names())
 
     ## Sometimes for debugging it is useful to print the entire state of the
     ## robot.
-    print "============ Printing robot state"
-    print robot.get_current_state()
-    print "============"
+    print("============ Printing robot state")
+    print(robot.get_current_state())
+    print("============")
     
     group.set_planner_id("RRTConnectkConfigDefault")
 
@@ -120,7 +120,7 @@ def movo_moveit_test():
         gripper_open = 0.165        
 
     
-    print "============ Testing with named targets"
+    print("============ Testing with named targets")
     group.set_named_target("homed")
     plan = group.plan()
     group.execute(plan)
@@ -164,7 +164,7 @@ def movo_moveit_test():
 
     ## END_TUTORIAL
 
-    print "============ STOPPING"
+    print("============ STOPPING")
 
 
 if __name__=='__main__':

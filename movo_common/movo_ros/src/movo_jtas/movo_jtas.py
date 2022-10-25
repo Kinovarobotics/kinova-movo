@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
 from movo_joint_interface.jaco_joint_controller import SIArmController
-from trajectory_smoother import TrajectorySmoother
+from .trajectory_smoother import TrajectorySmoother
 from moveit_python import MoveGroupInterface
 from moveit_msgs.msg import MoveItErrorCodes
 
@@ -291,7 +291,7 @@ class MovoArmJTAS(object):
         # Position to 0:0.165 == close:open
         position = goal.command.position
         effort = goal.command.max_effort
-        print position
+        print(position)
 
         # Reset feedback/result
         self._update_gripper_feedback(position)
@@ -417,7 +417,7 @@ class MovoArmJTAS(object):
 
     def _get_current_errors(self, joint_names):
         error = self._ctl.GetCurrentJointPositionError(joint_names)
-        return zip(joint_names, error)       
+        return list(zip(joint_names, error))       
 
     def _update_feedback(self, cmd_point, joint_names, cur_time):
         self._fdbk.header.stamp = rospy.Duration.from_sec(rospy.get_time())
@@ -426,10 +426,10 @@ class MovoArmJTAS(object):
         self._fdbk.desired.time_from_start = rospy.Duration.from_sec(cur_time)
         self._fdbk.actual.positions = self._get_current_position(joint_names)
         self._fdbk.actual.time_from_start = rospy.Duration.from_sec(cur_time)
-        self._fdbk.error.positions = map(operator.sub,
+        self._fdbk.error.positions = list(map(operator.sub,
                                          self._fdbk.desired.positions,
                                          self._fdbk.actual.positions
-                                        )
+                                        ))
         self._fdbk.error.time_from_start = rospy.Duration.from_sec(cur_time)
         self._server.publish_feedback(self._fdbk)
 
@@ -455,13 +455,13 @@ class MovoArmJTAS(object):
                 self._command_stop()
                 return False
                 
-        pos = dict(zip(joint_names, point.positions))
-        vel = dict(zip(joint_names, [0.0]*len(joint_names)))
-        acc = dict(zip(joint_names, [0.0]*len(joint_names)))
+        pos = dict(list(zip(joint_names, point.positions)))
+        vel = dict(list(zip(joint_names, [0.0]*len(joint_names))))
+        acc = dict(list(zip(joint_names, [0.0]*len(joint_names))))
         if dimensions_dict['velocities']:
-            vel = dict(zip(joint_names, point.velocities))
+            vel = dict(list(zip(joint_names, point.velocities)))
         if dimensions_dict['accelerations']:
-            acc = dict(zip(joint_names, point.accelerations))
+            acc = dict(list(zip(joint_names, point.accelerations)))
         
         if self._alive:
             self._ctl.CommandJoints(pos, vel, acc)
@@ -561,7 +561,7 @@ class MovoArmJTAS(object):
         """
         last = trajectory_points[-1]
         last_time = trajectory_points[-1].time_from_start.to_sec()
-        end_angles = dict(zip(joint_names, last.positions))
+        end_angles = dict(list(zip(joint_names, last.positions)))
         while (now_from_start < (last_time + self._goal_time)
                and not rospy.is_shutdown() and self.robot_is_enabled()):
             if not self._command_joints(joint_names, last, dimensions_dict):
