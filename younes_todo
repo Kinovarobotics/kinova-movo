@@ -1,0 +1,1 @@
+rosrun gmapping slam_gmapping scan:=/movo/scan_multi
