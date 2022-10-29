@@ -4,8 +4,9 @@ movo1 can be reached by `ssh robohub@movo1`
 movo2 can be reached by `ssh robohub@movo2`
 
 # Camera
-Camera uses the iai_kinect2 pkg
-Can be launched with roslaunch kinect2_bridge kinect2_bridge.launch
+Camera uses the realsense-ros pkg
+Can be launched with roslaunch movo_bringup movo2.launch as part of movo
+Can be launched with roslaunch realsense2_camera rs_camera.launch filters:=pointcloud
 
 #ROS Install
 This metapackage uses vcstool to keep track of 3rd party packages that must be built from source

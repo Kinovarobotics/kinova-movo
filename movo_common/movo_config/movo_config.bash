@@ -84,10 +84,4 @@ export USE_R85_FOR_MOVEIT_CONFIG=false
 export MOVO_HAS_RIGHT_ROBOTIQ_GRIPPER=false
 export MOVO_HAS_LEFT_ROBOTIQ_GRIPPER=false
 
-#export for kinect2 bridge
-export OCL_IGNORE_SELF_TEST=1
-
-#allows for ssh launch of Kinect bridge
-export DISPLAY=:0
-
 

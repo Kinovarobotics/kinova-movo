@@ -52,7 +52,7 @@
             <rosparam>
                 success_angle_threshold: 0.01
                 pan_link: pan_link
-                default_pointing_frame: kinect2_link
+                default_pointing_frame: camera_link
             </rosparam>
         </node>
     </group>

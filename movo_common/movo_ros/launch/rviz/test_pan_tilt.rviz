@@ -59,27 +59,15 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        kinect_ir_link:
+        camera_bottom_screw_frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        kinect_ir_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        kinect_link:
+        camera_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        kinect_rgb_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        kinect_rgb_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         pan_base_link:
           Alpha: 1
           Show Axes: false
@@ -110,15 +98,25 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        kinect_ir_link:
+        camera_bottom_screw_frame:
+          Value: false
+        camera_color_frame:
+          Value: false
+        camera_color_optical_frame:
+          Value: false
+        camera_depth_frame:
+          Value: false
+        camera_depth_optical_frame:
+          Value: false
+        camera_infra1_frame:
           Value: true
-        kinect_ir_optical_frame:
+        camera_infra1_optical_frame:
           Value: true
-        kinect_link:
+        camera_infra2_frame:
           Value: true
-        kinect_rgb_link:
+        camera_infra2_optical_frame:
           Value: true
-        kinect_rgb_optical_frame:
+        camera_link:
           Value: true
         pan_base_link:
           Value: true
@@ -138,12 +136,19 @@ Visualization Manager:
           pan_base_link:
             pan_link:
               tilt_link:
-                kinect_link:
-                  kinect_ir_link:
-                    kinect_ir_optical_frame:
-                      {}
-                    kinect_rgb_link:
-                      kinect_rgb_optical_frame:
+                camera_bottom_screw_frame:
+                  camera_link:
+                    camera_color_frame:
+                      camera_color_optical_frame:
+                        {}
+                    camera_depth_frame:
+                      camera_depth_optical_frame:
+                        {}
+                    camera_infra1_frame:
+                      camera_infra1_optical_frame:
+                        {}
+                    camera_infra2_frame:
+                      camera_infra2_optical_frame:
                         {}
       Update Interval: 0
       Value: true
