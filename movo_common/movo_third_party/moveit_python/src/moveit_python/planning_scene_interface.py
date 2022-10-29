@@ -25,7 +25,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import _thread, copy
+import threading, copy
 import rospy
 
 try:
@@ -63,7 +63,7 @@ class PlanningSceneInterface(object):
                                           queue_size=10)
 
         # track the attached and collision objects
-        self._mutex = _thread.allocate_lock()
+        self._mutex = threading.Lock()
         # these are updated based what the planning scene actually contains
         self._attached = list()
         self._collision = list()

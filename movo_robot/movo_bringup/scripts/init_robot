@@ -36,7 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------"""
 import sys, rospy
 from std_msgs.msg import Bool
-from moveit_python import MoveGroupInterface
+from moveit_python.move_group_interface import MoveGroupInterface
 from moveit_msgs.msg import MoveItErrorCodes
 from movo_action_clients.gripper_action_client import GripperActionClient
 import moveit_commander
