@@ -142,7 +142,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <transmission name="linear_trans">
             <type>transmission_interface/SimpleTransmission</type>
             <joint name="linear_joint">
-                <hardwareInterface>PositionJointInterface</hardwareInterface>
+                <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
             </joint>
             <actuator name="linear_motor">
                 <mechanicalReduction>1</mechanicalReduction>

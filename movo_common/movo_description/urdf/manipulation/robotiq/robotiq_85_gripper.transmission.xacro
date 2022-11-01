@@ -6,11 +6,11 @@
         <transmission name="${prefix}gripper_finger1_trans">
             <type>transmission_interface/SimpleTransmission</type>
             <joint name="${prefix}gripper_finger1_joint">
-                <hardwareInterface>PositionJointInterface</hardwareInterface>
+                <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
             </joint>
             <actuator name="${prefix}gripper_finger1_motor">
                 <mechanicalReduction>1</mechanicalReduction>
-                <hardwareInterface>PositionJointInterface</hardwareInterface>
+                <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
             </actuator>
         </transmission>
         
