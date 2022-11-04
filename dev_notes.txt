@@ -8,7 +8,7 @@ Camera uses the realsense-ros pkg
 Can be launched with roslaunch movo_bringup movo2.launch as part of movo
 Can be launched with roslaunch realsense2_camera rs_camera.launch filters:=pointcloud
 
-#ROS Install
+# ROS Install
 This metapackage uses vcstool to keep track of 3rd party packages that must be built from source
 See ROS page on vcstool for context
 Repositories can be imported with "vcs import src/ < src/kinova-movo/movo.rosinstall" from the root of the ws
@@ -18,3 +18,15 @@ Assert that the robot is not charging
 Assert estop is not engaged
 On movo1, run <roslaunch movo_bringup movo1.launch>
 On movo1, run <rosrun si_utils base_motion_test.py>
+
+# Moving the torso
+Assert that the robot is not charging
+Assert estop is not engaged
+On movo1, run <roslaunch movo_bringup movo1.launch>
+On movo1, run <rosrun si_utils torso_jtas_test.py>
+
+# Moving the gimbal
+Assert that the robot is not charging
+Assert estop is not engaged
+On movo1, run <roslaunch movo_bringup movo1.launch>
+On movo1, run <rosrun si_utils head_jtas_test.py>

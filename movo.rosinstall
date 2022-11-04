@@ -13,3 +13,8 @@ repositories:
     type: git
     url: https://github.com/yujinrobot/yocs_msgs.git
     version: release/0.7-melodic
+
+  moveit_python:
+    type: git
+    url: https://github.com/mikeferguson/moveit_python.git
+    version: ros1

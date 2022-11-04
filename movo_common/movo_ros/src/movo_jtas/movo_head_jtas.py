@@ -35,7 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
 from movo_msgs.msg import PanTiltCmd,Status
-from movo_jtas.trajectory_smoother import TrajectorySmoother 
+from movo_jtas.trajectory_smoother import TrajectorySmoother
 
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryFeedback, FollowJointTrajectoryResult
 from trajectory_msgs.msg import JointTrajectoryPoint
