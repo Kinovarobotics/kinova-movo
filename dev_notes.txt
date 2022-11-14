@@ -14,10 +14,25 @@ See ROS page on vcstool for context
 Repositories can be imported with "vcs import src/ < src/kinova-movo/movo.rosinstall" from the root of the ws
 
 # Moving the base
+## Kinova Test Script
 Assert that the robot is not charging
 Assert estop is not engaged
 On movo1, run <roslaunch movo_bringup movo1.launch>
 On movo1, run <rosrun si_utils base_motion_test.py>
+## Command Line Publishing
+Assert that the robot is not charging
+Assert estop is not engaged
+On movo1, run <roslaunch movo_bringup movo1.launch>
+On movo1, run <rostopic pub /movo/gp_command movo_msgs/ConfigCmd '{gp_cmd: "GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE", gp_param: 5}'>
+on movo1, run <rostopic pub -r 10 /movo/cmd_vel geometry_msgs/Twist  '{linear:  {x: 0.0, y: 0.0, z: 0.0}, angular: {x: 0.0,y: 0.0,z: 0.5}}'>
+## Using RVIZ Interactive Markers (preferred)
+Assert estop is not engaged
+On movo1, run <roslaunch movo_bringup movo1.launch>
+On the visualization computer, ensure your movo_ws is sourced (since the robot_model uses stl and dae files on the visualization computer)
+On the visualization computer, run <rosrun rviz rviz -d $(rospack find movo_viz)/rviz/robot.rviz>
+Ensure "Interactive" mode is selected from the top menu of the RVIZ window
+Put the base in "Tractor Mode" by clicking the box rendered above the movo then mode->tractor
+Move the movo with the interactive markers
 
 # Moving the torso
 Assert that the robot is not charging
@@ -30,3 +45,15 @@ Assert that the robot is not charging
 Assert estop is not engaged
 On movo1, run <roslaunch movo_bringup movo1.launch>
 On movo1, run <rosrun si_utils head_jtas_test.py>
+
+# Connecting personal PC to movo1 master
+This is temporary and assumes movo1 is the ROS master. It does not care about about movo2
+On movo1:
+Ensure this is done on every terminal where ROS is running
+export ROS_MASTER_URI=http://129.97.71.49:11311
+export ROS_IP=129.97.71.49
+On your laptop:
+Ensure you've run all your source commands (ie. source devel/setup.bash). These other files can overwrite the following env var settings.
+export ROS_MASTER_URI=http://129.97.71.49:11311
+export ROS_IP=<your ip address in same subnet as movo1>
+
