@@ -50,7 +50,7 @@
         <param name="local_costmap/global_frame" value="odom" if="$(arg no_static_map)" />
         <param name="global_costmap/global_frame" value="odom" if="$(arg no_static_map)" />
 
-        <param name="EBandPlannerROS/rotational_threshold_multiplier" value="$(arg eband_rotational_threshold_multiplier)" />
+        <param name="EBandPlannerROS/rotation_threshold_multiplier" value="$(arg eband_rotational_threshold_multiplier)" />
         <param name="EBandPlannerROS/disallow_hysteresis" value="$(arg eband_disallow_hysteresis)" />
     </node>
     
