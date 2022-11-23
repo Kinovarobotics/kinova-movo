@@ -57,3 +57,11 @@ Ensure you've run all your source commands (ie. source devel/setup.bash). These 
 export ROS_MASTER_URI=http://129.97.71.49:11311
 export ROS_IP=<your ip address in same subnet as movo1>
 
+# Enable Access Point on Movo2
+Execute scripts/enable_ap.sh
+You should see a new AP called movo
+Password is same as robohub password
+The first time you connect to the AP, you must manually configure your static IP address
+Use the Settings GUI and set your static ip address in the subnet 10.66.171.XX
+Note: aliasing won't work. Use direct IP addresses of movos
+Note: Internet won't work
