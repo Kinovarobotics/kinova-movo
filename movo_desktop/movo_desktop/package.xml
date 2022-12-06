@@ -3,7 +3,7 @@
     <name>movo_desktop</name>
     <version>0.0.1</version>
     <description>Remote visualization and control packages for the Stanley Innovation Vector</description>
-    <maintainer email="ros@kinovarobotics.com">Martine Blouin</maintainer>
+    <maintainer email="support@kinova.ca">Kinova Support</maintainer>
     <author></author>
     <url type="repository">https://github.com/Kinovarobotics</url>
     <license>BSD</license>

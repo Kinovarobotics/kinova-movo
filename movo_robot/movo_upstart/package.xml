@@ -8,7 +8,7 @@
         separately from this package, this package should only be used with Vector based platforms 
     </description>
 
-    <maintainer email="ros@kinovarobotics.com">Martine Blouin</maintainer>
+    <maintainer email="support@kinova.ca">Kinova Support</maintainer>
     <author></author>
     <url type="repository">https://github.com/Kinovarobotics</url>
     <license>BSD</license>

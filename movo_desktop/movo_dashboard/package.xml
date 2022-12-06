@@ -6,7 +6,7 @@
         RQT based plugin for visualizing feedback data and GUI access to
         some of the Stanley Innovation Vector functions
     </description>
-    <maintainer email="ros@kinovarobotics.com">Martine Blouin</maintainer>
+    <maintainer email="support@kinova.ca">Kinova Support</maintainer>
     <author></author>
     <url type="repository">https://github.com/Kinovarobotics</url>
     <license>BSD</license>

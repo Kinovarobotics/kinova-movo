@@ -6,7 +6,7 @@
       Gazebo wrapper for the movo platform with Kinova Arms.
   </description>
 
-  <maintainer email="ros@kinovarobotics.com">Martine Blouin</maintainer>
+  <maintainer email="support@kinova.ca">Kinova Support</maintainer>
   <author></author>
   <url type="website">https://github.com/Kinovarobotics</url>
   <license>BSD</license>

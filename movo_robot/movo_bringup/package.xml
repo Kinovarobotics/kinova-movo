@@ -2,7 +2,7 @@
     <name>movo_bringup</name>
     <version>1.0.0</version>
     <description>System launch file and environment hooks for movo2 PC (vision)</description>
-    <maintainer email="ros@kinovarobotics.com">Martine Blouin</maintainer>
+    <maintainer email="support@kinova.ca">Kinova Support</maintainer>
     <author></author>
     <url type="repository">https://github.com/Kinovarobotics</url>
     <license>BSD</license>

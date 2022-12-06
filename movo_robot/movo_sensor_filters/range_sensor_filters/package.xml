@@ -3,7 +3,7 @@
     <version>1.0.0</version>
     <description>Vector perception filters for range sensors</description>
 
-    <maintainer email="ros@kinovarobotics.com">Martine Blouin</maintainer>
+    <maintainer email="support@kinova.ca">Kinova Support</maintainer>
     <author></author>
     <url type="repository">https://github.com/Kinovarobotics</url>
     <license>BSD</license>

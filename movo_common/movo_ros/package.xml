@@ -3,7 +3,7 @@
     <name>movo_ros</name>
     <version>1.0.0</version>
     <description>Drivers and nodes related to Movo Plaform</description>
-    <maintainer email="ros@kinovarobotics.com">Martine Blouin</maintainer>
+    <maintainer email="support@kinova.ca">Kinova Support</maintainer>
     <author></author>
     <url type="repository">https://github.com/Kinovarobotics</url>
     <license>BSD</license>
