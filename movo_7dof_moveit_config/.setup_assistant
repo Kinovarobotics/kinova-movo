@@ -6,5 +6,5 @@ moveit_setup_assistant_config:
     relative_path: config/movo.srdf
   CONFIG:
     author_name: Kinova
-    author_email: support@kinova.com
+    author_email: support@kinova.ca
     generated_timestamp: 1517243938
