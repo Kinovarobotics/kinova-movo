@@ -18,3 +18,20 @@ repositories:
     type: git
     url: https://github.com/mikeferguson/moveit_python.git
     version: ros1
+
+
+  eband_local_planner:
+    type: git
+    url: https://github.com/utexas-bwi/eband_local_planner.git
+    version: master
+
+  simple_grasping:
+    type: git
+    url: https://github.com/mikeferguson/simple_grasping.git
+    version: ros1
+
+  head_action:
+    type: git
+    url: https://github.com/pal-robotics/head_action.git
+    version: indigo-devel
+
