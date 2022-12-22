@@ -48,7 +48,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         
         <link name="base_chassis_link">
 			<inertial>
-				<mass value="44.2877" />
+                <!-- The robot tips over in simulation bc the COM is too high -->
+                <!-- We bring the COM down by increasing mass of the base -->
+                <!-- This new mass was found to work well empirically -->
+                <!-- <mass value="44.2877" /> -->
+				<mass value="80.2877" />
 				<origin xyz="-0.009506 -0.013039 0.032319" />
 				<inertia ixx="0.000165"  ixy="0" ixz="0"
                          iyx="0"  iyy="0.000559" iyz="0"
