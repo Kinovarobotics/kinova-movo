@@ -180,6 +180,58 @@
     <passive_joint name="right_gripper_finger2_joint" />
     <passive_joint name="mid_body_joint" />
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
+
+    <!-- Tablet mount specific disabled collisions -->
+    <disable_collisions link1="camera_mount" link2="mating_block" reason="Adjacent" />
+    <disable_collisions link1="camera_mount" link2="tablet_and_mount" reason="Adjacent" />
+    <disable_collisions link1="camera_mount" link2="front_laser_link" reason="Adjacent" />
+    <disable_collisions link1="camera_mount" link2="camera_link" reason="Never" />
+    <disable_collisions link1="camera_mount" link2="left_base_link" reason="Never" />
+    <disable_collisions link1="camera_mount" link2="linear_actuator_fixed_link" reason="Adjacent" />
+    <disable_collisions link1="camera_mount" link2="linear_actuator_link" reason="Never" />
+    <disable_collisions link1="camera_mount" link2="lower_body_link" reason="Adjacent" />
+    <disable_collisions link1="camera_mount" link2="mid_body_link" reason="Adjacent" />
+    <disable_collisions link1="camera_mount" link2="pan_base_link" reason="Never" />
+    <disable_collisions link1="camera_mount" link2="pan_link" reason="tablet hits first" />
+    <disable_collisions link1="camera_mount" link2="rear_laser_link" reason="Adjacent" />
+    <disable_collisions link1="camera_mount" link2="right_base_link" reason="Never" />
+    <disable_collisions link1="camera_mount" link2="upper_body_link" reason="Never" />
+    <disable_collisions link1="camera_mount" link2="left_shoulder_link" reason="Never" />
+    <disable_collisions link1="camera_mount" link2="right_shoulder_link" reason="Never" />
+    <disable_collisions link1="camera_mount" link2="base_chassis_link" reason="Never" />
+    <disable_collisions link1="camera_mount" link2="tilt_link" reason="adjacent" />
+    <disable_collisions link1="tablet_and_mount" link2="front_laser_link" reason="Adjacent" />
+    <disable_collisions link1="tablet_and_mount" link2="camera_link" reason="Never" />
+    <disable_collisions link1="tablet_and_mount" link2="left_base_link" reason="Never" />
+    <disable_collisions link1="tablet_and_mount" link2="linear_actuator_fixed_link" reason="Adjacent" />
+    <disable_collisions link1="tablet_and_mount" link2="linear_actuator_link" reason="Never" />
+    <disable_collisions link1="tablet_and_mount" link2="lower_body_link" reason="Adjacent" />
+    <disable_collisions link1="tablet_and_mount" link2="mid_body_link" reason="Adjacent" />
+    <disable_collisions link1="tablet_and_mount" link2="rear_laser_link" reason="Adjacent" />
+    <disable_collisions link1="tablet_and_mount" link2="right_base_link" reason="Never" />
+    <disable_collisions link1="tablet_and_mount" link2="upper_body_link" reason="Never" />
+    <disable_collisions link1="tablet_and_mount" link2="left_shoulder_link" reason="Never" />
+    <disable_collisions link1="tablet_and_mount" link2="right_shoulder_link" reason="Never" />
+    <disable_collisions link1="tablet_and_mount" link2="mating_block" reason="Never" />
+    <disable_collisions link1="tablet_and_mount" link2="base_chassis_link" reason="Never" />
+    <disable_collisions link1="mating_block" link2="front_laser_link" reason="Adjacent" />
+    <disable_collisions link1="mating_block" link2="camera_link" reason="Never" />
+    <disable_collisions link1="mating_block" link2="left_base_link" reason="Never" />
+    <disable_collisions link1="mating_block" link2="linear_actuator_fixed_link" reason="Adjacent" />
+    <disable_collisions link1="mating_block" link2="linear_actuator_link" reason="Never" />
+    <disable_collisions link1="mating_block" link2="lower_body_link" reason="Adjacent" />
+    <disable_collisions link1="mating_block" link2="mid_body_link" reason="Adjacent" />
+    <disable_collisions link1="mating_block" link2="rear_laser_link" reason="Adjacent" />
+    <disable_collisions link1="mating_block" link2="right_base_link" reason="Never" />
+    <disable_collisions link1="mating_block" link2="upper_body_link" reason="Never" />
+    <disable_collisions link1="mating_block" link2="left_shoulder_link" reason="Never" />
+    <disable_collisions link1="mating_block" link2="right_shoulder_link" reason="Never" />
+    <disable_collisions link1="mating_block" link2="mating_block" reason="Never" />
+    <disable_collisions link1="mating_block" link2="pan_link" reason="Never" />
+    <disable_collisions link1="mating_block" link2="tilt_link" reason="Never" />
+    <disable_collisions link1="mating_block" link2="base_chassis_link" reason="Never" />
+    <!-- Tablet mount specific disabled collisions -->
+
     <disable_collisions link1="base_chassis_link" link2="front_laser_link" reason="Adjacent" />
     <disable_collisions link1="base_chassis_link" link2="camera_link" reason="Never" />
     <disable_collisions link1="base_chassis_link" link2="left_base_link" reason="Never" />

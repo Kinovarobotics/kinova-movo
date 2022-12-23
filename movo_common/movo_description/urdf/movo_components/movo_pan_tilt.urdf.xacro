@@ -137,8 +137,70 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		</link>
         
 		<xacro:sensor_d435 parent="tilt_link">
-			<origin xyz="0.06 0 -0.025" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
+			<origin xyz="0.22 -0.06 -0.03" rpy="${M_PI/2} 0 ${-7*M_PI/12}" />
 		</xacro:sensor_d435>
+
+
+		<joint name="tablet_gimbal" type="fixed">
+			<parent link="tilt_link"/>
+			<child link ="tablet_and_mount"/>
+			<origin xyz="0.07 -0.06 -0.03 " rpy="0 0 ${-M_PI/2}"/>
+		</joint>
+		<link name="tablet_and_mount" parent="tilt_link"> 
+			<visual>
+			  <geometry>
+			    <box size="0.02 0.24 0.3"/>
+		 	  </geometry>
+			  <material name="silver">
+			    <color rgba="0.8 0.8 0.8 1"/>
+		          </material>
+			</visual>
+			<collision>
+			  <geometry>
+			    <box size="0.04 0.26 0.5"/>
+		 	  </geometry>
+			</collision>
+		</link>
+
+		<joint name="mating_gimbal" type="fixed">
+			<parent link="tilt_link"/>
+			<child link ="mating_block"/>
+			<origin xyz="0.09 0 -0.03 " rpy="0 0 0"/>
+		</joint>
+		<link name="mating_block" parent="tilt_link"> 
+			<visual>
+			  <geometry>
+			    <box size="0.066 0.066 0.13"/>
+		 	  </geometry>
+			  <material name="silver"/>
+			</visual>
+			<collision>
+			  <geometry>
+			    <box size="0.084 0.084 0.13"/>
+		 	  </geometry>
+			</collision>
+		</link>
+
+		<joint name="camera_mount_gimbal" type="fixed">
+			<parent link="tilt_link"/>
+			<child link ="camera_mount"/>
+			<origin xyz="0.15 -0.04 -0.03 " rpy="-${M_PI/2} 0 ${M_PI/2}"/>
+		</joint>
+		<link name="camera_mount" parent="tilt_link"> 
+			<visual>
+			  <geometry>
+			    <box size="0.01 0.09 0.16"/>
+		 	  </geometry>
+			  <material name="silver"/>
+			</visual>
+			<collision>
+			  <geometry>
+			    <box size="0.03 0.11 0.18"/>
+		 	  </geometry>
+			</collision>
+		</link>
+
+
 
     </xacro:macro>
 

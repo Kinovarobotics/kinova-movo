@@ -5,8 +5,9 @@ movo2 can be reached by `ssh robohub@movo2`
 
 # Camera
 Camera uses the realsense-ros pkg
-Can be launched with roslaunch movo_bringup movo2.launch as part of movo
-Can be launched with roslaunch realsense2_camera rs_camera.launch filters:=pointcloud
+Can be launched with <roslaunch movo_bringup movo2.launch as part of movo>
+Can be launched with <roslaunch realsense2_camera rs_camera.launch filters:=pointcloud>
+run <realsense-viewer> on a computer with realsense plugged in to use the intel realsense GUI
 
 # ROS Install
 This metapackage uses vcstool to keep track of 3rd party packages that must be built from source
