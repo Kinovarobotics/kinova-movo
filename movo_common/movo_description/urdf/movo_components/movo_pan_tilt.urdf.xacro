@@ -140,7 +140,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		</link>
         
 		<xacro:sensor_d435 parent="tilt_link">
-			<origin xyz="0.06 0 -0.025" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
+			<origin xyz="0.08 0 -0.025" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
 		</xacro:sensor_d435>
 
     </xacro:macro>

@@ -86,7 +86,7 @@ aluminum peripherial evaluation case.
     <link name="${name}_depth_frame"/>
 
     <joint name="${name}_depth_optical_joint" type="fixed">
-      <origin xyz="0 0 0" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
+      <origin xyz="0.005 0 0" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
       <parent link="${name}_depth_frame" />
       <child link="${name}_depth_optical_frame" />
     </joint>
@@ -101,7 +101,7 @@ aluminum peripherial evaluation case.
     <link name="${name}_left_ir_frame"/>
 
     <joint name="${name}_left_ir_optical_joint" type="fixed">
-      <origin xyz="0 0 0" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
+      <origin xyz="0.005 0 0" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
       <parent link="${name}_left_ir_frame" />
       <child link="${name}_left_ir_optical_frame" />
     </joint>
@@ -116,7 +116,7 @@ aluminum peripherial evaluation case.
     <link name="${name}_right_ir_frame"/>
 
     <joint name="${name}_right_ir_optical_joint" type="fixed">
-      <origin xyz="0 0 0" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
+      <origin xyz="0.005 0 0" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
       <parent link="${name}_right_ir_frame" />
       <child link="${name}_right_ir_optical_frame" />
     </joint>
@@ -131,7 +131,7 @@ aluminum peripherial evaluation case.
     <link name="${name}_color_frame"/>
 
     <joint name="${name}_color_optical_joint" type="fixed">
-      <origin xyz="0 0 0" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
+      <origin xyz="0.005 0 0" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
       <parent link="${name}_color_frame" />
       <child link="${name}_color_optical_frame" />
     </joint>
@@ -140,5 +140,5 @@ aluminum peripherial evaluation case.
     <!-- Realsense Gazebo Plugin -->
     <xacro:gazebo_d435 camera_name="${name}" reference_link="${name}_link" topics_ns="${topics_ns}" depth_optical_frame="${name}_depth_optical_frame" color_optical_frame="${name}_color_optical_frame" infrared1_optical_frame="${name}_left_ir_optical_frame" infrared2_optical_frame="${name}_right_ir_optical_frame"/>
 
-  </xacro:macro>
+    </xacro:macro>
 </robot>
