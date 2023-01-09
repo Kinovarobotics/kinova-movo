@@ -6,7 +6,7 @@
     <arg name="local" default="true"/>
 
     <machine name="movo1" address="movo1" user="robohub" 
-                 env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+                 env-loader="/home/robohub/env.sh" default="true" unless="$(arg local)"/>
 
     <!-- Run movo_move_base action client for tracking status -->
     <node pkg="movo_ros" name="movo_move_base" type="movo_move_base" output="screen" clear_params="true"> 

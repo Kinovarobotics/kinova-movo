@@ -4,7 +4,7 @@
     <arg name="local" default="true"/>
 
     <machine name="movo1" address="movo1" user="robohub" 
-                 env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+                 env-loader="/home/robohub/env.sh" default="true" unless="$(arg local)"/>
                  
     <node pkg="sick_tim" type="sick_tim551_2050001" name="$(optenv LASER1_PREFIX front)_laser_node" clear_params="true" respawn="true">
         <remap from="scan" to="/movo/$(optenv LASER1_PREFIX base)_scan" />

@@ -4,7 +4,7 @@
     <arg name="local" default="true"/>
 
     <machine name="movo1" address="movo1" user="robohub" 
-                 env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+                 env-loader="/home/robohub/env.sh" default="true" unless="$(arg local)"/>
          
     <!--System watchdog-->
     <node pkg="movo_ros" type="movo_wd" name="movo1_wd" output="screen" unless="$(arg local)">

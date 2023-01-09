@@ -3,8 +3,8 @@
 
     <arg name="local" default="true"/>
 
-    <machine name="movo1" address="movo1" user="robohub" 
-                 env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+    <machine name="movo1" address="movo1" user="robohub"
+                 env-loader="/home/robohub/env.sh" default="true" unless="$(arg local)"/>
     
     <group if="$(optenv MOVO_HAS_KINOVA_ARM false)">
         <node pkg="movo_ros" type="movo_arm_ctl" name="right_arm_ctl" output="screen">

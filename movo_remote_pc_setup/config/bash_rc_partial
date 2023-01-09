@@ -10,7 +10,7 @@ function movo2_cmd()
   then
     echo "Need to specify command"
   else
-    ssh -t movo@movo2 "bash -ic +m 'cd ~; ./env.sh; $1'"
+    ssh -t robohub@movo2 "bash -ic +m 'cd ~; ./env.sh; $1'"
   fi
 }
 
@@ -20,7 +20,7 @@ function movo1_cmd()
   then
     echo "Need to specify command"
   else
-    ssh -t movo@movo1 "bash -ic +m 'cd ~; ./env.sh; $1'"
+    ssh -t robohub@movo1 "bash -ic +m 'cd ~; ./env.sh; $1'"
   fi
 }
 
@@ -37,8 +37,8 @@ function save_map()
   local old_line=/home/$USER/movo_ws/src/movo_demos/maps/    
   sed -i "s+$old_line++g" "$dest.yaml"
  
-  rsync -avzh --delete --exclude '*~' --progress /home/$USER/movo_ws/src/movo_demos/maps movo@movo2:/home/movo/movo_ws/src/movo_demos/
-  rsync -avzh --delete --exclude '*~' --progress /home/$USER/movo_ws/src/movo_demos/maps movo@movo1:/home/movo/movo_ws/src/movo_demos/
+  rsync -avzh --delete --exclude '*~' --progress /home/$USER/movo_ws/src/movo_demos/maps robohub@movo2:/home/$USER/movo_ws/src/movo_demos/
+  rsync -avzh --delete --exclude '*~' --progress /home/$USER/movo_ws/src/movo_demos/maps robohub@movo1:/home/$USER/movo_ws/src/movo_demos/
   
   echo "Map saved locally and on the robot!!!!"
 
@@ -56,11 +56,11 @@ function sync_robot()
 
   echo "SYNCING WORKSPACE ON movo1 WITH LOCAL WORKSPACE.........."
   sleep 1
-  rsync -avzhe ssh --delete --exclude '*~' --progress /home/$USER/movo_ws/src movo@movo1:/home/movo/movo_ws/
+  rsync -avzhe ssh --delete --exclude '*~' --progress /home/$USER/movo_ws/src robohub@movo1:/home/$USER/movo_ws/
   
   echo "SYNCING WORKSPACE ON movo2 WITH LOCAL WORKSPACE.........."
   sleep 1
-  rsync -avzhe ssh --delete --exclude '*~' --progress /home/$USER/movo_ws/src movo@movo2:/home/movo/movo_ws/
+  rsync -avzhe ssh --delete --exclude '*~' --progress /home/$USER/movo_ws/src robohub@movo2:/home/$USER/movo_ws/
 
   if [ "$1" == "-nc" ]
   then
@@ -87,8 +87,8 @@ alias sws='source ./devel/setup.bash'
 alias clean_backups='find ./ -name '*~' | xargs rm'
 alias clean_pyc='find ./ -name '*.pyc' | xargs rm'
 alias clean_rosbuild='rm -rf build devel install'
-alias m2='ssh -X movo@movo2'
-alias m1='ssh -X movo@movo1'
+alias m2='ssh -X robohub@movo2'
+alias m1='ssh -X robohub@movo1'
 alias movostop='movo2_cmd "movostop"'
 alias movostart='movo2_cmd "movostart"'
 alias movochk='movo2_cmd "movochk"'

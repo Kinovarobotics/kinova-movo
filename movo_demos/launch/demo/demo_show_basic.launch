@@ -4,7 +4,7 @@
     <arg name="local" default="true"/>
 
   <machine name="movo1" address="movo1" user="robohub" 
-               env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+               env-loader="/home/robohub/env.sh" default="true" unless="$(arg local)"/>
 
     <!-- Navigation configuration -->
 	<include file="$(find movo_demos)/launch/nav/sensor_nav.launch">

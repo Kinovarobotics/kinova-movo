@@ -20,7 +20,7 @@
     
 	<!-- Time synchonization for sibot2 -->
 	<node pkg="si_utils" type="sync_chrony" 
-		args="10.66.171.2"
+		args="movo1"
 		name="time_sync" launch-prefix="sudo" output="screen"/>
 
     <!-- Platform specific robot state publisher and parameters -->

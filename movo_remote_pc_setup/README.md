@@ -212,12 +212,12 @@ Allows user to make changes locally on the remote PC in ~/movo_ws/src and push t
 ```
 m2
 ```
-Alias for SSH into movo2. Equivalent to ssh -X movo@movo2
+Alias for SSH into movo2. Equivalent to ssh -X robohub@movo2
 
 ```
 m1
 ```
-Alias for SSH into movo2. Equivalent to ssh -X movo@movo1
+Alias for SSH into movo2. Equivalent to ssh -X robohub@movo1
 
 ```
 movostop

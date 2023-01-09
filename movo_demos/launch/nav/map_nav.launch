@@ -7,7 +7,7 @@
     <arg name="local" default="true"/>
 
     <machine name="movo1" address="movo1" user="robohub" 
-                 env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+                 env-loader="/home/robohub/env.sh" default="true" unless="$(arg local)"/>
 
     <!-- Run the map server -->
     <node name="map_server" pkg="map_server" type="map_server" args="$(find movo_demos)/maps/$(arg map_file).yaml" />
