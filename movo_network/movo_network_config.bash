@@ -42,7 +42,6 @@ else
             export ROS_MASTER_URI=http://movo2:11311/
         fi
     else
-        echo "No interface on the movo network, def sim settings"
         #No interface on the movo network; default simulation settings
         export ROBOT_NETWORK=lo
         export ROS_IP=$(ip -4 address show $ROBOT_NETWORK | grep 'inet' | sed 's/.*inet \([0-9\.]\+\).*/\1/')
