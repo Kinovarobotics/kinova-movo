@@ -182,10 +182,10 @@ class Movo_Dynamics:
         self._OdomData1 = Odometry()
         self._OdomData2 = Odometry()
         self._OdomPub1 = rospy.Publisher('/movo/feedback/wheel_odometry', Odometry, queue_size=10)
+        self._OdomPub2 = rospy.Publisher('/movo/odometry/local_filtered', Odometry, queue_size=10)
         if (False == self._use_lsm_for_odom):
             rospy.Subscriber('/movo/odometry/local_filtered', Odometry, self._update_odom_yaw)
         else:
-            self._OdomPub2 = rospy.Publisher('/movo/odometry/local_filtered', Odometry, queue_size=10)
             self.has_recved_lsm = False
             rospy.Subscriber('/movo/lsm/pose', PoseWithCovarianceStamped, self._update_lsm_odom)     
         
