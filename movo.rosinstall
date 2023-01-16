@@ -35,3 +35,7 @@ repositories:
     url: https://github.com/pal-robotics/head_action.git
     version: indigo-devel
 
+  realsense_gazebo_plugin:
+    type: git
+    url: https://github.com/pal-robotics/realsense_gazebo_plugin.git
+    version: melodic-devel

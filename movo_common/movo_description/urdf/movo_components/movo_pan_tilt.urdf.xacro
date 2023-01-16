@@ -26,9 +26,18 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
-<robot name="movo_pan_tilt" xmlns:xacro="http://ros.org/wiki/xacro">
-    <xacro:include filename="$(find movo_description)/urdf/sensors/_d435.urdf.xacro"/>
 
+<robot name="movo_pan_tilt" xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:arg name="sim" default="false"/>
+
+    <xacro:if value="$(arg sim)">
+       <xacro:include filename="$(find movo_description)/urdf/sensors/_d435_sim.urdf.xacro"/>
+    </xacro:if>
+
+    <xacro:unless value="$(arg sim)">
+       <xacro:include filename="$(find movo_description)/urdf/sensors/_d435.urdf.xacro"/>
+    </xacro:unless>
+       
     <xacro:property name="M_PI" value="3.14159"/>
 
     <xacro:macro name="movo_pan_tilt" params="rgbd_prefix parent *origin">  
@@ -137,14 +146,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		</link>
         
 		<xacro:sensor_d435 parent="tilt_link">
-			<origin xyz="0.22 -0.06 -0.03" rpy="${M_PI/2} 0 ${-7*M_PI/12}" />
+			<origin xyz="0.196 -0.06 -0.03" rpy="${-M_PI/2} 0 ${-7*M_PI/12}" />
 		</xacro:sensor_d435>
 
 
 		<joint name="tablet_gimbal" type="fixed">
 			<parent link="tilt_link"/>
 			<child link ="tablet_and_mount"/>
-			<origin xyz="0.07 -0.06 -0.03 " rpy="0 0 ${-M_PI/2}"/>
+			<origin xyz="0.075 -0.06 -0.03 " rpy="0 0 ${-M_PI/2}"/>
 		</joint>
 		<link name="tablet_and_mount" parent="tilt_link"> 
 			<visual>

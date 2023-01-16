@@ -9,7 +9,7 @@ This makes the local computer listen for movo2 as a ROS master
 
 # Camera
 Camera uses the realsense-ros pkg
-Can be launched with <roslaunch movo_bringup movo2.launch as part of movo>
+Can be launched with <roslaunch movo_bringup movo2.launch> as part of movo
 Can be launched with <roslaunch realsense2_camera rs_camera.launch filters:=pointcloud>
 run <realsense-viewer> on a computer with realsense plugged in to use the intel realsense GUI
 

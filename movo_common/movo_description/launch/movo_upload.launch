@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
 <launch>
-    <param name="robot_description" command="$(find xacro)/xacro '$(find movo_description)/urdf/movo.urdf.xacro'" />
+    <arg name="sim" default="false"/>
+    <param name="robot_description" command="$(find xacro)/xacro '$(find movo_description)/urdf/movo.urdf.xacro' sim:=$(arg sim)" />
 </launch>
