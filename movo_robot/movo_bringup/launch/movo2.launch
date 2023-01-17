@@ -32,10 +32,12 @@
         name="perception_bringup" output="screen"/>
 
 
-    <!-- Moveit bringup-->
+    <!-- Moveit bringup
+    Ben TODO uncomment
     <node pkg="si_utils" type="timed_roslaunch"
         args="20 movo_bringup movo_moveit.launch local:=true"
         name="movo_moveit_bringup" output="screen"/> 
+    -->
 
 
 </launch>
