@@ -15,13 +15,13 @@ export MOVO_PARENT_LINK=base_chassis_link
 #
 # This enables the laser scan matcher which generates a /movo/lsm/pose_stamped in the odom frame
 #
-export MOVO_ENABLE_LSM=true
+export MOVO_ENABLE_LSM=false
 
 #
 # Set this if you want the platform odometry to be corrected by LSM. This is stable indoors, but should be tested with
 # teleoperation before using it
 #
-export MOVO_USE_LSM_TO_CORRECT_ODOMETRY=true
+export MOVO_USE_LSM_TO_CORRECT_ODOMETRY=false
 
 # This will run the full system tele-op node (ie can control all the joints in the system) it is not
 # collision aware and is really only meant for demonstration purposes. If set false, teleop just controls
