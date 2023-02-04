@@ -27,6 +27,7 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------"""
+import os
 
 import rospy
 import math
@@ -47,12 +48,19 @@ def dottedQuadToNum(ip):
 
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    return socket.inet_ntoa(fcntl.ioctl(
+    struct_pack = struct.pack('256s', bytes(ifname[:15], encoding='utf-8'))
+    fctnl_ioctl = fcntl.ioctl(
         s.fileno(),
         0x8915,  # SIOCGIFADDR
-        struct.pack('256s', ifname[:15])
-    )[20:24])
-    
+        struct_pack
+    )
+    skt_inet_ntoa = socket.inet_ntoa(fctnl_ioctl[20:24])
+    if str(skt_inet_ntoa) == "10.66.171.1":
+        return "10.66.171.1" # os.environ["KINOVA_MOVO1_IP"]
+    if str(skt_inet_ntoa) == "10.66.171.2":
+        return "10.66.171.2" # os.environ["KINOVA_MOVO2_IP"]
+    return False
+
 
 def limit(signal_in,signal_limit):
 

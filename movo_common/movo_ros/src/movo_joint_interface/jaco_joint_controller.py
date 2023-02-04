@@ -42,7 +42,7 @@ from control_msgs.msg import JointTrajectoryControllerState
 from std_msgs.msg import Float32
 import threading
 import math
-from .angles import *
+from .kinova_angles import *
 from .helpers import *
 from .jaco_joint_pid import JacoPID
 from .kinova_api_wrapper import *
@@ -523,7 +523,7 @@ class SIArmController(object):
                 vff = self._gripper_vff.Update(gripper_cmds_lim)
                 self._gripper_pid_error =  list(map(operator.sub, gripper_cmds_lim, self._gripper_fb['position']))
                 self._gripper_pid_output = [self._gripper_pid[i].compute_output(self._gripper_pid_error[i]) for i in range(self.num_fingers)]
-                self._gripper_pid_output =  list(map(operator.add, self._gripper_pid_output, vff))                
+                self._gripper_pid_output =  list(map(operator.add, self._gripper_pid_output, vff))
                 self._gripper_pid_output = [rad_to_deg(limit(self._gripper_pid_output[i],FINGER_ANGULAR_VEL_LIMIT)) for i in range(self.num_fingers)]
             
             for i in range(3):
@@ -546,7 +546,7 @@ class SIArmController(object):
             self._jstmsg.actual.velocities=self._joint_fb['velocity']
             self._jstmsg.actual.accelerations=[0.0]*self._num_joints
             self._jstmsg.error.positions = self._pid_error
-            self._jstmsg.error.velocities= list(map(operator.sub, self._arm_cmds['velocity'], self._joint_fb['velocity'])) 
+            self._jstmsg.error.velocities= list(map(operator.sub, self._arm_cmds['velocity'], self._joint_fb['velocity']))
             self._jstmsg.error.accelerations=[0.0]*self._num_joints                
             self._jstpub.publish(self._jstmsg) 
             self._jstmsg.header.seq +=1                       

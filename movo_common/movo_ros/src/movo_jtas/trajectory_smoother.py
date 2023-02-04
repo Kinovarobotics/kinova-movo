@@ -37,7 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import bisect
 from copy import deepcopy
 import numpy as np
-import movo_jtas.bezier
+from .bezier import de_boor_control_pts, bezier_coefficients, bezier_point
 import rospy
 from std_msgs.msg import UInt16
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryFeedback, FollowJointTrajectoryResult, JointTrajectoryControllerState
@@ -67,8 +67,8 @@ class TrajectorySmoother(object):
                 if dimensions_dict['accelerations']:
                     current_point.append(point.accelerations[jnt])
                 traj_array[idx, :] = current_point
-            d_pts = bezier.de_boor_control_pts(traj_array)
-            b_matrix[jnt, :, :, :] = bezier.bezier_coefficients(traj_array, d_pts)
+            d_pts = de_boor_control_pts(traj_array)
+            b_matrix[jnt, :, :, :] = bezier_coefficients(traj_array, d_pts)
         return b_matrix
         
     def _determine_dimensions(self, trajectory_points):
@@ -91,7 +91,7 @@ class TrajectorySmoother(object):
         # Create a new discretized joint trajectory
         num_points = len(trajectory_points)
         if num_points == 0:
-            rospy.logerr("%s: Empty Trajectory" % (action_name,))
+            rospy.logerr("Empty Trajectory")
             return False, []
         
         if num_points == 1:
@@ -143,7 +143,7 @@ class TrajectorySmoother(object):
         if dimensions_dict['accelerations']:
             pnt.accelerations = [0.0] * num_joints
         for jnt in range(num_joints):
-            b_point = bezier.bezier_point(b_matrix[jnt, :, :, :], idx, t)
+            b_point = bezier_point(b_matrix[jnt, :, :, :], idx, t)
             # Positions at specified time
             pnt.positions[jnt] = b_point[0]
             # Velocities at specified time

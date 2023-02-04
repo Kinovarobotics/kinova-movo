@@ -60,6 +60,7 @@ import actionlib
 import bisect
 import operator
 from copy import deepcopy
+from numpy import clip
 
 def calc_grip_dist(b):
     l1 = 30.9476-87.0932*math.sin(b[0]-0.627445866)
@@ -74,7 +75,9 @@ def calc_grip_dist(b):
     return (dist * 0.001)
 
 def calc_grip_angle(x):
-    
+    # bound x between 0 and 0.23 to prevent math errors
+    x = clip(x, 0, 0.23)
+
     dist = x*1000.0
     tmp = (0.5*dist-30.9476)/-87.0932
     a = math.asin(tmp)+0.627445866
@@ -417,7 +420,7 @@ class MovoArmJTAS(object):
 
     def _get_current_errors(self, joint_names):
         error = self._ctl.GetCurrentJointPositionError(joint_names)
-        return list(zip(joint_names, error))       
+        return list(zip(joint_names, error))
 
     def _update_feedback(self, cmd_point, joint_names, cur_time):
         self._fdbk.header.stamp = rospy.Duration.from_sec(rospy.get_time())

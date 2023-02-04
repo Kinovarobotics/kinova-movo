@@ -1,0 +1,43 @@
+<launch>
+
+    <!-- MoveIt Joint Space Action Server, Right Arm -->
+    <node pkg="moveit_action_handlers" type="move_joints_action_server_node" name="move_joints_arm_action_server_node" output="screen">
+        <param name="move_group" value="right_arm"/>
+        <param name="action_server_name" value="moveit_action_handlers/right_arm/joint_ctrl"/>
+    </node>
+
+    <!-- MoveIt Right Gripper Action Server -->
+    <node pkg="moveit_action_handlers" type="move_joints_action_server_node" name="move_joints_gripper_action_server_node" output="screen">
+        <param name="move_group" value="right_gripper"/>
+        <param name="action_server_name" value="moveit_action_handlers/right_arm/gripper_ctrl"/>
+    </node>
+
+    <!-- MoveIt Cartesian Space Action Server, Right Arm -->
+    <node pkg="moveit_action_handlers" type="move_topose_action_server_node" name="move_topose_arm_action_server_node" output="screen">
+        <param name="move_group" value="right_arm"/>
+        <param name="action_server_name" value="moveit_action_handlers/right_arm/cartesian_ctrl"/>
+        <param name="base_link_name" value="base_link"/>
+        <param name="ee_link_name" value="right_ee_link"/>
+    </node>
+
+    <!-- MoveIt Joint Space Action Server, Left Arm -->
+    <node pkg="moveit_action_handlers" type="move_joints_action_server_node" name="left_move_joints_action_server_node" output="screen">
+        <param name="move_group" value="left_arm"/>
+        <param name="action_server_name" value="moveit_action_handlers/left_arm/joint_ctrl"/>
+    </node>
+
+    <!-- MoveIt Left Gripper Action Server -->
+    <node pkg="moveit_action_handlers" type="move_joints_action_server_node" name="left_move_gripper_action_server_node" output="screen">
+        <param name="move_group" value="left_gripper"/>
+        <param name="action_server_name" value="moveit_action_handlers/left_arm/gripper_ctrl"/>
+    </node>
+
+    <!-- MoveIt Cartesian Space Action Server, Left Arm -->
+    <node pkg="moveit_action_handlers" type="move_topose_action_server_node" name="left_move_cartesian_action_server_node" output="screen">
+        <param name="move_group" value="left_arm"/>
+        <param name="action_server_name" value="moveit_action_handler/left_arm/cartesian_ctrl"/>
+        <param name="base_link_name" value="base_link"/>
+        <param name="ee_link_name" value="left_ee_link"/>
+    </node>
+
+</launch>

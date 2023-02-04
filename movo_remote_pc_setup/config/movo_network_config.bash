@@ -25,7 +25,7 @@ elif [ "$HOSTNAME" = movo2 ]; then
 else
     # This should be changed to whatever physical interface is connected to the robot (ie wlan0, eth0, etc..)
     # we will try and find it and if nothing is found then we will default to lo
-    robot_iface=$(ifconfig | awk '/129.97.71/ {print $1}' RS="\n\n")
+    robot_iface=$(ifconfig | awk '/10.66.171/ {print $1}' RS="\n\n")
     if [ ! -z "$robot_iface" ]
     then
         #We found an interface on the robot subnet so lets use this interface
