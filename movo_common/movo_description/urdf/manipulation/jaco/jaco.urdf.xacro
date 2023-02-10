@@ -312,7 +312,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         </joint>
 
         <link name="${prefix}ee_link"/>
-                
+
         <xacro:jaco_arm_transmission prefix="${prefix}" />
 
   </xacro:macro>

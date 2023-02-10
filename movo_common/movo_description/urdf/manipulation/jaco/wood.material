@@ -1,0 +1,13 @@
+material wood{
+    technique
+    {
+	pass
+        {
+	    texture_unit
+	    {
+		texture wood_texture.jpg
+		scale 1 1
+	    }
+	}
+    }
+}
