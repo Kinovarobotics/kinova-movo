@@ -232,6 +232,50 @@
     <disable_collisions link1="mating_block" link2="base_chassis_link" reason="Never" />
     <!-- Tablet mount specific disabled collisions -->
 
+    <!-- bin specific disabled collisions -->
+    <disable_collisions link1="right_bin_clamp_2" link2="right_bin_clamp_1" reason="never" />
+    <disable_collisions link1="right_bin_handle" link2="right_bin" reason="Adjacent" />
+    <disable_collisions link1="right_bin_handle" link2="right_bin_clamp_1" reason="Adjacent" />
+    <disable_collisions link1="right_bin_handle" link2="right_bin_clamp_2" reason="Adjacent" />
+    <disable_collisions link1="right_bin_handle" link2="right_gripper_finger1_finger_tip_link" reason="Adjacent" />
+    <disable_collisions link1="right_bin_handle" link2="right_gripper_finger1_knuckle_link" reason="Adjacent" />
+    <disable_collisions link1="right_bin_handle" link2="right_gripper_finger2_finger_tip_link" reason="Adjacent" />
+    <disable_collisions link1="right_bin_handle" link2="right_gripper_finger2_knuckle_link" reason="Adjacent" />
+    <disable_collisions link1="right_bin_handle" link2="right_gripper_finger3_finger_tip_link" reason="Adjacent" />
+    <disable_collisions link1="right_bin_handle" link2="right_gripper_finger3_knuckle_link" reason="Adjacent" />
+    <disable_collisions link1="right_bin_handle" link2="right_wrist_3_link" reason="Adjacent" />
+    <disable_collisions link1="right_bin_handle" link2="right_gripper_base_link" reason="Adjacent" />
+    <disable_collisions link1="right_bin_handle" link2="right_ee_link" reason="Adjacent" />
+    <disable_collisions link1="right_bin" link2="right_bin_clamp_1" reason="Adjacent" />
+    <disable_collisions link1="right_bin" link2="right_bin_clamp_2" reason="Adjacent" />
+    <disable_collisions link1="right_bin" link2="right_wrist_3_link" reason="Adjacent" />
+    <disable_collisions link1="right_bin" link2="right_gripper_finger1_finger_tip_link" reason="Adjacent" />
+    <disable_collisions link1="right_bin" link2="right_gripper_finger1_knuckle_link" reason="Adjacent" />
+    <disable_collisions link1="right_bin" link2="right_gripper_finger2_finger_tip_link" reason="Adjacent" />
+    <disable_collisions link1="right_bin" link2="right_gripper_finger2_knuckle_link" reason="Adjacent" />
+    <disable_collisions link1="right_bin" link2="right_gripper_finger3_finger_tip_link" reason="Adjacent" />
+    <disable_collisions link1="right_bin" link2="right_gripper_finger3_knuckle_link" reason="Adjacent" />
+    <disable_collisions link1="right_bin_clamp_1" link2="right_gripper_finger1_finger_tip_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_1" link2="right_gripper_finger1_knuckle_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_1" link2="right_gripper_finger2_finger_tip_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_1" link2="right_gripper_finger2_knuckle_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_1" link2="right_gripper_finger3_finger_tip_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_1" link2="right_gripper_finger3_knuckle_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_1" link2="right_wrist_3_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_1" link2="right_gripper_base_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_1" link2="right_ee_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_2" link2="right_gripper_finger1_finger_tip_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_2" link2="right_gripper_finger1_knuckle_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_2" link2="right_gripper_finger2_finger_tip_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_2" link2="right_gripper_finger2_knuckle_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_2" link2="right_gripper_finger3_finger_tip_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_2" link2="right_gripper_finger3_knuckle_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_2" link2="right_wrist_3_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_2" link2="right_gripper_base_link" reason="Never" />
+    <disable_collisions link1="right_bin_clamp_2" link2="right_ee_link" reason="Never" />
+    <!-- bin specific disabled collisions -->
+
+
     <disable_collisions link1="base_chassis_link" link2="front_laser_link" reason="Adjacent" />
     <disable_collisions link1="base_chassis_link" link2="camera_link" reason="Never" />
     <disable_collisions link1="base_chassis_link" link2="left_base_link" reason="Never" />
