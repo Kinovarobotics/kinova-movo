@@ -365,13 +365,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	<xacro:property name="isright" value="${prefix}"/>
 	<xacro:if value="${isright == 'right_'}">
-		<material name="wood">
-			<texture filename="manipulation/jaco/wood_texture.material"/>
-		</material>
-
 		<material name="black">
 			<color rgba="0 0 0 1"/>
 		</material>
+
+		<material name="brown">
+			<color rgba="${222/255} ${207/255} ${195/255} 1.0"/>
+		</material>
+
 
 		<joint name="${prefix}bin_handle_joint" type="fixed">
 			<parent link="${prefix}ee_link"/>			     
@@ -414,7 +415,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 				<geometry>
 					<box size="0.305 0.1524 0.2032"/>
 				</geometry>
-				<material name="wood"/>
+				<material name="brown"/>
 			</visual>
 			<collision>
 				<geometry>
