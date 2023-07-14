@@ -1,3 +1,5 @@
+# Important
+We ended support of the MOVO platform
 # movo_v1
 MOVO repository for the Kinova mobile manipulator
 
